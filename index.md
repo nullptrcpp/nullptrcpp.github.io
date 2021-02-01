@@ -2,3 +2,4 @@
 
 
 ### [ccache](ccache/index.md)
+### [ninja](ninja/index.md)
