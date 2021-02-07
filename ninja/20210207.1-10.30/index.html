@@ -1,0 +1,1503 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Plist HTML Viewer</title>
+
+    <meta charset="UTF-8">
+
+    <style type="text/css">
+      .severity-low {
+  background-color: #669603;
+}
+
+.severity-low:after {
+  content : 'L';
+}
+
+.severity-unspecified {
+  background-color: #666666;
+}
+
+.severity-unspecified:after {
+  content : 'U';
+}
+
+.severity-style {
+  background-color: #9932cc;
+}
+
+.severity-style:after {
+  content : 'S';
+}
+
+.severity-medium {
+  background-color: #a9d323;
+  color: black;
+}
+
+.severity-medium:after {
+  content : 'M';
+}
+
+.severity-high {
+  background-color: #ffa800;
+}
+
+.severity-high:after {
+  content : 'H';
+}
+
+.severity-critical {
+  background-color: #e92625;
+}
+
+.severity-critical:after {
+  content : 'C';
+}
+
+i[class*="severity-"] {
+  line-height: normal;
+  text-transform: capitalize;
+  font-size: 0.8em;
+  font-weight: bold;
+  color: white;
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  text-align: center;
+  font-family: sans-serif;
+}
+
+      html, body {
+  width: 100%;
+  height: 100%;
+  padding: 0px;
+  margin: 0px;
+}
+
+div.container {
+  padding: 10px;
+}
+
+#content {
+  height: 100%;
+  display: block;
+  overflow: hidden;
+}
+
+#content > div {
+  margin: 10px;
+  overflow: hidden;
+  border: 1px solid #ddd;
+  border-radius: 3px;
+  overflow: hidden;
+  height: 97%;
+}
+
+.button {
+  background-color: #f1f1f1;
+  text-decoration: none;
+  display: inline-block;
+  padding: 8px 16px;
+  color: black;
+  cursor: pointer;
+}
+
+.button:hover {
+  background-color: #ddd;
+  color: black;
+}
+
+.review-status {
+  color: white;
+  text-align: center;
+}
+
+.review-status-confirmed {
+  background-color: #e92625;
+}
+
+.review-status-false-positive {
+  background-color: grey;
+}
+
+.review-status-intentional {
+  background-color: #669603;
+}
+
+      table th {
+  font-size: 1.2em;
+  color: #fff;
+  line-height: 1.4;
+  background-color: #007ea7;
+}
+
+table th.active,
+table th.sortable:hover {
+  cursor: pointer;
+  background-color: #2da6ce;
+}
+
+table tr:nth-child(even) {
+  background-color: #f5f5f5;
+}
+
+table tr > td {
+  padding: 5px;
+}
+
+      #report-list {
+  width: 100%;
+}
+
+#report-list .bug-path-length {
+  width: 5%;
+  text-align: center;
+}
+
+#report-list .severity {
+  text-align: center;
+}
+
+    </style>
+
+    <script>
+      function setNonCompatibleBrowserMessage() {
+  document.body.innerHTML =
+    '<h2 style="margin-left: 20px;">Your browser is not compatible with CodeChecker Viewer!</h2> \
+     <p style="margin-left: 20px;">The version required for the following browsers are:</p> \
+     <ul style="margin-left: 20px;"> \
+     <li>Internet Explorer: version 9 or newer</li> \
+     <li>Firefox: version 22.0 or newer</li> \
+     </ul>';
+}
+
+// http://stackoverflow.com/questions/5916900/how-can-you-detect-the-version-of-a-browser
+var browserVersion = (function(){
+  var ua = navigator.userAgent, tem,
+    M = ua.match(/(opera|chrome|safari|firefox|msie|trident(?=\/))\/?\s*(\d+)/i) || [];
+
+  if (/trident/i.test(M[1])) {
+    tem = /\brv[ :]+(\d+)/g.exec(ua) || [];
+    return 'IE ' + (tem[1] || '');
+  }
+
+  if (M[1] === 'Chrome') {
+    tem = ua.match(/\b(OPR|Edge)\/(\d+)/);
+    if (tem != null) return tem.slice(1).join(' ').replace('OPR', 'Opera');
+  }
+
+  M = M[2] ? [M[1], M[2]] : [navigator.appName, navigator.appVersion, '-?'];
+  if ((tem = ua.match(/version\/(\d+)/i)) != null) M.splice(1, 1, tem[1]);
+    return M.join(' ');
+})();
+
+var pos = browserVersion.indexOf(' ');
+var browser = browserVersion.substr(0, pos);
+var version = parseInt(browserVersion.substr(pos + 1));
+
+var browserCompatible
+  = browser === 'Firefox'
+  ? version >= 22
+  : browser === 'IE'
+  ? version >= 9
+  : true;
+
+      // -------------------------------------------------------------------------
+//  Part of the CodeChecker project, under the Apache License v2.0 with
+//  LLVM Exceptions. See LICENSE for license information.
+//  SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+// -------------------------------------------------------------------------
+
+var BugList = {
+
+  init : function () {
+    this.initTableSort();
+    this.initBugPathLength();
+    this.initByUrl();
+  },
+
+  initTableSort : function () {
+    var that = this;
+
+    var table = document.getElementById('report-list');
+    table.querySelectorAll('th').forEach(function (column) {
+      if (that.canSort(column.id)) {
+        column.addEventListener('click', function () {
+          that.sort(column.id);
+        });
+        column.classList.add('sortable');
+      }
+    });
+  },
+
+  initBugPathLength : function () {
+    var that = this;
+
+    document.querySelectorAll('.bug-path-length').forEach(
+    function (widget) {
+      widget.style.backgroundColor =
+        that.generateRedGreenGradientColor(widget.innerHTML, 20, 0.5);
+    });
+  },
+
+  initByUrl : function () {
+    var state = {};
+    window.location.hash.substr(1).split('&').forEach(function (s) {
+      var parts = s.split('=');
+      state[parts[0]] = parts[1];
+    });
+
+    var column = state['sort'] ? state['sort'] : 'file-path';
+    var asc = state['asc'] ? !!parseInt(state['asc']) : true;
+    this.sort(column, asc);
+  },
+
+  generateRedGreenGradientColor : function (value, max, opacity) {
+    var red   = (255 * value) / max;
+    var green = (255 * (max - value)) / max;
+    var blue  = 0;
+    return 'rgba(' + parseInt(red) + ',' + parseInt(green) + ',' + blue
+      + ',' + opacity + ')';
+  },
+
+  canSort : function (columnId) {
+    return columnId === 'report-id' ||
+           columnId === 'file-path' ||
+           columnId === 'severity' ||
+           columnId === 'checker-name' ||
+           columnId === 'message' ||
+           columnId === 'bug-path-length' ||
+           columnId === 'review-status';
+  },
+
+  compare : function (columnId, a, b, asc) {
+    switch (columnId) {
+      case 'report-id':
+      case 'bug-path-length':
+        return asc
+          ? parseInt(a.innerHTML) > parseInt(b.innerHTML)
+          : parseInt(a.innerHTML) < parseInt(b.innerHTML);
+
+      case 'file-path':
+        var fileA = a.getAttribute('file');
+        var fileB = b.getAttribute('file');
+        var lineA = parseInt(a.getAttribute('line'));
+        var lineB = parseInt(b.getAttribute('line'));
+
+        if (asc) {
+          if (fileA > fileB) {
+            return true;
+          } else if (fileA === fileB) {
+            return lineA > lineB ? true : false;
+          } else {
+            return false;
+          }
+        } else {
+          if (fileA < fileB) {
+            return true;
+          } else if (fileA === fileB) {
+            return lineA < lineB ? true : false;
+          } else {
+            return false;
+          }
+        }
+
+      case 'severity':
+        return asc
+          ? a.getAttribute('severity') > b.getAttribute('severity')
+          : a.getAttribute('severity') < b.getAttribute('severity');
+
+      default:
+        return asc
+          ? a.innerHTML.toLowerCase() > b.innerHTML.toLowerCase()
+          : a.innerHTML.toLowerCase() < b.innerHTML.toLowerCase();
+    }
+  },
+
+  sort : function (columnId, asc) {
+    var rows = null,
+        switching = true,
+        i, j, x, y, minIdx;
+
+    var table = document.getElementById('report-list');
+    var column = document.getElementById(columnId);
+    var cellIndex = column.cellIndex;
+
+    if (asc === undefined) {
+      asc = column.getAttribute('sort') === 'desc' ? false : true;
+    }
+
+    var n = table.rows.length;
+    for (i = 1; i < n - 1; i++)
+    {
+      minIdx = i;
+      for (j = i + 1; j < n; j++) {
+        x = table.rows[minIdx].getElementsByTagName('td')[cellIndex];
+        y = table.rows[j].getElementsByTagName('td')[cellIndex];
+        if (this.compare(columnId, x, y, asc)) {
+          minIdx = j;
+        }
+      }
+
+      if (minIdx !== i) {
+        table.rows[i].parentNode.insertBefore(
+          table.rows[minIdx], table.rows[i]);
+      }
+    }
+
+    table.querySelectorAll('th').forEach(function (column) {
+      column.removeAttribute('sort');
+      column.classList.remove('active');
+    });
+
+    column.classList.add('active');
+    column.setAttribute('sort', asc ? 'desc' : 'asc');
+    window.location.hash = '#sort=' + columnId + '&asc=' + (asc ? 1 : 0);
+  }
+};
+
+
+      window.onload = function () {
+        if (!browserCompatible) {
+          setNonCompatibleBrowserMessage();
+        } else {
+          BugList.init()
+        }
+      }
+    </script>
+  </head>
+  <body>
+  <div class="container">
+    <a href="statistics.html" class="button">Go To Statistics</a>
+    <table id="report-list">
+      
+                <tr>
+                  <th id="report-id">&nbsp;</th>
+                  <th id="file-path">File</th>
+                  <th id="severity">Severity</th>
+                  <th id="checker-name">Checker name</th>
+                  <th id="message">Message</th>
+                  <th id="bug-path-length">Bug path length</th>
+                  <th id="review-status">Review status</th>
+                </tr>
+                  <tr>
+                    <td>1</td>
+                    <td file="/home/vsts/work/1/ninja/src/browse.cc" line="23">
+                      <a href="browse.cc_clang-tidy_e9b6568a325e4c2c7c11fed75c04fb62.plist.html#reportHash=ca5f7eeca0d64f8860bae7d060de9e99">
+                        /home/vsts/work/1/ninja/src/browse.cc @ Line&nbsp;23
+                      </a>
+                    </td>
+                    <td class="severity" severity="critical">
+                      <i class="severity-critical"
+                         title="critical"></i>
+                    </td>
+                    <td>clang-diagnostic-error</td>
+                    <td>'build/browse_py.h' file not found</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>2</td>
+                    <td file="/home/vsts/work/1/ninja/src/build.cc" line="48">
+                      <a href="build.cc_clang-tidy_888f7d82a16fd856cb017dd8b4118087.plist.html#reportHash=c0ce1b432c18e6ad9dbb1f4a99fb0156">
+                        /home/vsts/work/1/ninja/src/build.cc @ Line&nbsp;48
+                      </a>
+                    </td>
+                    <td class="severity" severity="low">
+                      <i class="severity-low"
+                         title="low"></i>
+                    </td>
+                    <td>cppcoreguidelines-special-member-functions</td>
+                    <td>class 'DryRunCommandRunner' defines a non-default destructor but does not define a copy constructor, a copy assignment operator, a move constructor or a move assignment operator</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>3</td>
+                    <td file="/home/vsts/work/1/ninja/src/build.cc" line="667">
+                      <a href="build.cc_clang-tidy_888f7d82a16fd856cb017dd8b4118087.plist.html#reportHash=62830decb2829d4f05890edbdbc6361e">
+                        /home/vsts/work/1/ninja/src/build.cc @ Line&nbsp;667
+                      </a>
+                    </td>
+                    <td class="severity" severity="low">
+                      <i class="severity-low"
+                         title="low"></i>
+                    </td>
+                    <td>cppcoreguidelines-special-member-functions</td>
+                    <td>class 'RealCommandRunner' defines a non-default destructor but does not define a copy constructor, a copy assignment operator, a move constructor or a move assignment operator</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>4</td>
+                    <td file="/home/vsts/work/1/ninja/src/build.h" line="138">
+                      <a href="build_test.cc_clang-tidy_2dae0a1fea107b7ba9ab2a662ff23831.plist.html#reportHash=c00ecb5e431df3685d9d754ec2ff8907">
+                        /home/vsts/work/1/ninja/src/build.h @ Line&nbsp;138
+                      </a>
+                    </td>
+                    <td class="severity" severity="low">
+                      <i class="severity-low"
+                         title="low"></i>
+                    </td>
+                    <td>cppcoreguidelines-special-member-functions</td>
+                    <td>class 'CommandRunner' defines a non-default destructor but does not define a copy constructor, a copy assignment operator, a move constructor or a move assignment operator</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>5</td>
+                    <td file="/home/vsts/work/1/ninja/src/build.h" line="179">
+                      <a href="build_test.cc_clang-tidy_2dae0a1fea107b7ba9ab2a662ff23831.plist.html#reportHash=d1f5efdfee94c5301a991df0896277dc">
+                        /home/vsts/work/1/ninja/src/build.h @ Line&nbsp;179
+                      </a>
+                    </td>
+                    <td class="severity" severity="low">
+                      <i class="severity-low"
+                         title="low"></i>
+                    </td>
+                    <td>cppcoreguidelines-special-member-functions</td>
+                    <td>class 'Builder' defines a non-default destructor, a copy constructor and a copy assignment operator but does not define a move constructor or a move assignment operator</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>6</td>
+                    <td file="/home/vsts/work/1/ninja/src/build_log.h" line="43">
+                      <a href="build_log_test.cc_clang-tidy_3460a95aa79e41aac3135c7f945109bd.plist.html#reportHash=196d99850d22c5e0107d355f9f77df8f">
+                        /home/vsts/work/1/ninja/src/build_log.h @ Line&nbsp;43
+                      </a>
+                    </td>
+                    <td class="severity" severity="low">
+                      <i class="severity-low"
+                         title="low"></i>
+                    </td>
+                    <td>cppcoreguidelines-special-member-functions</td>
+                    <td>class 'BuildLog' defines a non-default destructor but does not define a copy constructor, a copy assignment operator, a move constructor or a move assignment operator</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>7</td>
+                    <td file="/home/vsts/work/1/ninja/src/build_log_test.cc" line="44">
+                      <a href="build_log_test.cc_clang-tidy_3460a95aa79e41aac3135c7f945109bd.plist.html#reportHash=8cba80f86d69446f9f7590e385203562">
+                        /home/vsts/work/1/ninja/src/build_log_test.cc @ Line&nbsp;44
+                      </a>
+                    </td>
+                    <td class="severity" severity="medium">
+                      <i class="severity-medium"
+                         title="medium"></i>
+                    </td>
+                    <td>clang-diagnostic-unused-parameter</td>
+                    <td>unused parameter 's'</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>8</td>
+                    <td file="/home/vsts/work/1/ninja/src/build_log_test.cc" line="223">
+                      <a href="build_log_test.cc_clang-tidy_3460a95aa79e41aac3135c7f945109bd.plist.html#reportHash=6ee427b40748185e8c5ee77b604bac04">
+                        /home/vsts/work/1/ninja/src/build_log_test.cc @ Line&nbsp;223
+                      </a>
+                    </td>
+                    <td class="severity" severity="medium">
+                      <i class="severity-medium"
+                         title="medium"></i>
+                    </td>
+                    <td>clang-diagnostic-unused-parameter</td>
+                    <td>unused parameter 'path'</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>9</td>
+                    <td file="/home/vsts/work/1/ninja/src/build_log_test.cc" line="223">
+                      <a href="build_log_test.cc_clang-tidy_3460a95aa79e41aac3135c7f945109bd.plist.html#reportHash=70934341bb6fc7bb86418d6f86418c03">
+                        /home/vsts/work/1/ninja/src/build_log_test.cc @ Line&nbsp;223
+                      </a>
+                    </td>
+                    <td class="severity" severity="medium">
+                      <i class="severity-medium"
+                         title="medium"></i>
+                    </td>
+                    <td>clang-diagnostic-unused-parameter</td>
+                    <td>unused parameter 'err'</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>10</td>
+                    <td file="/home/vsts/work/1/ninja/src/build_log_test.cc" line="226">
+                      <a href="build_log_test.cc_clang-tidy_3460a95aa79e41aac3135c7f945109bd.plist.html#reportHash=c97efe06d6abaae3b37dc2a2cea9df1a">
+                        /home/vsts/work/1/ninja/src/build_log_test.cc @ Line&nbsp;226
+                      </a>
+                    </td>
+                    <td class="severity" severity="medium">
+                      <i class="severity-medium"
+                         title="medium"></i>
+                    </td>
+                    <td>clang-diagnostic-unused-parameter</td>
+                    <td>unused parameter 'path'</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>11</td>
+                    <td file="/home/vsts/work/1/ninja/src/build_log_test.cc" line="226">
+                      <a href="build_log_test.cc_clang-tidy_3460a95aa79e41aac3135c7f945109bd.plist.html#reportHash=cac06940c8cc22892aec7af7b0368e2e">
+                        /home/vsts/work/1/ninja/src/build_log_test.cc @ Line&nbsp;226
+                      </a>
+                    </td>
+                    <td class="severity" severity="medium">
+                      <i class="severity-medium"
+                         title="medium"></i>
+                    </td>
+                    <td>clang-diagnostic-unused-parameter</td>
+                    <td>unused parameter 'contents'</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>12</td>
+                    <td file="/home/vsts/work/1/ninja/src/build_log_test.cc" line="230">
+                      <a href="build_log_test.cc_clang-tidy_3460a95aa79e41aac3135c7f945109bd.plist.html#reportHash=f71fb2ba9c6272eee30e43abd6894fbd">
+                        /home/vsts/work/1/ninja/src/build_log_test.cc @ Line&nbsp;230
+                      </a>
+                    </td>
+                    <td class="severity" severity="medium">
+                      <i class="severity-medium"
+                         title="medium"></i>
+                    </td>
+                    <td>clang-diagnostic-unused-parameter</td>
+                    <td>unused parameter 'path'</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>13</td>
+                    <td file="/home/vsts/work/1/ninja/src/build_log_test.cc" line="234">
+                      <a href="build_log_test.cc_clang-tidy_3460a95aa79e41aac3135c7f945109bd.plist.html#reportHash=61e2fdb8392601b9a1502f948c798a68">
+                        /home/vsts/work/1/ninja/src/build_log_test.cc @ Line&nbsp;234
+                      </a>
+                    </td>
+                    <td class="severity" severity="medium">
+                      <i class="severity-medium"
+                         title="medium"></i>
+                    </td>
+                    <td>clang-diagnostic-unused-parameter</td>
+                    <td>unused parameter 'path'</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>14</td>
+                    <td file="/home/vsts/work/1/ninja/src/build_log_test.cc" line="234">
+                      <a href="build_log_test.cc_clang-tidy_3460a95aa79e41aac3135c7f945109bd.plist.html#reportHash=039de81b6ec9aed89ffa00be96cb1899">
+                        /home/vsts/work/1/ninja/src/build_log_test.cc @ Line&nbsp;234
+                      </a>
+                    </td>
+                    <td class="severity" severity="medium">
+                      <i class="severity-medium"
+                         title="medium"></i>
+                    </td>
+                    <td>clang-diagnostic-unused-parameter</td>
+                    <td>unused parameter 'contents'</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>15</td>
+                    <td file="/home/vsts/work/1/ninja/src/build_log_test.cc" line="234">
+                      <a href="build_log_test.cc_clang-tidy_3460a95aa79e41aac3135c7f945109bd.plist.html#reportHash=66bca8a3e5e58a4bb9fc146caa6c6127">
+                        /home/vsts/work/1/ninja/src/build_log_test.cc @ Line&nbsp;234
+                      </a>
+                    </td>
+                    <td class="severity" severity="medium">
+                      <i class="severity-medium"
+                         title="medium"></i>
+                    </td>
+                    <td>clang-diagnostic-unused-parameter</td>
+                    <td>unused parameter 'err'</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>16</td>
+                    <td file="/home/vsts/work/1/ninja/src/build_log_test.cc" line="238">
+                      <a href="build_log_test.cc_clang-tidy_3460a95aa79e41aac3135c7f945109bd.plist.html#reportHash=00b5005cbaf20ee16edcd1dc80b34a62">
+                        /home/vsts/work/1/ninja/src/build_log_test.cc @ Line&nbsp;238
+                      </a>
+                    </td>
+                    <td class="severity" severity="medium">
+                      <i class="severity-medium"
+                         title="medium"></i>
+                    </td>
+                    <td>clang-diagnostic-unused-parameter</td>
+                    <td>unused parameter 'path'</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>17</td>
+                    <td file="/home/vsts/work/1/ninja/src/build_test.cc" line="487">
+                      <a href="build_test.cc_clang-tidy_2dae0a1fea107b7ba9ab2a662ff23831.plist.html#reportHash=3a5e747adaa55ff949ea45a4897e73c6">
+                        /home/vsts/work/1/ninja/src/build_test.cc @ Line&nbsp;487
+                      </a>
+                    </td>
+                    <td class="severity" severity="low">
+                      <i class="severity-low"
+                         title="low"></i>
+                    </td>
+                    <td>cppcoreguidelines-special-member-functions</td>
+                    <td>class 'BuildTest' defines a non-default destructor but does not define a copy constructor, a copy assignment operator, a move constructor or a move assignment operator</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>18</td>
+                    <td file="/home/vsts/work/1/ninja/src/build_test.cc" line="514">
+                      <a href="build_test.cc_clang-tidy_2dae0a1fea107b7ba9ab2a662ff23831.plist.html#reportHash=5738671e40fae0e802c10b8b0b347495">
+                        /home/vsts/work/1/ninja/src/build_test.cc @ Line&nbsp;514
+                      </a>
+                    </td>
+                    <td class="severity" severity="medium">
+                      <i class="severity-medium"
+                         title="medium"></i>
+                    </td>
+                    <td>clang-diagnostic-unused-parameter</td>
+                    <td>unused parameter 's'</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>19</td>
+                    <td file="/home/vsts/work/1/ninja/src/build_test.cc" line="1874">
+                      <a href="build_test.cc_clang-tidy_2dae0a1fea107b7ba9ab2a662ff23831.plist.html#reportHash=83d26627d1c2c0e635fcb475993f4c47">
+                        /home/vsts/work/1/ninja/src/build_test.cc @ Line&nbsp;1874
+                      </a>
+                    </td>
+                    <td class="severity" severity="low">
+                      <i class="severity-low"
+                         title="low"></i>
+                    </td>
+                    <td>cppcoreguidelines-special-member-functions</td>
+                    <td>class 'BuildWithQueryDepsLogTest' defines a non-default destructor but does not define a copy constructor, a copy assignment operator, a move constructor or a move assignment operator</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>20</td>
+                    <td file="/home/vsts/work/1/ninja/src/clparser_perftest.cc" line="23">
+                      <a href="clparser_perftest.cc_clang-tidy_56101d205868f0b455b5a367f64abf7f.plist.html#reportHash=2081f2ebf9d36a7684466eec771f679d">
+                        /home/vsts/work/1/ninja/src/clparser_perftest.cc @ Line&nbsp;23
+                      </a>
+                    </td>
+                    <td class="severity" severity="medium">
+                      <i class="severity-medium"
+                         title="medium"></i>
+                    </td>
+                    <td>clang-diagnostic-unused-parameter</td>
+                    <td>unused parameter 'argc'</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>21</td>
+                    <td file="/home/vsts/work/1/ninja/src/clparser_perftest.cc" line="23">
+                      <a href="clparser_perftest.cc_clang-tidy_56101d205868f0b455b5a367f64abf7f.plist.html#reportHash=35eb38f53bc8226fb9d5a64eb521947f">
+                        /home/vsts/work/1/ninja/src/clparser_perftest.cc @ Line&nbsp;23
+                      </a>
+                    </td>
+                    <td class="severity" severity="medium">
+                      <i class="severity-medium"
+                         title="medium"></i>
+                    </td>
+                    <td>clang-diagnostic-unused-parameter</td>
+                    <td>unused parameter 'argv'</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>22</td>
+                    <td file="/home/vsts/work/1/ninja/src/deps_log.h" line="68">
+                      <a href="deps_log.cc_clang-tidy_fa05a200426df6183774018b87d13ef9.plist.html#reportHash=36c4859c147ada4bdc9b6f783c1b5758">
+                        /home/vsts/work/1/ninja/src/deps_log.h @ Line&nbsp;68
+                      </a>
+                    </td>
+                    <td class="severity" severity="low">
+                      <i class="severity-low"
+                         title="low"></i>
+                    </td>
+                    <td>cppcoreguidelines-special-member-functions</td>
+                    <td>class 'DepsLog' defines a non-default destructor but does not define a copy constructor, a copy assignment operator, a move constructor or a move assignment operator</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>23</td>
+                    <td file="/home/vsts/work/1/ninja/src/deps_log.h" line="79">
+                      <a href="deps_log.cc_clang-tidy_fa05a200426df6183774018b87d13ef9.plist.html#reportHash=0c7035bfeeceab2f1d1e99519bfd74c3">
+                        /home/vsts/work/1/ninja/src/deps_log.h @ Line&nbsp;79
+                      </a>
+                    </td>
+                    <td class="severity" severity="low">
+                      <i class="severity-low"
+                         title="low"></i>
+                    </td>
+                    <td>cppcoreguidelines-special-member-functions</td>
+                    <td>class 'Deps' defines a non-default destructor but does not define a copy constructor, a copy assignment operator, a move constructor or a move assignment operator</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>24</td>
+                    <td file="/home/vsts/work/1/ninja/src/disk_interface.cc" line="281">
+                      <a href="disk_interface.cc_clang-tidy_461eddabba3b279b7565a1d83bfdc3df.plist.html#reportHash=6a1759ad4c9912b9078cbe6b880f1d61">
+                        /home/vsts/work/1/ninja/src/disk_interface.cc @ Line&nbsp;281
+                      </a>
+                    </td>
+                    <td class="severity" severity="medium">
+                      <i class="severity-medium"
+                         title="medium"></i>
+                    </td>
+                    <td>clang-diagnostic-unused-parameter</td>
+                    <td>unused parameter 'allow'</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>25</td>
+                    <td file="/home/vsts/work/1/ninja/src/disk_interface.h" line="25">
+                      <a href="build_log_test.cc_clang-tidy_3460a95aa79e41aac3135c7f945109bd.plist.html#reportHash=9201096bf66b3d9bc5803c445039ed05">
+                        /home/vsts/work/1/ninja/src/disk_interface.h @ Line&nbsp;25
+                      </a>
+                    </td>
+                    <td class="severity" severity="low">
+                      <i class="severity-low"
+                         title="low"></i>
+                    </td>
+                    <td>cppcoreguidelines-special-member-functions</td>
+                    <td>class 'FileReader' defines a non-default destructor but does not define a copy constructor, a copy assignment operator, a move constructor or a move assignment operator</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>26</td>
+                    <td file="/home/vsts/work/1/ninja/src/disk_interface.h" line="71">
+                      <a href="build_log_test.cc_clang-tidy_3460a95aa79e41aac3135c7f945109bd.plist.html#reportHash=b84873f7f0cabd32dfb0a5a4b5d54591">
+                        /home/vsts/work/1/ninja/src/disk_interface.h @ Line&nbsp;71
+                      </a>
+                    </td>
+                    <td class="severity" severity="low">
+                      <i class="severity-low"
+                         title="low"></i>
+                    </td>
+                    <td>cppcoreguidelines-special-member-functions</td>
+                    <td>class 'RealDiskInterface' defines a non-default destructor but does not define a copy constructor, a copy assignment operator, a move constructor or a move assignment operator</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>27</td>
+                    <td file="/home/vsts/work/1/ninja/src/disk_interface_test.cc" line="222">
+                      <a href="disk_interface_test.cc_clang-tidy_ee317f0c88e8a513d7500522371214e7.plist.html#reportHash=5ea5ce1d17a0ee42a37f2b2f0665271e">
+                        /home/vsts/work/1/ninja/src/disk_interface_test.cc @ Line&nbsp;222
+                      </a>
+                    </td>
+                    <td class="severity" severity="medium">
+                      <i class="severity-medium"
+                         title="medium"></i>
+                    </td>
+                    <td>clang-diagnostic-unused-parameter</td>
+                    <td>unused parameter 'path'</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>28</td>
+                    <td file="/home/vsts/work/1/ninja/src/disk_interface_test.cc" line="222">
+                      <a href="disk_interface_test.cc_clang-tidy_ee317f0c88e8a513d7500522371214e7.plist.html#reportHash=9155d091893384b0bf79222a06e6e3fe">
+                        /home/vsts/work/1/ninja/src/disk_interface_test.cc @ Line&nbsp;222
+                      </a>
+                    </td>
+                    <td class="severity" severity="medium">
+                      <i class="severity-medium"
+                         title="medium"></i>
+                    </td>
+                    <td>clang-diagnostic-unused-parameter</td>
+                    <td>unused parameter 'contents'</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>29</td>
+                    <td file="/home/vsts/work/1/ninja/src/disk_interface_test.cc" line="226">
+                      <a href="disk_interface_test.cc_clang-tidy_ee317f0c88e8a513d7500522371214e7.plist.html#reportHash=f2da1690da397f9d85b7f021e1c784e2">
+                        /home/vsts/work/1/ninja/src/disk_interface_test.cc @ Line&nbsp;226
+                      </a>
+                    </td>
+                    <td class="severity" severity="medium">
+                      <i class="severity-medium"
+                         title="medium"></i>
+                    </td>
+                    <td>clang-diagnostic-unused-parameter</td>
+                    <td>unused parameter 'path'</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>30</td>
+                    <td file="/home/vsts/work/1/ninja/src/disk_interface_test.cc" line="230">
+                      <a href="disk_interface_test.cc_clang-tidy_ee317f0c88e8a513d7500522371214e7.plist.html#reportHash=71e6a35479a8a2e419f8f55e52a7bf3b">
+                        /home/vsts/work/1/ninja/src/disk_interface_test.cc @ Line&nbsp;230
+                      </a>
+                    </td>
+                    <td class="severity" severity="medium">
+                      <i class="severity-medium"
+                         title="medium"></i>
+                    </td>
+                    <td>clang-diagnostic-unused-parameter</td>
+                    <td>unused parameter 'path'</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>31</td>
+                    <td file="/home/vsts/work/1/ninja/src/disk_interface_test.cc" line="230">
+                      <a href="disk_interface_test.cc_clang-tidy_ee317f0c88e8a513d7500522371214e7.plist.html#reportHash=dfe87925d34aba8c0817942af5211ae8">
+                        /home/vsts/work/1/ninja/src/disk_interface_test.cc @ Line&nbsp;230
+                      </a>
+                    </td>
+                    <td class="severity" severity="medium">
+                      <i class="severity-medium"
+                         title="medium"></i>
+                    </td>
+                    <td>clang-diagnostic-unused-parameter</td>
+                    <td>unused parameter 'contents'</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>32</td>
+                    <td file="/home/vsts/work/1/ninja/src/disk_interface_test.cc" line="230">
+                      <a href="disk_interface_test.cc_clang-tidy_ee317f0c88e8a513d7500522371214e7.plist.html#reportHash=e41d050a5d6a7b0c0f6e8972fc454dce">
+                        /home/vsts/work/1/ninja/src/disk_interface_test.cc @ Line&nbsp;230
+                      </a>
+                    </td>
+                    <td class="severity" severity="medium">
+                      <i class="severity-medium"
+                         title="medium"></i>
+                    </td>
+                    <td>clang-diagnostic-unused-parameter</td>
+                    <td>unused parameter 'err'</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>33</td>
+                    <td file="/home/vsts/work/1/ninja/src/disk_interface_test.cc" line="234">
+                      <a href="disk_interface_test.cc_clang-tidy_ee317f0c88e8a513d7500522371214e7.plist.html#reportHash=89a6ed65d6bdbbefee00a398c06a4e32">
+                        /home/vsts/work/1/ninja/src/disk_interface_test.cc @ Line&nbsp;234
+                      </a>
+                    </td>
+                    <td class="severity" severity="medium">
+                      <i class="severity-medium"
+                         title="medium"></i>
+                    </td>
+                    <td>clang-diagnostic-unused-parameter</td>
+                    <td>unused parameter 'path'</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>34</td>
+                    <td file="/home/vsts/work/1/ninja/src/disk_interface_test.cc" line="244">
+                      <a href="disk_interface_test.cc_clang-tidy_ee317f0c88e8a513d7500522371214e7.plist.html#reportHash=3cbad75423b246484e880a33fab6d00d">
+                        /home/vsts/work/1/ninja/src/disk_interface_test.cc @ Line&nbsp;244
+                      </a>
+                    </td>
+                    <td class="severity" severity="medium">
+                      <i class="severity-medium"
+                         title="medium"></i>
+                    </td>
+                    <td>clang-diagnostic-unused-parameter</td>
+                    <td>unused parameter 'err'</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>35</td>
+                    <td file="/home/vsts/work/1/ninja/src/eval_env.h" line="27">
+                      <a href="graphviz.cc_clang-tidy_0e60335e4842426a280e1319112757b9.plist.html#reportHash=7c80f5a9f313f5978a265beb9e180abd">
+                        /home/vsts/work/1/ninja/src/eval_env.h @ Line&nbsp;27
+                      </a>
+                    </td>
+                    <td class="severity" severity="low">
+                      <i class="severity-low"
+                         title="low"></i>
+                    </td>
+                    <td>cppcoreguidelines-special-member-functions</td>
+                    <td>class 'Env' defines a non-default destructor but does not define a copy constructor, a copy assignment operator, a move constructor or a move assignment operator</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>36</td>
+                    <td file="/home/vsts/work/1/ninja/src/eval_env.h" line="81">
+                      <a href="graphviz.cc_clang-tidy_0e60335e4842426a280e1319112757b9.plist.html#reportHash=fa4e9056f103439d1f128589c993f00f">
+                        /home/vsts/work/1/ninja/src/eval_env.h @ Line&nbsp;81
+                      </a>
+                    </td>
+                    <td class="severity" severity="low">
+                      <i class="severity-low"
+                         title="low"></i>
+                    </td>
+                    <td>cppcoreguidelines-special-member-functions</td>
+                    <td>class 'BindingEnv' defines a non-default destructor but does not define a copy constructor, a copy assignment operator, a move constructor or a move assignment operator</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>37</td>
+                    <td file="/home/vsts/work/1/ninja/src/graph.cc" line="216">
+                      <a href="graph.cc_clang-tidy_f16570795d8f9a88c49bea707c2a5e7d.plist.html#reportHash=6b1c5516a3c7eb48515d97a86b36c152">
+                        /home/vsts/work/1/ninja/src/graph.cc @ Line&nbsp;216
+                      </a>
+                    </td>
+                    <td class="severity" severity="medium">
+                      <i class="severity-medium"
+                         title="medium"></i>
+                    </td>
+                    <td>clang-diagnostic-unused-parameter</td>
+                    <td>unused parameter 'err'</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>38</td>
+                    <td file="/home/vsts/work/1/ninja/src/graph.cc" line="473">
+                      <a href="graph.cc_clang-tidy_f16570795d8f9a88c49bea707c2a5e7d.plist.html#reportHash=39b3b1db7d2e3673ecb0143f71a3d578">
+                        /home/vsts/work/1/ninja/src/graph.cc @ Line&nbsp;473
+                      </a>
+                    </td>
+                    <td class="severity" severity="medium">
+                      <i class="severity-medium"
+                         title="medium"></i>
+                    </td>
+                    <td>clang-diagnostic-unused-parameter</td>
+                    <td>unused parameter 'slash_bits'</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>39</td>
+                    <td file="/home/vsts/work/1/ninja/src/graph.cc" line="612">
+                      <a href="graph.cc_clang-tidy_f16570795d8f9a88c49bea707c2a5e7d.plist.html#reportHash=4751d8cf240b1482f6e65c09457b1ec2">
+                        /home/vsts/work/1/ninja/src/graph.cc @ Line&nbsp;612
+                      </a>
+                    </td>
+                    <td class="severity" severity="medium">
+                      <i class="severity-medium"
+                         title="medium"></i>
+                    </td>
+                    <td>clang-diagnostic-unused-parameter</td>
+                    <td>unused parameter 'err'</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>40</td>
+                    <td file="/home/vsts/work/1/ninja/src/hash_collision_bench.cc" line="25">
+                      <a href="hash_collision_bench.cc_clang-tidy_d3a2a0c012342139e8b5ee83f87bfa2a.plist.html#reportHash=b9b548bc2142ec81b219aad90fb6b161">
+                        /home/vsts/work/1/ninja/src/hash_collision_bench.cc @ Line&nbsp;25
+                      </a>
+                    </td>
+                    <td class="severity" severity="high">
+                      <i class="severity-high"
+                         title="high"></i>
+                    </td>
+                    <td>bugprone-incorrect-roundings</td>
+                    <td>casting (double + 0.5) to integer leads to incorrect rounding; consider using lround (#include <cmath>) instead</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>41</td>
+                    <td file="/home/vsts/work/1/ninja/src/metrics.h" line="38">
+                      <a href="depfile_parser_perftest.cc_clang-tidy_ed2d1f5b5da4e371c424fef4e6bda0d3.plist.html#reportHash=dd70c8cbcb7fcdeb4ed9a8a3bf08fc44">
+                        /home/vsts/work/1/ninja/src/metrics.h @ Line&nbsp;38
+                      </a>
+                    </td>
+                    <td class="severity" severity="low">
+                      <i class="severity-low"
+                         title="low"></i>
+                    </td>
+                    <td>cppcoreguidelines-special-member-functions</td>
+                    <td>class 'ScopedMetric' defines a non-default destructor but does not define a copy constructor, a copy assignment operator, a move constructor or a move assignment operator</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>42</td>
+                    <td file="/home/vsts/work/1/ninja/src/ninja.cc" line="335">
+                      <a href="ninja.cc_clang-tidy_987c75c226519602d1d955092b5c5cf3.plist.html#reportHash=14be4e6e4d1b7a68fc49f9bdd8b2c53e">
+                        /home/vsts/work/1/ninja/src/ninja.cc @ Line&nbsp;335
+                      </a>
+                    </td>
+                    <td class="severity" severity="medium">
+                      <i class="severity-medium"
+                         title="medium"></i>
+                    </td>
+                    <td>clang-diagnostic-unused-parameter</td>
+                    <td>unused parameter 'options'</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>43</td>
+                    <td file="/home/vsts/work/1/ninja/src/ninja.cc" line="352">
+                      <a href="ninja.cc_clang-tidy_987c75c226519602d1d955092b5c5cf3.plist.html#reportHash=588e7b80339c79855835c8f94c109ace">
+                        /home/vsts/work/1/ninja/src/ninja.cc @ Line&nbsp;352
+                      </a>
+                    </td>
+                    <td class="severity" severity="medium">
+                      <i class="severity-medium"
+                         title="medium"></i>
+                    </td>
+                    <td>clang-diagnostic-unused-parameter</td>
+                    <td>unused parameter 'options'</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>44</td>
+                    <td file="/home/vsts/work/1/ninja/src/ninja.cc" line="486">
+                      <a href="ninja.cc_clang-tidy_987c75c226519602d1d955092b5c5cf3.plist.html#reportHash=d0aea48ea5adc26ec629af0354ddcdcd">
+                        /home/vsts/work/1/ninja/src/ninja.cc @ Line&nbsp;486
+                      </a>
+                    </td>
+                    <td class="severity" severity="medium">
+                      <i class="severity-medium"
+                         title="medium"></i>
+                    </td>
+                    <td>clang-diagnostic-unused-parameter</td>
+                    <td>unused parameter 'options'</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>45</td>
+                    <td file="/home/vsts/work/1/ninja/src/ninja.cc" line="526">
+                      <a href="ninja.cc_clang-tidy_987c75c226519602d1d955092b5c5cf3.plist.html#reportHash=07285f2a6a8ccafa85676723802e0191">
+                        /home/vsts/work/1/ninja/src/ninja.cc @ Line&nbsp;526
+                      </a>
+                    </td>
+                    <td class="severity" severity="medium">
+                      <i class="severity-medium"
+                         title="medium"></i>
+                    </td>
+                    <td>clang-diagnostic-unused-parameter</td>
+                    <td>unused parameter 'options'</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>46</td>
+                    <td file="/home/vsts/work/1/ninja/src/ninja.cc" line="566">
+                      <a href="ninja.cc_clang-tidy_987c75c226519602d1d955092b5c5cf3.plist.html#reportHash=94dde36fad754110921934db1a067ed3">
+                        /home/vsts/work/1/ninja/src/ninja.cc @ Line&nbsp;566
+                      </a>
+                    </td>
+                    <td class="severity" severity="medium">
+                      <i class="severity-medium"
+                         title="medium"></i>
+                    </td>
+                    <td>clang-diagnostic-unused-parameter</td>
+                    <td>unused parameter 'options'</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>47</td>
+                    <td file="/home/vsts/work/1/ninja/src/ninja.cc" line="632">
+                      <a href="ninja.cc_clang-tidy_987c75c226519602d1d955092b5c5cf3.plist.html#reportHash=83211601ee621157a4bf402ff22d8dca">
+                        /home/vsts/work/1/ninja/src/ninja.cc @ Line&nbsp;632
+                      </a>
+                    </td>
+                    <td class="severity" severity="medium">
+                      <i class="severity-medium"
+                         title="medium"></i>
+                    </td>
+                    <td>clang-diagnostic-unused-parameter</td>
+                    <td>unused parameter 'options'</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>48</td>
+                    <td file="/home/vsts/work/1/ninja/src/ninja.cc" line="674">
+                      <a href="ninja.cc_clang-tidy_987c75c226519602d1d955092b5c5cf3.plist.html#reportHash=e93b4ba79084ce8373f3a931e06dd012">
+                        /home/vsts/work/1/ninja/src/ninja.cc @ Line&nbsp;674
+                      </a>
+                    </td>
+                    <td class="severity" severity="medium">
+                      <i class="severity-medium"
+                         title="medium"></i>
+                    </td>
+                    <td>clang-diagnostic-unused-parameter</td>
+                    <td>unused parameter 'options'</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>49</td>
+                    <td file="/home/vsts/work/1/ninja/src/ninja.cc" line="723">
+                      <a href="ninja.cc_clang-tidy_987c75c226519602d1d955092b5c5cf3.plist.html#reportHash=761523a3bb066c7c6add25a91eb2f0c6">
+                        /home/vsts/work/1/ninja/src/ninja.cc @ Line&nbsp;723
+                      </a>
+                    </td>
+                    <td class="severity" severity="medium">
+                      <i class="severity-medium"
+                         title="medium"></i>
+                    </td>
+                    <td>clang-diagnostic-unused-parameter</td>
+                    <td>unused parameter 'options'</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>50</td>
+                    <td file="/home/vsts/work/1/ninja/src/ninja.cc" line="723">
+                      <a href="ninja.cc_clang-tidy_987c75c226519602d1d955092b5c5cf3.plist.html#reportHash=93f8ebba70924ad5fe6c944665eed6db">
+                        /home/vsts/work/1/ninja/src/ninja.cc @ Line&nbsp;723
+                      </a>
+                    </td>
+                    <td class="severity" severity="medium">
+                      <i class="severity-medium"
+                         title="medium"></i>
+                    </td>
+                    <td>clang-diagnostic-unused-parameter</td>
+                    <td>unused parameter 'argc'</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>51</td>
+                    <td file="/home/vsts/work/1/ninja/src/ninja.cc" line="723">
+                      <a href="ninja.cc_clang-tidy_987c75c226519602d1d955092b5c5cf3.plist.html#reportHash=3833dfc3b89fb5cdf83648f387007899">
+                        /home/vsts/work/1/ninja/src/ninja.cc @ Line&nbsp;723
+                      </a>
+                    </td>
+                    <td class="severity" severity="medium">
+                      <i class="severity-medium"
+                         title="medium"></i>
+                    </td>
+                    <td>clang-diagnostic-unused-parameter</td>
+                    <td>unused parameter 'argv'</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>52</td>
+                    <td file="/home/vsts/work/1/ninja/src/ninja.cc" line="779">
+                      <a href="ninja.cc_clang-tidy_987c75c226519602d1d955092b5c5cf3.plist.html#reportHash=a7802a34f8d64d20031da005b5d13356">
+                        /home/vsts/work/1/ninja/src/ninja.cc @ Line&nbsp;779
+                      </a>
+                    </td>
+                    <td class="severity" severity="medium">
+                      <i class="severity-medium"
+                         title="medium"></i>
+                    </td>
+                    <td>clang-diagnostic-unused-parameter</td>
+                    <td>unused parameter 'options'</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>53</td>
+                    <td file="/home/vsts/work/1/ninja/src/ninja.cc" line="852">
+                      <a href="ninja.cc_clang-tidy_987c75c226519602d1d955092b5c5cf3.plist.html#reportHash=e07bcdee45a922fdf9c5b80196f3e514">
+                        /home/vsts/work/1/ninja/src/ninja.cc @ Line&nbsp;852
+                      </a>
+                    </td>
+                    <td class="severity" severity="medium">
+                      <i class="severity-medium"
+                         title="medium"></i>
+                    </td>
+                    <td>clang-diagnostic-unused-parameter</td>
+                    <td>unused parameter 'options'</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>54</td>
+                    <td file="/home/vsts/work/1/ninja/src/ninja.cc" line="852">
+                      <a href="ninja.cc_clang-tidy_987c75c226519602d1d955092b5c5cf3.plist.html#reportHash=d796c6eef435e12a5719d7ba08d861d7">
+                        /home/vsts/work/1/ninja/src/ninja.cc @ Line&nbsp;852
+                      </a>
+                    </td>
+                    <td class="severity" severity="medium">
+                      <i class="severity-medium"
+                         title="medium"></i>
+                    </td>
+                    <td>clang-diagnostic-unused-parameter</td>
+                    <td>unused parameter 'argc'</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>55</td>
+                    <td file="/home/vsts/work/1/ninja/src/ninja.cc" line="852">
+                      <a href="ninja.cc_clang-tidy_987c75c226519602d1d955092b5c5cf3.plist.html#reportHash=9b280c23e265a76cf39ee7ebf9c9f3ac">
+                        /home/vsts/work/1/ninja/src/ninja.cc @ Line&nbsp;852
+                      </a>
+                    </td>
+                    <td class="severity" severity="medium">
+                      <i class="severity-medium"
+                         title="medium"></i>
+                    </td>
+                    <td>clang-diagnostic-unused-parameter</td>
+                    <td>unused parameter 'argv'</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>56</td>
+                    <td file="/home/vsts/work/1/ninja/src/ninja.cc" line="863">
+                      <a href="ninja.cc_clang-tidy_987c75c226519602d1d955092b5c5cf3.plist.html#reportHash=cfa379915b33c70673ac0c014a23942e">
+                        /home/vsts/work/1/ninja/src/ninja.cc @ Line&nbsp;863
+                      </a>
+                    </td>
+                    <td class="severity" severity="medium">
+                      <i class="severity-medium"
+                         title="medium"></i>
+                    </td>
+                    <td>clang-diagnostic-unused-parameter</td>
+                    <td>unused parameter 'options'</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>57</td>
+                    <td file="/home/vsts/work/1/ninja/src/ninja.cc" line="921">
+                      <a href="ninja.cc_clang-tidy_987c75c226519602d1d955092b5c5cf3.plist.html#reportHash=00f335960a344587b2a70cfb58bceae6">
+                        /home/vsts/work/1/ninja/src/ninja.cc @ Line&nbsp;921
+                      </a>
+                    </td>
+                    <td class="severity" severity="medium">
+                      <i class="severity-medium"
+                         title="medium"></i>
+                    </td>
+                    <td>clang-diagnostic-unused-parameter</td>
+                    <td>unused parameter 'options'</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>58</td>
+                    <td file="/home/vsts/work/1/ninja/src/ninja.cc" line="921">
+                      <a href="ninja.cc_clang-tidy_987c75c226519602d1d955092b5c5cf3.plist.html#reportHash=424742242d04d85637ccd64f13de3a54">
+                        /home/vsts/work/1/ninja/src/ninja.cc @ Line&nbsp;921
+                      </a>
+                    </td>
+                    <td class="severity" severity="medium">
+                      <i class="severity-medium"
+                         title="medium"></i>
+                    </td>
+                    <td>clang-diagnostic-unused-parameter</td>
+                    <td>unused parameter 'argc'</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>59</td>
+                    <td file="/home/vsts/work/1/ninja/src/ninja.cc" line="921">
+                      <a href="ninja.cc_clang-tidy_987c75c226519602d1d955092b5c5cf3.plist.html#reportHash=8b2859c79a4baa16a70f81a886d439c6">
+                        /home/vsts/work/1/ninja/src/ninja.cc @ Line&nbsp;921
+                      </a>
+                    </td>
+                    <td class="severity" severity="medium">
+                      <i class="severity-medium"
+                         title="medium"></i>
+                    </td>
+                    <td>clang-diagnostic-unused-parameter</td>
+                    <td>unused parameter 'argv'</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>60</td>
+                    <td file="/home/vsts/work/1/ninja/src/subprocess.h" line="42">
+                      <a href="subprocess-posix.cc_clang-tidy_ed58ab7914eef9a07c44f5fe3205d095.plist.html#reportHash=b9964734aafe00619c310645c57e9907">
+                        /home/vsts/work/1/ninja/src/subprocess.h @ Line&nbsp;42
+                      </a>
+                    </td>
+                    <td class="severity" severity="low">
+                      <i class="severity-low"
+                         title="low"></i>
+                    </td>
+                    <td>cppcoreguidelines-special-member-functions</td>
+                    <td>class 'Subprocess' defines a non-default destructor but does not define a copy constructor, a copy assignment operator, a move constructor or a move assignment operator</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>61</td>
+                    <td file="/home/vsts/work/1/ninja/src/subprocess.h" line="82">
+                      <a href="subprocess-posix.cc_clang-tidy_ed58ab7914eef9a07c44f5fe3205d095.plist.html#reportHash=1097345f4f0fba53fd0a33ee198f3708">
+                        /home/vsts/work/1/ninja/src/subprocess.h @ Line&nbsp;82
+                      </a>
+                    </td>
+                    <td class="severity" severity="low">
+                      <i class="severity-low"
+                         title="low"></i>
+                    </td>
+                    <td>cppcoreguidelines-special-member-functions</td>
+                    <td>class 'SubprocessSet' defines a non-default destructor but does not define a copy constructor, a copy assignment operator, a move constructor or a move assignment operator</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>62</td>
+                    <td file="/home/vsts/work/1/ninja/src/test.h" line="30">
+                      <a href="build_log_test.cc_clang-tidy_3460a95aa79e41aac3135c7f945109bd.plist.html#reportHash=0767d0c114bb79a7a28ef3a41b00553b">
+                        /home/vsts/work/1/ninja/src/test.h @ Line&nbsp;30
+                      </a>
+                    </td>
+                    <td class="severity" severity="low">
+                      <i class="severity-low"
+                         title="low"></i>
+                    </td>
+                    <td>cppcoreguidelines-special-member-functions</td>
+                    <td>class 'Test' defines a non-default destructor but does not define a copy constructor, a copy assignment operator, a move constructor or a move assignment operator</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+    </table>
+  </div>
+  </body>
+</html>
