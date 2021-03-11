@@ -1,0 +1,2583 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Plist HTML Viewer</title>
+
+    <meta charset="UTF-8">
+
+    <style type="text/css">
+      .severity-low {
+  background-color: #669603;
+}
+
+.severity-low:after {
+  content : 'L';
+}
+
+.severity-unspecified {
+  background-color: #666666;
+}
+
+.severity-unspecified:after {
+  content : 'U';
+}
+
+.severity-style {
+  background-color: #9932cc;
+}
+
+.severity-style:after {
+  content : 'S';
+}
+
+.severity-medium {
+  background-color: #a9d323;
+  color: black;
+}
+
+.severity-medium:after {
+  content : 'M';
+}
+
+.severity-high {
+  background-color: #ffa800;
+}
+
+.severity-high:after {
+  content : 'H';
+}
+
+.severity-critical {
+  background-color: #e92625;
+}
+
+.severity-critical:after {
+  content : 'C';
+}
+
+i[class*="severity-"] {
+  line-height: normal;
+  text-transform: capitalize;
+  font-size: 0.8em;
+  font-weight: bold;
+  color: white;
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  text-align: center;
+  font-family: sans-serif;
+}
+
+      html, body {
+  width: 100%;
+  height: 100%;
+  padding: 0px;
+  margin: 0px;
+}
+
+div.container {
+  padding: 10px;
+}
+
+#content {
+  height: 100%;
+  display: block;
+  overflow: hidden;
+}
+
+#content > div {
+  margin: 10px;
+  overflow: hidden;
+  border: 1px solid #ddd;
+  border-radius: 3px;
+  overflow: hidden;
+  height: 97%;
+}
+
+.button {
+  background-color: #f1f1f1;
+  text-decoration: none;
+  display: inline-block;
+  padding: 8px 16px;
+  color: black;
+  cursor: pointer;
+}
+
+.button:hover {
+  background-color: #ddd;
+  color: black;
+}
+
+.review-status {
+  color: white;
+  text-align: center;
+}
+
+.review-status-confirmed {
+  background-color: #e92625;
+}
+
+.review-status-false-positive {
+  background-color: grey;
+}
+
+.review-status-intentional {
+  background-color: #669603;
+}
+
+      table th {
+  font-size: 1.2em;
+  color: #fff;
+  line-height: 1.4;
+  background-color: #007ea7;
+}
+
+table th.active,
+table th.sortable:hover {
+  cursor: pointer;
+  background-color: #2da6ce;
+}
+
+table tr:nth-child(even) {
+  background-color: #f5f5f5;
+}
+
+table tr > td {
+  padding: 5px;
+}
+
+      #report-list {
+  width: 100%;
+}
+
+#report-list .bug-path-length {
+  width: 5%;
+  text-align: center;
+}
+
+#report-list .severity {
+  text-align: center;
+}
+
+    </style>
+
+    <script>
+      function setNonCompatibleBrowserMessage() {
+  document.body.innerHTML =
+    '<h2 style="margin-left: 20px;">Your browser is not compatible with CodeChecker Viewer!</h2> \
+     <p style="margin-left: 20px;">The version required for the following browsers are:</p> \
+     <ul style="margin-left: 20px;"> \
+     <li>Internet Explorer: version 9 or newer</li> \
+     <li>Firefox: version 22.0 or newer</li> \
+     </ul>';
+}
+
+// http://stackoverflow.com/questions/5916900/how-can-you-detect-the-version-of-a-browser
+var browserVersion = (function(){
+  var ua = navigator.userAgent, tem,
+    M = ua.match(/(opera|chrome|safari|firefox|msie|trident(?=\/))\/?\s*(\d+)/i) || [];
+
+  if (/trident/i.test(M[1])) {
+    tem = /\brv[ :]+(\d+)/g.exec(ua) || [];
+    return 'IE ' + (tem[1] || '');
+  }
+
+  if (M[1] === 'Chrome') {
+    tem = ua.match(/\b(OPR|Edge)\/(\d+)/);
+    if (tem != null) return tem.slice(1).join(' ').replace('OPR', 'Opera');
+  }
+
+  M = M[2] ? [M[1], M[2]] : [navigator.appName, navigator.appVersion, '-?'];
+  if ((tem = ua.match(/version\/(\d+)/i)) != null) M.splice(1, 1, tem[1]);
+    return M.join(' ');
+})();
+
+var pos = browserVersion.indexOf(' ');
+var browser = browserVersion.substr(0, pos);
+var version = parseInt(browserVersion.substr(pos + 1));
+
+var browserCompatible
+  = browser === 'Firefox'
+  ? version >= 22
+  : browser === 'IE'
+  ? version >= 9
+  : true;
+
+      // -------------------------------------------------------------------------
+//  Part of the CodeChecker project, under the Apache License v2.0 with
+//  LLVM Exceptions. See LICENSE for license information.
+//  SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+// -------------------------------------------------------------------------
+
+var BugList = {
+
+  init : function () {
+    this.initTableSort();
+    this.initBugPathLength();
+    this.initByUrl();
+  },
+
+  initTableSort : function () {
+    var that = this;
+
+    var table = document.getElementById('report-list');
+    table.querySelectorAll('th').forEach(function (column) {
+      if (that.canSort(column.id)) {
+        column.addEventListener('click', function () {
+          that.sort(column.id);
+        });
+        column.classList.add('sortable');
+      }
+    });
+  },
+
+  initBugPathLength : function () {
+    var that = this;
+
+    document.querySelectorAll('.bug-path-length').forEach(
+    function (widget) {
+      widget.style.backgroundColor =
+        that.generateRedGreenGradientColor(widget.innerHTML, 20, 0.5);
+    });
+  },
+
+  initByUrl : function () {
+    var state = {};
+    window.location.hash.substr(1).split('&').forEach(function (s) {
+      var parts = s.split('=');
+      state[parts[0]] = parts[1];
+    });
+
+    var column = state['sort'] ? state['sort'] : 'file-path';
+    var asc = state['asc'] ? !!parseInt(state['asc']) : true;
+    this.sort(column, asc);
+  },
+
+  generateRedGreenGradientColor : function (value, max, opacity) {
+    var red   = (255 * value) / max;
+    var green = (255 * (max - value)) / max;
+    var blue  = 0;
+    return 'rgba(' + parseInt(red) + ',' + parseInt(green) + ',' + blue
+      + ',' + opacity + ')';
+  },
+
+  canSort : function (columnId) {
+    return columnId === 'report-id' ||
+           columnId === 'file-path' ||
+           columnId === 'severity' ||
+           columnId === 'checker-name' ||
+           columnId === 'message' ||
+           columnId === 'bug-path-length' ||
+           columnId === 'review-status';
+  },
+
+  compare : function (columnId, a, b, asc) {
+    switch (columnId) {
+      case 'report-id':
+      case 'bug-path-length':
+        return asc
+          ? parseInt(a.innerHTML) > parseInt(b.innerHTML)
+          : parseInt(a.innerHTML) < parseInt(b.innerHTML);
+
+      case 'file-path':
+        var fileA = a.getAttribute('file');
+        var fileB = b.getAttribute('file');
+        var lineA = parseInt(a.getAttribute('line'));
+        var lineB = parseInt(b.getAttribute('line'));
+
+        if (asc) {
+          if (fileA > fileB) {
+            return true;
+          } else if (fileA === fileB) {
+            return lineA > lineB ? true : false;
+          } else {
+            return false;
+          }
+        } else {
+          if (fileA < fileB) {
+            return true;
+          } else if (fileA === fileB) {
+            return lineA < lineB ? true : false;
+          } else {
+            return false;
+          }
+        }
+
+      case 'severity':
+        return asc
+          ? a.getAttribute('severity') > b.getAttribute('severity')
+          : a.getAttribute('severity') < b.getAttribute('severity');
+
+      default:
+        return asc
+          ? a.innerHTML.toLowerCase() > b.innerHTML.toLowerCase()
+          : a.innerHTML.toLowerCase() < b.innerHTML.toLowerCase();
+    }
+  },
+
+  sort : function (columnId, asc) {
+    var rows = null,
+        switching = true,
+        i, j, x, y, minIdx;
+
+    var table = document.getElementById('report-list');
+    var column = document.getElementById(columnId);
+    var cellIndex = column.cellIndex;
+
+    if (asc === undefined) {
+      asc = column.getAttribute('sort') === 'desc' ? false : true;
+    }
+
+    var n = table.rows.length;
+    for (i = 1; i < n - 1; i++)
+    {
+      minIdx = i;
+      for (j = i + 1; j < n; j++) {
+        x = table.rows[minIdx].getElementsByTagName('td')[cellIndex];
+        y = table.rows[j].getElementsByTagName('td')[cellIndex];
+        if (this.compare(columnId, x, y, asc)) {
+          minIdx = j;
+        }
+      }
+
+      if (minIdx !== i) {
+        table.rows[i].parentNode.insertBefore(
+          table.rows[minIdx], table.rows[i]);
+      }
+    }
+
+    table.querySelectorAll('th').forEach(function (column) {
+      column.removeAttribute('sort');
+      column.classList.remove('active');
+    });
+
+    column.classList.add('active');
+    column.setAttribute('sort', asc ? 'desc' : 'asc');
+    window.location.hash = '#sort=' + columnId + '&asc=' + (asc ? 1 : 0);
+  }
+};
+
+
+      window.onload = function () {
+        if (!browserCompatible) {
+          setNonCompatibleBrowserMessage();
+        } else {
+          BugList.init()
+        }
+      }
+    </script>
+  </head>
+  <body>
+  <div class="container">
+    <a href="statistics.html" class="button">Go To Statistics</a>
+    <table id="report-list">
+      
+                <tr>
+                  <th id="report-id">&nbsp;</th>
+                  <th id="file-path">File</th>
+                  <th id="severity">Severity</th>
+                  <th id="checker-name">Checker name</th>
+                  <th id="message">Message</th>
+                  <th id="bug-path-length">Bug path length</th>
+                  <th id="review-status">Review status</th>
+                </tr>
+                  <tr>
+                    <td>1</td>
+                    <td file="/home/vsts/work/1/ccache/src/ArgsInfo.hpp" line="29">
+                      <a href="execute.cpp_clang-tidy_6800144a14c6bca11aa8340fd0bbaf9c.plist.html#reportHash=9fc69930bf3ee56540f5261183d26bda">
+                        /home/vsts/work/1/ccache/src/ArgsInfo.hpp @ Line&nbsp;29
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'ArgsInfo' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>2</td>
+                    <td file="/home/vsts/work/1/ccache/src/CacheEntryReader.hpp" line="32">
+                      <a href="ResultDumper.cpp_clang-tidy_cd05075a38ba124a17ee4dd4834d21c2.plist.html#reportHash=6e85a8caa3366fe434baefc258543206">
+                        /home/vsts/work/1/ccache/src/CacheEntryReader.hpp @ Line&nbsp;32
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'CacheEntryReader' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>3</td>
+                    <td file="/home/vsts/work/1/ccache/src/CacheEntryWriter.hpp" line="32">
+                      <a href="CacheEntryWriter.cpp_clang-tidy_564becb6e6620a9cf035e306b73503e0.plist.html#reportHash=4899478815ec27313b86c7d05ff3b8cb">
+                        /home/vsts/work/1/ccache/src/CacheEntryWriter.hpp @ Line&nbsp;32
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'CacheEntryWriter' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>4</td>
+                    <td file="/home/vsts/work/1/ccache/src/CacheFile.hpp" line="29">
+                      <a href="execute.cpp_clang-tidy_6800144a14c6bca11aa8340fd0bbaf9c.plist.html#reportHash=7bddfea13be19997f32de7548f7d6cc3">
+                        /home/vsts/work/1/ccache/src/CacheFile.hpp @ Line&nbsp;29
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'CacheFile' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>5</td>
+                    <td file="/home/vsts/work/1/ccache/src/Counters.hpp" line="29">
+                      <a href="execute.cpp_clang-tidy_6800144a14c6bca11aa8340fd0bbaf9c.plist.html#reportHash=f17d4b65bf0ff123af73ca352de22033">
+                        /home/vsts/work/1/ccache/src/Counters.hpp @ Line&nbsp;29
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'Counters' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>6</td>
+                    <td file="/home/vsts/work/1/ccache/src/Digest.hpp" line="31">
+                      <a href="InodeCache.cpp_clang-tidy_d501f1a07a2e7a11ad407ac0a70a0d23.plist.html#reportHash=42f2f054bf6131ca99c8c39edce173c6">
+                        /home/vsts/work/1/ccache/src/Digest.hpp @ Line&nbsp;31
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'Digest' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>7</td>
+                    <td file="/home/vsts/work/1/ccache/src/FormatNonstdStringView.hpp" line="29">
+                      <a href="test_FormatNonstdStringView.cpp_clang-tidy_c6f599d54cafb26c3c08ca3cfcbb03f7.plist.html#reportHash=47beaf9b81e7dc5da06ecc562e2c72d4">
+                        /home/vsts/work/1/ccache/src/FormatNonstdStringView.hpp @ Line&nbsp;29
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'formatter' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>8</td>
+                    <td file="/home/vsts/work/1/ccache/src/InodeCache.cpp" line="83">
+                      <a href="InodeCache.cpp_clang-tidy_d501f1a07a2e7a11ad407ac0a70a0d23.plist.html#reportHash=5ab00295b1d259bef46e677d73d32dfe">
+                        /home/vsts/work/1/ccache/src/InodeCache.cpp @ Line&nbsp;83
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'Key' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>9</td>
+                    <td file="/home/vsts/work/1/ccache/src/InodeCache.cpp" line="103">
+                      <a href="InodeCache.cpp_clang-tidy_d501f1a07a2e7a11ad407ac0a70a0d23.plist.html#reportHash=1a2465ff4f8d0af9b5253ed5a378cd8d">
+                        /home/vsts/work/1/ccache/src/InodeCache.cpp @ Line&nbsp;103
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'Entry' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>10</td>
+                    <td file="/home/vsts/work/1/ccache/src/InodeCache.cpp" line="110">
+                      <a href="InodeCache.cpp_clang-tidy_d501f1a07a2e7a11ad407ac0a70a0d23.plist.html#reportHash=5ee30af3de601d213017cfd739fcd388">
+                        /home/vsts/work/1/ccache/src/InodeCache.cpp @ Line&nbsp;110
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'Bucket' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>11</td>
+                    <td file="/home/vsts/work/1/ccache/src/InodeCache.cpp" line="116">
+                      <a href="InodeCache.cpp_clang-tidy_d501f1a07a2e7a11ad407ac0a70a0d23.plist.html#reportHash=237e14d70f527bf3c623eb4e4856f95d">
+                        /home/vsts/work/1/ccache/src/InodeCache.cpp @ Line&nbsp;116
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'SharedRegion' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>12</td>
+                    <td file="/home/vsts/work/1/ccache/src/Manifest.cpp" line="145">
+                      <a href="Manifest.cpp_clang-tidy_544897de07ebdefc9d738535b18a156c.plist.html#reportHash=9a8a80c494592593f6d4f1fbe19f308c">
+                        /home/vsts/work/1/ccache/src/Manifest.cpp @ Line&nbsp;145
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'hash' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>13</td>
+                    <td file="/home/vsts/work/1/ccache/src/Manifest.cpp" line="176">
+                      <a href="Manifest.cpp_clang-tidy_544897de07ebdefc9d738535b18a156c.plist.html#reportHash=fc38d0e5c7870dd07826377a14eeb321">
+                        /home/vsts/work/1/ccache/src/Manifest.cpp @ Line&nbsp;176
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'ManifestData' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>14</td>
+                    <td file="/home/vsts/work/1/ccache/src/Manifest.cpp" line="286">
+                      <a href="Manifest.cpp_clang-tidy_544897de07ebdefc9d738535b18a156c.plist.html#reportHash=5515d5544a9201034b54cc54f34f0b32">
+                        /home/vsts/work/1/ccache/src/Manifest.cpp @ Line&nbsp;286
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'FileStats' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>15</td>
+                    <td file="/home/vsts/work/1/ccache/src/NullCompressor.hpp" line="27">
+                      <a href="Compressor.cpp_clang-tidy_b15af68492555ed123a0bb1c46f9b5b6.plist.html#reportHash=a1cad22fe09f866b1df38389b6ceba68">
+                        /home/vsts/work/1/ccache/src/NullCompressor.hpp @ Line&nbsp;27
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'NullCompressor' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>16</td>
+                    <td file="/home/vsts/work/1/ccache/src/NullDecompressor.hpp" line="27">
+                      <a href="Decompressor.cpp_clang-tidy_2339c69b9c7c9d84ac82a71272807d0c.plist.html#reportHash=af41176c4415213c41a7ff64f55a4f0e">
+                        /home/vsts/work/1/ccache/src/NullDecompressor.hpp @ Line&nbsp;27
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'NullDecompressor' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>17</td>
+                    <td file="/home/vsts/work/1/ccache/src/ProgressBar.hpp" line="25">
+                      <a href="ProgressBar.cpp_clang-tidy_9d492011b09466f7562d99801df0ea4c.plist.html#reportHash=eca189820948d83da160aa6ac49fdd84">
+                        /home/vsts/work/1/ccache/src/ProgressBar.hpp @ Line&nbsp;25
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'ProgressBar' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>18</td>
+                    <td file="/home/vsts/work/1/ccache/src/Result.hpp" line="83">
+                      <a href="ResultDumper.cpp_clang-tidy_cd05075a38ba124a17ee4dd4834d21c2.plist.html#reportHash=b4371650f06414d43fae7d27d337bcf1">
+                        /home/vsts/work/1/ccache/src/Result.hpp @ Line&nbsp;83
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'Reader' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>19</td>
+                    <td file="/home/vsts/work/1/ccache/src/Result.hpp" line="115">
+                      <a href="ResultDumper.cpp_clang-tidy_cd05075a38ba124a17ee4dd4834d21c2.plist.html#reportHash=a658546b023a995f7c060e025d3bbbe7">
+                        /home/vsts/work/1/ccache/src/Result.hpp @ Line&nbsp;115
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'Writer' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>20</td>
+                    <td file="/home/vsts/work/1/ccache/src/ResultDumper.hpp" line="26">
+                      <a href="ResultDumper.cpp_clang-tidy_cd05075a38ba124a17ee4dd4834d21c2.plist.html#reportHash=7c1a829f12c0494048a75a3523ade563">
+                        /home/vsts/work/1/ccache/src/ResultDumper.hpp @ Line&nbsp;26
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'ResultDumper' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>21</td>
+                    <td file="/home/vsts/work/1/ccache/src/ResultExtractor.hpp" line="29">
+                      <a href="ccache.cpp_clang-tidy_5bda550aa5eb0f9ba681b78b204a608a.plist.html#reportHash=e8c4ae8eb8d4f3a6eec320f84daa6bd9">
+                        /home/vsts/work/1/ccache/src/ResultExtractor.hpp @ Line&nbsp;29
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'ResultExtractor' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>22</td>
+                    <td file="/home/vsts/work/1/ccache/src/ResultRetriever.hpp" line="29">
+                      <a href="ResultRetriever.cpp_clang-tidy_e3e0549b75bdfcb0f72f282f587bfda9.plist.html#reportHash=85d9ed1c0658ad7f3919c8e83badcc02">
+                        /home/vsts/work/1/ccache/src/ResultRetriever.hpp @ Line&nbsp;29
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'ResultRetriever' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>23</td>
+                    <td file="/home/vsts/work/1/ccache/src/Statistics.cpp" line="114">
+                      <a href="Statistics.cpp_clang-tidy_4827cb32adeb3f9c596d4c2ffa637d2f.plist.html#reportHash=a5086a050edf88dab8262c0dfd9f292d">
+                        /home/vsts/work/1/ccache/src/Statistics.cpp @ Line&nbsp;114
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'StatisticsField' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>24</td>
+                    <td file="/home/vsts/work/1/ccache/src/argprocessing.cpp" line="39">
+                      <a href="argprocessing.cpp_clang-tidy_57efd3226b20a4e59a429f45c1d5a814.plist.html#reportHash=6c865c24d85f29bf9ca0df9e56aefb12">
+                        /home/vsts/work/1/ccache/src/argprocessing.cpp @ Line&nbsp;39
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'ArgumentProcessingState' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>25</td>
+                    <td file="/home/vsts/work/1/ccache/src/compopt.cpp" line="48">
+                      <a href="compopt.cpp_clang-tidy_3cc9d0669fc3e56ec6cec80d7c974e44.plist.html#reportHash=cd833da07fac68d891b068fb05e93eb3">
+                        /home/vsts/work/1/ccache/src/compopt.cpp @ Line&nbsp;48
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'CompOpt' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>26</td>
+                    <td file="/home/vsts/work/1/ccache/src/compress.cpp" line="45">
+                      <a href="compress.cpp_clang-tidy_182bd5f398122e4cdac06ea91fddefc9.plist.html#reportHash=33749111a61150e94eb480f1440af3ac">
+                        /home/vsts/work/1/ccache/src/compress.cpp @ Line&nbsp;45
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'RecompressionStatistics' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>27</td>
+                    <td file="/home/vsts/work/1/ccache/src/compress.cpp" line="301">
+                      <a href="compress.cpp_clang-tidy_182bd5f398122e4cdac06ea91fddefc9.plist.html#reportHash=afa8f44dea99fd6a321ce5ddf9e19679">
+                        /home/vsts/work/1/ccache/src/compress.cpp @ Line&nbsp;301
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>28</td>
+                    <td file="/home/vsts/work/1/ccache/src/exceptions.hpp" line="41">
+                      <a href="execute.cpp_clang-tidy_6800144a14c6bca11aa8340fd0bbaf9c.plist.html#reportHash=182ecdb230b40860cc0a34da28dcda80">
+                        /home/vsts/work/1/ccache/src/exceptions.hpp @ Line&nbsp;41
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'Error' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>29</td>
+                    <td file="/home/vsts/work/1/ccache/src/exceptions.hpp" line="63">
+                      <a href="CacheEntryWriter.cpp_clang-tidy_564becb6e6620a9cf035e306b73503e0.plist.html#reportHash=31b5efeca53a5ecf23d6784a2888235b">
+                        /home/vsts/work/1/ccache/src/exceptions.hpp @ Line&nbsp;63
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'Fatal' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>30</td>
+                    <td file="/home/vsts/work/1/ccache/src/exceptions.hpp" line="33">
+                      <a href="language.cpp_clang-tidy_3dc7e256af23ad5fd335a7d71aa42ea5.plist.html#reportHash=940b9eeec7474b70ee8a9ae58acea58d">
+                        /home/vsts/work/1/ccache/src/exceptions.hpp @ Line&nbsp;33
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'ErrorBase' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>31</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/blake3/blake3.h" line="21">
+                      <a href="Depfile.cpp_clang-tidy_16746a76709276ab0a7fe0308098cd2a.plist.html#reportHash=534c3f5a605ccf81525f19b459fefc44">
+                        /home/vsts/work/1/ccache/src/third_party/blake3/blake3.h @ Line&nbsp;21
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>32</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/blake3/blake3.h" line="30">
+                      <a href="Depfile.cpp_clang-tidy_16746a76709276ab0a7fe0308098cd2a.plist.html#reportHash=534c3f5a605ccf81525f19b459fefc44">
+                        /home/vsts/work/1/ccache/src/third_party/blake3/blake3.h @ Line&nbsp;30
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>33</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/doctest.h" line="509">
+                      <a href="test_Util.cpp_clang-tidy_025cfc5dd7ef8939de8a7e87a09c2e8e.plist.html#reportHash=0e76fe345c6956434e6d62506634f1ad">
+                        /home/vsts/work/1/ccache/src/third_party/doctest.h @ Line&nbsp;509
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'String' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>34</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/doctest.h" line="657">
+                      <a href="test_Util.cpp_clang-tidy_025cfc5dd7ef8939de8a7e87a09c2e8e.plist.html#reportHash=2ca87fc9a2c053cd55b90b5d63cb4f39">
+                        /home/vsts/work/1/ccache/src/third_party/doctest.h @ Line&nbsp;657
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'TestCaseData' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>35</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/doctest.h" line="673">
+                      <a href="test_Util.cpp_clang-tidy_025cfc5dd7ef8939de8a7e87a09c2e8e.plist.html#reportHash=1abb64c30514f14c4974b0770c7ec98f">
+                        /home/vsts/work/1/ccache/src/third_party/doctest.h @ Line&nbsp;673
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'AssertData' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>36</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/doctest.h" line="696">
+                      <a href="test_Util.cpp_clang-tidy_025cfc5dd7ef8939de8a7e87a09c2e8e.plist.html#reportHash=4577cfc010430357f2cbe3957f96c6a8">
+                        /home/vsts/work/1/ccache/src/third_party/doctest.h @ Line&nbsp;696
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'MessageData' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>37</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/doctest.h" line="704">
+                      <a href="test_Util.cpp_clang-tidy_025cfc5dd7ef8939de8a7e87a09c2e8e.plist.html#reportHash=553fb616c7d3bebc8fa1b3814a0cf02a">
+                        /home/vsts/work/1/ccache/src/third_party/doctest.h @ Line&nbsp;704
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'SubcaseSignature' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>38</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/doctest.h" line="724">
+                      <a href="test_Util.cpp_clang-tidy_025cfc5dd7ef8939de8a7e87a09c2e8e.plist.html#reportHash=f78186017101e7ad2d6713647f0cf2bd">
+                        /home/vsts/work/1/ccache/src/third_party/doctest.h @ Line&nbsp;724
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'ContextOptions' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>39</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/doctest.h" line="920">
+                      <a href="test_Util.cpp_clang-tidy_025cfc5dd7ef8939de8a7e87a09c2e8e.plist.html#reportHash=ec088e0d1e34d0347601068b1dfdb6a5">
+                        /home/vsts/work/1/ccache/src/third_party/doctest.h @ Line&nbsp;920
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'Approx' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>40</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/doctest.h" line="1073">
+                      <a href="test_Util.cpp_clang-tidy_025cfc5dd7ef8939de8a7e87a09c2e8e.plist.html#reportHash=56ed514eff0a6617b957a824b736562e">
+                        /home/vsts/work/1/ccache/src/third_party/doctest.h @ Line&nbsp;1073
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'Result' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>41</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/doctest.h" line="1236">
+                      <a href="test_Util.cpp_clang-tidy_025cfc5dd7ef8939de8a7e87a09c2e8e.plist.html#reportHash=2c328a41bd45b4d78e1f50df9c448fc5">
+                        /home/vsts/work/1/ccache/src/third_party/doctest.h @ Line&nbsp;1236
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'ExpressionDecomposer' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>42</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/doctest.h" line="1252">
+                      <a href="test_Util.cpp_clang-tidy_025cfc5dd7ef8939de8a7e87a09c2e8e.plist.html#reportHash=2f89082bae90f6922b2923ec4d467aab">
+                        /home/vsts/work/1/ccache/src/third_party/doctest.h @ Line&nbsp;1252
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'TestSuite' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>43</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/doctest.h" line="1337">
+                      <a href="test_Util.cpp_clang-tidy_025cfc5dd7ef8939de8a7e87a09c2e8e.plist.html#reportHash=58bbeb0ba7639be01df088326a85fc9d">
+                        /home/vsts/work/1/ccache/src/third_party/doctest.h @ Line&nbsp;1337
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'ResultBuilder' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>44</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/doctest.h" line="1528">
+                      <a href="test_Util.cpp_clang-tidy_025cfc5dd7ef8939de8a7e87a09c2e8e.plist.html#reportHash=11de23a617d3aafe3828f78af2f59fcb">
+                        /home/vsts/work/1/ccache/src/third_party/doctest.h @ Line&nbsp;1528
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'ContextScopeBase' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>45</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/doctest.h" line="1542">
+                      <a href="test_Util.cpp_clang-tidy_025cfc5dd7ef8939de8a7e87a09c2e8e.plist.html#reportHash=b7e46868ee757d4213be32a1655fe3e7">
+                        /home/vsts/work/1/ccache/src/third_party/doctest.h @ Line&nbsp;1542
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'ContextScope<L>' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>46</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/doctest.h" line="1687">
+                      <a href="test_Util.cpp_clang-tidy_025cfc5dd7ef8939de8a7e87a09c2e8e.plist.html#reportHash=d155179bd1c7056ffab33b53542586d6">
+                        /home/vsts/work/1/ccache/src/third_party/doctest.h @ Line&nbsp;1687
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'TestCaseException' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>47</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/doctest.h" line="1679">
+                      <a href="main.cpp_clang-tidy_ad32c7df11c1a69c868297fa4204d773.plist.html#reportHash=4859085a267e7fb42eb7ea96bcc6edab">
+                        /home/vsts/work/1/ccache/src/third_party/doctest.h @ Line&nbsp;1679
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'CurrentTestCaseStats' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>48</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/doctest.h" line="1693">
+                      <a href="main.cpp_clang-tidy_ad32c7df11c1a69c868297fa4204d773.plist.html#reportHash=d30bf8d954e5257ffac63a1a11cb2966">
+                        /home/vsts/work/1/ccache/src/third_party/doctest.h @ Line&nbsp;1693
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'TestRunStats' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>49</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/doctest.h" line="1703">
+                      <a href="main.cpp_clang-tidy_ad32c7df11c1a69c868297fa4204d773.plist.html#reportHash=14b4c55a56a74000e0de78207b75fd76">
+                        /home/vsts/work/1/ccache/src/third_party/doctest.h @ Line&nbsp;1703
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'QueryData' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>50</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/doctest.h" line="2977">
+                      <a href="main.cpp_clang-tidy_ad32c7df11c1a69c868297fa4204d773.plist.html#reportHash=48c874681ce5b8a45b2dfa4861d42c8e">
+                        /home/vsts/work/1/ccache/src/third_party/doctest.h @ Line&nbsp;2977
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'Timer' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>51</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/doctest.h" line="3007">
+                      <a href="main.cpp_clang-tidy_ad32c7df11c1a69c868297fa4204d773.plist.html#reportHash=7e2c652ffa620a04c661dd9c638f0c12">
+                        /home/vsts/work/1/ccache/src/third_party/doctest.h @ Line&nbsp;3007
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'MultiLaneAtomic' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>52</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/doctest.h" line="3009">
+                      <a href="main.cpp_clang-tidy_ad32c7df11c1a69c868297fa4204d773.plist.html#reportHash=fe86646fa22b34880d0f81a4161b94b6">
+                        /home/vsts/work/1/ccache/src/third_party/doctest.h @ Line&nbsp;3009
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'CacheLineAlignedAtomic' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>53</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/doctest.h" line="3082">
+                      <a href="main.cpp_clang-tidy_ad32c7df11c1a69c868297fa4204d773.plist.html#reportHash=ac85b7def1d7e35264ef0778b0e39db1">
+                        /home/vsts/work/1/ccache/src/third_party/doctest.h @ Line&nbsp;3082
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'ContextState' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>54</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/doctest.h" line="3280">
+                      <a href="main.cpp_clang-tidy_ad32c7df11c1a69c868297fa4204d773.plist.html#reportHash=f178dc20b9b11af8d93b6b8930543ea6">
+                        /home/vsts/work/1/ccache/src/third_party/doctest.h @ Line&nbsp;3280
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'String' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>55</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/doctest.h" line="4538">
+                      <a href="main.cpp_clang-tidy_ad32c7df11c1a69c868297fa4204d773.plist.html#reportHash=572f74c11f64980568f5a32ff54f595b">
+                        /home/vsts/work/1/ccache/src/third_party/doctest.h @ Line&nbsp;4538
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'XmlEncode' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>56</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/doctest.h" line="4913">
+                      <a href="main.cpp_clang-tidy_ad32c7df11c1a69c868297fa4204d773.plist.html#reportHash=46e54c1999ebca38b9611997b432f462">
+                        /home/vsts/work/1/ccache/src/third_party/doctest.h @ Line&nbsp;4913
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'XmlReporter' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>57</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/doctest.h" line="5203">
+                      <a href="main.cpp_clang-tidy_ad32c7df11c1a69c868297fa4204d773.plist.html#reportHash=8b77a88321d5ec532e2e4bbb7864b192">
+                        /home/vsts/work/1/ccache/src/third_party/doctest.h @ Line&nbsp;5203
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'JUnitReporter' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>58</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/doctest.h" line="5210">
+                      <a href="main.cpp_clang-tidy_ad32c7df11c1a69c868297fa4204d773.plist.html#reportHash=d2b033942953f86f13b172031b8c40d4">
+                        /home/vsts/work/1/ccache/src/third_party/doctest.h @ Line&nbsp;5210
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'JUnitTestCaseData' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>59</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/doctest.h" line="5421">
+                      <a href="main.cpp_clang-tidy_ad32c7df11c1a69c868297fa4204d773.plist.html#reportHash=e42e068b6bd29c47eb0037e82c5934e9">
+                        /home/vsts/work/1/ccache/src/third_party/doctest.h @ Line&nbsp;5421
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'Whitespace' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>60</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/doctest.h" line="5434">
+                      <a href="main.cpp_clang-tidy_ad32c7df11c1a69c868297fa4204d773.plist.html#reportHash=cae516e1d8d13bdd1680bfd699d11d24">
+                        /home/vsts/work/1/ccache/src/third_party/doctest.h @ Line&nbsp;5434
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'ConsoleReporter' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>61</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/core.h" line="272">
+                      <a href="execute.cpp_clang-tidy_6800144a14c6bca11aa8340fd0bbaf9c.plist.html#reportHash=4970e2528d40de19da7f8ae173963f8e">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/core.h @ Line&nbsp;272
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'monostate' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>62</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/core.h" line="305">
+                      <a href="execute.cpp_clang-tidy_6800144a14c6bca11aa8340fd0bbaf9c.plist.html#reportHash=a39779f978d8442a65d560337f680b69">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/core.h @ Line&nbsp;305
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'std_string_view' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>63</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/core.h" line="355">
+                      <a href="execute.cpp_clang-tidy_6800144a14c6bca11aa8340fd0bbaf9c.plist.html#reportHash=1f55c0cb0357a4870e5ace9df33661fd">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/core.h @ Line&nbsp;355
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'basic_string_view' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>64</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/core.h" line="559">
+                      <a href="execute.cpp_clang-tidy_6800144a14c6bca11aa8340fd0bbaf9c.plist.html#reportHash=38e168d361bdfe3987dd6ba0ac8704b4">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/core.h @ Line&nbsp;559
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'basic_format_parse_context' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>65</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/core.h" line="834">
+                      <a href="execute.cpp_clang-tidy_6800144a14c6bca11aa8340fd0bbaf9c.plist.html#reportHash=45d10f7cb0e1f6d009f4f45a46ff9fe5">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/core.h @ Line&nbsp;834
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'counting_buffer' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>66</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/core.h" line="856">
+                      <a href="execute.cpp_clang-tidy_6800144a14c6bca11aa8340fd0bbaf9c.plist.html#reportHash=a506fc57db27e665cfdff14e19cbfe80">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/core.h @ Line&nbsp;856
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'buffer_appender' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>67</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/core.h" line="896">
+                      <a href="execute.cpp_clang-tidy_6800144a14c6bca11aa8340fd0bbaf9c.plist.html#reportHash=10490bb33ad09d1bf118adb4f72a3117">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/core.h @ Line&nbsp;896
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'fallback_formatter' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>68</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/core.h" line="933">
+                      <a href="execute.cpp_clang-tidy_6800144a14c6bca11aa8340fd0bbaf9c.plist.html#reportHash=8c937ce57b6b395aa2d1966568534961">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/core.h @ Line&nbsp;933
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'arg_data' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>69</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/core.h" line="1123">
+                      <a href="execute.cpp_clang-tidy_6800144a14c6bca11aa8340fd0bbaf9c.plist.html#reportHash=80d959796ddb15a9026668dccf1ca822">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/core.h @ Line&nbsp;1123
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'unformattable' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>70</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/core.h" line="1126">
+                      <a href="execute.cpp_clang-tidy_6800144a14c6bca11aa8340fd0bbaf9c.plist.html#reportHash=d15196bda7693db7e179493566ec98c6">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/core.h @ Line&nbsp;1126
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'arg_mapper' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>71</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/core.h" line="1456">
+                      <a href="execute.cpp_clang-tidy_6800144a14c6bca11aa8340fd0bbaf9c.plist.html#reportHash=31831ee9b3434311534c084c0b8964bb">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/core.h @ Line&nbsp;1456
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'dynamic_arg_list' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>72</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/core.h" line="1554">
+                      <a href="execute.cpp_clang-tidy_6800144a14c6bca11aa8340fd0bbaf9c.plist.html#reportHash=080747ff28bb016f558015075c0bc233">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/core.h @ Line&nbsp;1554
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'format_arg_store' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>73</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/core.h" line="1656">
+                      <a href="execute.cpp_clang-tidy_6800144a14c6bca11aa8340fd0bbaf9c.plist.html#reportHash=d7957cd2169b1c8eef1c7de314944f86">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/core.h @ Line&nbsp;1656
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'dynamic_format_arg_store' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>74</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/core.h" line="1828">
+                      <a href="execute.cpp_clang-tidy_6800144a14c6bca11aa8340fd0bbaf9c.plist.html#reportHash=7ff4cb90f3f25236998ddaae721e8197">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/core.h @ Line&nbsp;1828
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'basic_format_args' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>75</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/core.h" line="1839">
+                      <a href="execute.cpp_clang-tidy_6800144a14c6bca11aa8340fd0bbaf9c.plist.html#reportHash=5301fdce987689fcc4748fcc85413a7d">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/core.h @ Line&nbsp;1839
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>76</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/core.h" line="1945">
+                      <a href="execute.cpp_clang-tidy_6800144a14c6bca11aa8340fd0bbaf9c.plist.html#reportHash=bc8e3e4b64aff2e02a1f12846944745d">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/core.h @ Line&nbsp;1945
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'wformat_args' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>77</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/core.h" line="1032">
+                      <a href="CacheEntryWriter.cpp_clang-tidy_564becb6e6620a9cf035e306b73503e0.plist.html#reportHash=e21312c2e5b378e2d0d9f7468271f963">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/core.h @ Line&nbsp;1032
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'string_value' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>78</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/core.h" line="1037">
+                      <a href="CacheEntryWriter.cpp_clang-tidy_564becb6e6620a9cf035e306b73503e0.plist.html#reportHash=1562e093b876ec8a113a8482f9b5e10b">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/core.h @ Line&nbsp;1037
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'named_arg_value' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>79</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/core.h" line="1042">
+                      <a href="CacheEntryWriter.cpp_clang-tidy_564becb6e6620a9cf035e306b73503e0.plist.html#reportHash=d90452b7ef40255f352d483794074067">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/core.h @ Line&nbsp;1042
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'custom_value' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>80</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/core.h" line="1049">
+                      <a href="CacheEntryWriter.cpp_clang-tidy_564becb6e6620a9cf035e306b73503e0.plist.html#reportHash=862162544fef964637e3832eeee55159">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/core.h @ Line&nbsp;1049
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'value' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>81</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/core.h" line="1053">
+                      <a href="CacheEntryWriter.cpp_clang-tidy_564becb6e6620a9cf035e306b73503e0.plist.html#reportHash=5301fdce987689fcc4748fcc85413a7d">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/core.h @ Line&nbsp;1053
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>82</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/core.h" line="630">
+                      <a href="TemporaryFile.cpp_clang-tidy_143ea6eecb93bd46496fb78b09e7ca0d.plist.html#reportHash=31a8b6321aed27c54ead0f2eceee8f9f">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/core.h @ Line&nbsp;630
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'formatter' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>83</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/core.h" line="652">
+                      <a href="argprocessing.cpp_clang-tidy_57efd3226b20a4e59a429f45c1d5a814.plist.html#reportHash=388e6cde95ba701183df042fafe5110a">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/core.h @ Line&nbsp;652
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'accessor' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>84</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/core.h" line="1377">
+                      <a href="argprocessing.cpp_clang-tidy_57efd3226b20a4e59a429f45c1d5a814.plist.html#reportHash=2356284c91f7cc11367aa3e535e1446a">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/core.h @ Line&nbsp;1377
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'is_back_insert_iterator' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>85</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/core.h" line="1379">
+                      <a href="format.cpp_clang-tidy_be2267f304e3cd5558888cacf4bc2722.plist.html#reportHash=7a504323b111c9894af4ac780f2789a8">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/core.h @ Line&nbsp;1379
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'is_back_insert_iterator' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>86</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/format-inl.h" line="1788">
+                      <a href="format.cpp_clang-tidy_be2267f304e3cd5558888cacf4bc2722.plist.html#reportHash=4a0784264341cafea021cde683e5f1f6">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/format-inl.h @ Line&nbsp;1788
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>87</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/format-inl.h" line="1805">
+                      <a href="format.cpp_clang-tidy_be2267f304e3cd5558888cacf4bc2722.plist.html#reportHash=4a0784264341cafea021cde683e5f1f6">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/format-inl.h @ Line&nbsp;1805
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>88</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/format-inl.h" line="2644">
+                      <a href="format.cpp_clang-tidy_be2267f304e3cd5558888cacf4bc2722.plist.html#reportHash=066bfaf0b5e26bb0008dfb955cfc7a73">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/format-inl.h @ Line&nbsp;2644
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'stringifier' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>89</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/format.h" line="777">
+                      <a href="execute.cpp_clang-tidy_6800144a14c6bca11aa8340fd0bbaf9c.plist.html#reportHash=5528ace72504bc7e77a0aaa013ef63a3">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/format.h @ Line&nbsp;777
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'format_error' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>90</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/format.h" line="1130">
+                      <a href="execute.cpp_clang-tidy_6800144a14c6bca11aa8340fd0bbaf9c.plist.html#reportHash=8c268a28f73a5f141ad009a6f130c6b5">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/format.h @ Line&nbsp;1130
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'utf8_to_utf16' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>91</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/format.h" line="1441">
+                      <a href="execute.cpp_clang-tidy_6800144a14c6bca11aa8340fd0bbaf9c.plist.html#reportHash=a864b738fd7dff03ddc60459f82c3c43">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/format.h @ Line&nbsp;1441
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'int_type_checker' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>92</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/format.h" line="1458">
+                      <a href="execute.cpp_clang-tidy_6800144a14c6bca11aa8340fd0bbaf9c.plist.html#reportHash=dd7023d2c0a728de5db670ba161c5a7e">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/format.h @ Line&nbsp;1458
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'char_specs_checker' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>93</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/format.h" line="1473">
+                      <a href="execute.cpp_clang-tidy_6800144a14c6bca11aa8340fd0bbaf9c.plist.html#reportHash=94b6d8fac01e4b1bcedd7b9da5dcf7e9">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/format.h @ Line&nbsp;1473
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'cstring_type_checker' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>94</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/format.h" line="2471">
+                      <a href="execute.cpp_clang-tidy_6800144a14c6bca11aa8340fd0bbaf9c.plist.html#reportHash=bd163b88c16026324ec53d55939b13fd">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/format.h @ Line&nbsp;2471
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'numeric_specs_checker' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>95</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/format.h" line="2733">
+                      <a href="execute.cpp_clang-tidy_6800144a14c6bca11aa8340fd0bbaf9c.plist.html#reportHash=3344d38e3a45207c2afc83f1b912eecf">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/format.h @ Line&nbsp;2733
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'width_adapter' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>96</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/format.h" line="2750">
+                      <a href="execute.cpp_clang-tidy_6800144a14c6bca11aa8340fd0bbaf9c.plist.html#reportHash=08c15b181765e45b083a5d2d9003a786">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/format.h @ Line&nbsp;2750
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'precision_adapter' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>97</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/format.h" line="3114">
+                      <a href="execute.cpp_clang-tidy_6800144a14c6bca11aa8340fd0bbaf9c.plist.html#reportHash=2b8056fd7ed37a0f058ff9ccf007eb0c">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/format.h @ Line&nbsp;3114
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'compile_parse_context' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>98</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/format.h" line="3140">
+                      <a href="execute.cpp_clang-tidy_6800144a14c6bca11aa8340fd0bbaf9c.plist.html#reportHash=db738a21e083e2f7ea836299db2f6997">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/format.h @ Line&nbsp;3140
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'format_string_checker' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>99</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/format.h" line="3302">
+                      <a href="execute.cpp_clang-tidy_6800144a14c6bca11aa8340fd0bbaf9c.plist.html#reportHash=c9720f219314d15f6eaf5c3df8400d69">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/format.h @ Line&nbsp;3302
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'system_error' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>100</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/format.h" line="3396">
+                      <a href="execute.cpp_clang-tidy_6800144a14c6bca11aa8340fd0bbaf9c.plist.html#reportHash=b25f79d8554831e3ffa950d6e4dc3384">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/format.h @ Line&nbsp;3396
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'formatter' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>101</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/format.h" line="3496">
+                      <a href="execute.cpp_clang-tidy_6800144a14c6bca11aa8340fd0bbaf9c.plist.html#reportHash=a0b4da7237eb7e4ecac1c374bd1d642d">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/format.h @ Line&nbsp;3496
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'formatter' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>102</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/format.h" line="3497">
+                      <a href="execute.cpp_clang-tidy_6800144a14c6bca11aa8340fd0bbaf9c.plist.html#reportHash=c4fab0fcf4cdec96d28a1efd1a01e952">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/format.h @ Line&nbsp;3497
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'formatter' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>103</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/format.h" line="3495">
+                      <a href="ResultDumper.cpp_clang-tidy_cd05075a38ba124a17ee4dd4834d21c2.plist.html#reportHash=382bb8f5f209836be4447e625f52e1aa">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/format.h @ Line&nbsp;3495
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'formatter' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>104</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/format.h" line="3510">
+                      <a href="test_Config.cpp_clang-tidy_1ec79011d9633e15489633659bd18a81.plist.html#reportHash=8bac4a79b992d6630ab9fed79fa9e558">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/format.h @ Line&nbsp;3510
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'formatter' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>105</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/format.h" line="3490">
+                      <a href="compress.cpp_clang-tidy_182bd5f398122e4cdac06ea91fddefc9.plist.html#reportHash=6f1c8c836970d7b45e95b8cd72ba53c7">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/format.h @ Line&nbsp;3490
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'formatter' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>106</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/format.h" line="3494">
+                      <a href="Statistics.cpp_clang-tidy_4827cb32adeb3f9c596d4c2ffa637d2f.plist.html#reportHash=e11f3652b11f0e2eaf54924e50bf010d">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/format.h @ Line&nbsp;3494
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'formatter' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>107</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/format.h" line="3491">
+                      <a href="CacheEntryReader.cpp_clang-tidy_538f104adbe57f1a310665c2286fb124.plist.html#reportHash=32dcf8ce8f73af9e6f107ea0b8e25895">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/format.h @ Line&nbsp;3491
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'formatter' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>108</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/format.h" line="1584">
+                      <a href="format.cpp_clang-tidy_be2267f304e3cd5558888cacf4bc2722.plist.html#reportHash=76c0792d2a8c421fcabffe9082938dcf">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/format.h @ Line&nbsp;1584
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'int_writer' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>109</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/format.h" line="2120">
+                      <a href="format.cpp_clang-tidy_be2267f304e3cd5558888cacf4bc2722.plist.html#reportHash=3c205e1360aec97aa4902c46f5f76c94">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/format.h @ Line&nbsp;2120
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'arg_formatter_base' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>110</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/format.h" line="2186">
+                      <a href="format.cpp_clang-tidy_be2267f304e3cd5558888cacf4bc2722.plist.html#reportHash=df8175876897e50623e964e0e01a163b">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/format.h @ Line&nbsp;2186
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'char_spec_handler' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>111</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/format.h" line="2205">
+                      <a href="format.cpp_clang-tidy_be2267f304e3cd5558888cacf4bc2722.plist.html#reportHash=4c057c200770d7ff81815e15ecabaa11">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/format.h @ Line&nbsp;2205
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'cstring_spec_handler' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>112</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/format.h" line="2302">
+                      <a href="format.cpp_clang-tidy_be2267f304e3cd5558888cacf4bc2722.plist.html#reportHash=6cf5e3d6156a3f5f5a29a7432ddf1e27">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/format.h @ Line&nbsp;2302
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'arg_formatter' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>113</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/format.h" line="2369">
+                      <a href="format.cpp_clang-tidy_be2267f304e3cd5558888cacf4bc2722.plist.html#reportHash=57eaaeafb9004fc66d2c9268b3d80804">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/format.h @ Line&nbsp;2369
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'custom_formatter' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>114</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/format.h" line="2394">
+                      <a href="format.cpp_clang-tidy_be2267f304e3cd5558888cacf4bc2722.plist.html#reportHash=00029fb5b8c377dcc54efc9d033a3509">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/format.h @ Line&nbsp;2394
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'width_checker' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>115</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/format.h" line="2414">
+                      <a href="format.cpp_clang-tidy_be2267f304e3cd5558888cacf4bc2722.plist.html#reportHash=eda98249e7cf629b676c04baac0219b3">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/format.h @ Line&nbsp;2414
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'precision_checker' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>116</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/format.h" line="2567">
+                      <a href="format.cpp_clang-tidy_be2267f304e3cd5558888cacf4bc2722.plist.html#reportHash=a96b92f2abaaa4ebf14cc07c4303633b">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/format.h @ Line&nbsp;2567
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'specs_handler' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>117</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/format.h" line="2614">
+                      <a href="format.cpp_clang-tidy_be2267f304e3cd5558888cacf4bc2722.plist.html#reportHash=83e1f4383e37b5d6e08fa15930a8affd">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/format.h @ Line&nbsp;2614
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'arg_ref' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>118</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/format.h" line="2629">
+                      <a href="format.cpp_clang-tidy_be2267f304e3cd5558888cacf4bc2722.plist.html#reportHash=bfccdf4b40cec9fed8a3bfbadbccda0d">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/format.h @ Line&nbsp;2629
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'value' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>119</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/format.h" line="2642">
+                      <a href="format.cpp_clang-tidy_be2267f304e3cd5558888cacf4bc2722.plist.html#reportHash=eadb81185ab2a6473f061fd595c5ecb0">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/format.h @ Line&nbsp;2642
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'dynamic_format_specs' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>120</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/format.h" line="3051">
+                      <a href="format.cpp_clang-tidy_be2267f304e3cd5558888cacf4bc2722.plist.html#reportHash=badd179e2cdfc3daf910e28ae3383c70">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/format.h @ Line&nbsp;3051
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'format_handler' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>121</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/nonstd/optional.hpp" line="750">
+                      <a href="execute.cpp_clang-tidy_6800144a14c6bca11aa8340fd0bbaf9c.plist.html#reportHash=8a8623787c734693ad9bc852245c542a">
+                        /home/vsts/work/1/ccache/src/third_party/nonstd/optional.hpp @ Line&nbsp;750
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'storage_t' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>122</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/nonstd/optional.hpp" line="889">
+                      <a href="execute.cpp_clang-tidy_6800144a14c6bca11aa8340fd0bbaf9c.plist.html#reportHash=c5e9e62287d0f07b8b3753ff2e6247b8">
+                        /home/vsts/work/1/ccache/src/third_party/nonstd/optional.hpp @ Line&nbsp;889
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>'nullopt_t' should be marked noexcept</td>
+                    <td class="bug-path-length">1</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+    </table>
+  </div>
+  </body>
+</html>
