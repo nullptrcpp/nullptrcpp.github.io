@@ -1,0 +1,2367 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Plist HTML Viewer</title>
+
+    <meta charset="UTF-8">
+
+    <style type="text/css">
+      .severity-low {
+  background-color: #669603;
+}
+
+.severity-low:after {
+  content : 'L';
+}
+
+.severity-unspecified {
+  background-color: #666666;
+}
+
+.severity-unspecified:after {
+  content : 'U';
+}
+
+.severity-style {
+  background-color: #9932cc;
+}
+
+.severity-style:after {
+  content : 'S';
+}
+
+.severity-medium {
+  background-color: #a9d323;
+  color: black;
+}
+
+.severity-medium:after {
+  content : 'M';
+}
+
+.severity-high {
+  background-color: #ffa800;
+}
+
+.severity-high:after {
+  content : 'H';
+}
+
+.severity-critical {
+  background-color: #e92625;
+}
+
+.severity-critical:after {
+  content : 'C';
+}
+
+i[class*="severity-"] {
+  line-height: normal;
+  text-transform: capitalize;
+  font-size: 0.8em;
+  font-weight: bold;
+  color: white;
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  text-align: center;
+  font-family: sans-serif;
+}
+
+      html, body {
+  width: 100%;
+  height: 100%;
+  padding: 0px;
+  margin: 0px;
+}
+
+div.container {
+  padding: 10px;
+}
+
+#content {
+  height: 100%;
+  display: block;
+  overflow: hidden;
+}
+
+#content > div {
+  margin: 10px;
+  overflow: hidden;
+  border: 1px solid #ddd;
+  border-radius: 3px;
+  overflow: hidden;
+  height: 97%;
+}
+
+.button {
+  background-color: #f1f1f1;
+  text-decoration: none;
+  display: inline-block;
+  padding: 8px 16px;
+  color: black;
+  cursor: pointer;
+}
+
+.button:hover {
+  background-color: #ddd;
+  color: black;
+}
+
+.review-status {
+  color: white;
+  text-align: center;
+}
+
+.review-status-confirmed {
+  background-color: #e92625;
+}
+
+.review-status-false-positive {
+  background-color: grey;
+}
+
+.review-status-intentional {
+  background-color: #669603;
+}
+
+      table th {
+  font-size: 1.2em;
+  color: #fff;
+  line-height: 1.4;
+  background-color: #007ea7;
+}
+
+table th.active,
+table th.sortable:hover {
+  cursor: pointer;
+  background-color: #2da6ce;
+}
+
+table tr:nth-child(even) {
+  background-color: #f5f5f5;
+}
+
+table tr > td {
+  padding: 5px;
+}
+
+      #report-list {
+  width: 100%;
+}
+
+#report-list .bug-path-length {
+  width: 5%;
+  text-align: center;
+}
+
+#report-list .severity {
+  text-align: center;
+}
+
+    </style>
+
+    <script>
+      function setNonCompatibleBrowserMessage() {
+  document.body.innerHTML =
+    '<h2 style="margin-left: 20px;">Your browser is not compatible with CodeChecker Viewer!</h2> \
+     <p style="margin-left: 20px;">The version required for the following browsers are:</p> \
+     <ul style="margin-left: 20px;"> \
+     <li>Internet Explorer: version 9 or newer</li> \
+     <li>Firefox: version 22.0 or newer</li> \
+     </ul>';
+}
+
+// http://stackoverflow.com/questions/5916900/how-can-you-detect-the-version-of-a-browser
+var browserVersion = (function(){
+  var ua = navigator.userAgent, tem,
+    M = ua.match(/(opera|chrome|safari|firefox|msie|trident(?=\/))\/?\s*(\d+)/i) || [];
+
+  if (/trident/i.test(M[1])) {
+    tem = /\brv[ :]+(\d+)/g.exec(ua) || [];
+    return 'IE ' + (tem[1] || '');
+  }
+
+  if (M[1] === 'Chrome') {
+    tem = ua.match(/\b(OPR|Edge)\/(\d+)/);
+    if (tem != null) return tem.slice(1).join(' ').replace('OPR', 'Opera');
+  }
+
+  M = M[2] ? [M[1], M[2]] : [navigator.appName, navigator.appVersion, '-?'];
+  if ((tem = ua.match(/version\/(\d+)/i)) != null) M.splice(1, 1, tem[1]);
+    return M.join(' ');
+})();
+
+var pos = browserVersion.indexOf(' ');
+var browser = browserVersion.substr(0, pos);
+var version = parseInt(browserVersion.substr(pos + 1));
+
+var browserCompatible
+  = browser === 'Firefox'
+  ? version >= 22
+  : browser === 'IE'
+  ? version >= 9
+  : true;
+
+      // -------------------------------------------------------------------------
+//  Part of the CodeChecker project, under the Apache License v2.0 with
+//  LLVM Exceptions. See LICENSE for license information.
+//  SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+// -------------------------------------------------------------------------
+
+var BugList = {
+
+  init : function () {
+    this.initTableSort();
+    this.initBugPathLength();
+    this.initByUrl();
+  },
+
+  initTableSort : function () {
+    var that = this;
+
+    var table = document.getElementById('report-list');
+    table.querySelectorAll('th').forEach(function (column) {
+      if (that.canSort(column.id)) {
+        column.addEventListener('click', function () {
+          that.sort(column.id);
+        });
+        column.classList.add('sortable');
+      }
+    });
+  },
+
+  initBugPathLength : function () {
+    var that = this;
+
+    document.querySelectorAll('.bug-path-length').forEach(
+    function (widget) {
+      widget.style.backgroundColor =
+        that.generateRedGreenGradientColor(widget.innerHTML, 20, 0.5);
+    });
+  },
+
+  initByUrl : function () {
+    var state = {};
+    window.location.hash.substr(1).split('&').forEach(function (s) {
+      var parts = s.split('=');
+      state[parts[0]] = parts[1];
+    });
+
+    var column = state['sort'] ? state['sort'] : 'file-path';
+    var asc = state['asc'] ? !!parseInt(state['asc']) : true;
+    this.sort(column, asc);
+  },
+
+  generateRedGreenGradientColor : function (value, max, opacity) {
+    var red   = (255 * value) / max;
+    var green = (255 * (max - value)) / max;
+    var blue  = 0;
+    return 'rgba(' + parseInt(red) + ',' + parseInt(green) + ',' + blue
+      + ',' + opacity + ')';
+  },
+
+  canSort : function (columnId) {
+    return columnId === 'report-id' ||
+           columnId === 'file-path' ||
+           columnId === 'severity' ||
+           columnId === 'checker-name' ||
+           columnId === 'message' ||
+           columnId === 'bug-path-length' ||
+           columnId === 'review-status';
+  },
+
+  compare : function (columnId, a, b, asc) {
+    switch (columnId) {
+      case 'report-id':
+      case 'bug-path-length':
+        return asc
+          ? parseInt(a.innerHTML) > parseInt(b.innerHTML)
+          : parseInt(a.innerHTML) < parseInt(b.innerHTML);
+
+      case 'file-path':
+        var fileA = a.getAttribute('file');
+        var fileB = b.getAttribute('file');
+        var lineA = parseInt(a.getAttribute('line'));
+        var lineB = parseInt(b.getAttribute('line'));
+
+        if (asc) {
+          if (fileA > fileB) {
+            return true;
+          } else if (fileA === fileB) {
+            return lineA > lineB ? true : false;
+          } else {
+            return false;
+          }
+        } else {
+          if (fileA < fileB) {
+            return true;
+          } else if (fileA === fileB) {
+            return lineA < lineB ? true : false;
+          } else {
+            return false;
+          }
+        }
+
+      case 'severity':
+        return asc
+          ? a.getAttribute('severity') > b.getAttribute('severity')
+          : a.getAttribute('severity') < b.getAttribute('severity');
+
+      default:
+        return asc
+          ? a.innerHTML.toLowerCase() > b.innerHTML.toLowerCase()
+          : a.innerHTML.toLowerCase() < b.innerHTML.toLowerCase();
+    }
+  },
+
+  sort : function (columnId, asc) {
+    var rows = null,
+        switching = true,
+        i, j, x, y, minIdx;
+
+    var table = document.getElementById('report-list');
+    var column = document.getElementById(columnId);
+    var cellIndex = column.cellIndex;
+
+    if (asc === undefined) {
+      asc = column.getAttribute('sort') === 'desc' ? false : true;
+    }
+
+    var n = table.rows.length;
+    for (i = 1; i < n - 1; i++)
+    {
+      minIdx = i;
+      for (j = i + 1; j < n; j++) {
+        x = table.rows[minIdx].getElementsByTagName('td')[cellIndex];
+        y = table.rows[j].getElementsByTagName('td')[cellIndex];
+        if (this.compare(columnId, x, y, asc)) {
+          minIdx = j;
+        }
+      }
+
+      if (minIdx !== i) {
+        table.rows[i].parentNode.insertBefore(
+          table.rows[minIdx], table.rows[i]);
+      }
+    }
+
+    table.querySelectorAll('th').forEach(function (column) {
+      column.removeAttribute('sort');
+      column.classList.remove('active');
+    });
+
+    column.classList.add('active');
+    column.setAttribute('sort', asc ? 'desc' : 'asc');
+    window.location.hash = '#sort=' + columnId + '&asc=' + (asc ? 1 : 0);
+  }
+};
+
+
+      window.onload = function () {
+        if (!browserCompatible) {
+          setNonCompatibleBrowserMessage();
+        } else {
+          BugList.init()
+        }
+      }
+    </script>
+  </head>
+  <body>
+  <div class="container">
+    <a href="statistics.html" class="button">Go To Statistics</a>
+    <table id="report-list">
+      
+                <tr>
+                  <th id="report-id">&nbsp;</th>
+                  <th id="file-path">File</th>
+                  <th id="severity">Severity</th>
+                  <th id="checker-name">Checker name</th>
+                  <th id="message">Message</th>
+                  <th id="bug-path-length">Bug path length</th>
+                  <th id="review-status">Review status</th>
+                </tr>
+                  <tr>
+                    <td>1</td>
+                    <td file="/home/vsts/work/1/ccache/src/Args.hpp" line="35">
+                      <a href="argprocessing.cpp_clang-tidy_57efd3226b20a4e59a429f45c1d5a814.plist.html#reportHash=56aa6e7494a8f0f11d830e4f24fac40e">
+                        /home/vsts/work/1/ccache/src/Args.hpp @ Line&nbsp;35
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>default constructor 'Args' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>2</td>
+                    <td file="/home/vsts/work/1/ccache/src/ArgsInfo.hpp" line="29">
+                      <a href="Context.cpp_clang-tidy_a751f4d6be7ebaf30f36372e1c2678de.plist.html#reportHash=0931f50683c32da3f15a0151e424274a">
+                        /home/vsts/work/1/ccache/src/ArgsInfo.hpp @ Line&nbsp;29
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>default constructor 'ArgsInfo' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>3</td>
+                    <td file="/home/vsts/work/1/ccache/src/Checksum.hpp" line="32">
+                      <a href="CacheEntryWriter.cpp_clang-tidy_564becb6e6620a9cf035e306b73503e0.plist.html#reportHash=7747b9ac80afb05359a7b2aea20f8015">
+                        /home/vsts/work/1/ccache/src/Checksum.hpp @ Line&nbsp;32
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>default constructor 'Checksum' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>4</td>
+                    <td file="/home/vsts/work/1/ccache/src/Checksum.hpp" line="43">
+                      <a href="CacheEntryWriter.cpp_clang-tidy_564becb6e6620a9cf035e306b73503e0.plist.html#reportHash=7f34d81da97bd57f5cad213f5512d01b">
+                        /home/vsts/work/1/ccache/src/Checksum.hpp @ Line&nbsp;43
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>default constructor 'Checksum' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>5</td>
+                    <td file="/home/vsts/work/1/ccache/src/Config.hpp" line="40">
+                      <a href="test_Config.cpp_clang-tidy_1ec79011d9633e15489633659bd18a81.plist.html#reportHash=a9f0907c58e020c365d07d610c826d57">
+                        /home/vsts/work/1/ccache/src/Config.hpp @ Line&nbsp;40
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>default constructor 'Config' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>6</td>
+                    <td file="/home/vsts/work/1/ccache/src/Context.cpp" line="33">
+                      <a href="Context.cpp_clang-tidy_a751f4d6be7ebaf30f36372e1c2678de.plist.html#reportHash=e552c262fdf176183a85f60c35e772b0">
+                        /home/vsts/work/1/ccache/src/Context.cpp @ Line&nbsp;33
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>default constructor 'Context' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>7</td>
+                    <td file="/home/vsts/work/1/ccache/src/Context.hpp" line="49">
+                      <a href="execute.cpp_clang-tidy_6800144a14c6bca11aa8340fd0bbaf9c.plist.html#reportHash=13d30fd971b172c5e01324bb8eea3b5f">
+                        /home/vsts/work/1/ccache/src/Context.hpp @ Line&nbsp;49
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>default constructor 'Context' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>8</td>
+                    <td file="/home/vsts/work/1/ccache/src/Counters.cpp" line="26">
+                      <a href="Counters.cpp_clang-tidy_fb09f3cdad5355bd4f5f4b19e01701e3.plist.html#reportHash=91085f9239d29ee148a3c78dbfe6ed5d">
+                        /home/vsts/work/1/ccache/src/Counters.cpp @ Line&nbsp;26
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>default constructor 'Counters' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>9</td>
+                    <td file="/home/vsts/work/1/ccache/src/Counters.hpp" line="32">
+                      <a href="execute.cpp_clang-tidy_6800144a14c6bca11aa8340fd0bbaf9c.plist.html#reportHash=698179266f949d43cef446de19c07daf">
+                        /home/vsts/work/1/ccache/src/Counters.hpp @ Line&nbsp;32
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>default constructor 'Counters' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>10</td>
+                    <td file="/home/vsts/work/1/ccache/src/Hash.cpp" line="29">
+                      <a href="Hash.cpp_clang-tidy_415e614d4f75ca86a77ee25ea4141409.plist.html#reportHash=e9a070b1666deb05914fb22246ce9514">
+                        /home/vsts/work/1/ccache/src/Hash.cpp @ Line&nbsp;29
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>default constructor 'Hash' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>11</td>
+                    <td file="/home/vsts/work/1/ccache/src/Hash.hpp" line="34">
+                      <a href="Depfile.cpp_clang-tidy_16746a76709276ab0a7fe0308098cd2a.plist.html#reportHash=4410bb0755e2b1d02e84b60eb9dcbbd7">
+                        /home/vsts/work/1/ccache/src/Hash.hpp @ Line&nbsp;34
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>default constructor 'Hash' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>12</td>
+                    <td file="/home/vsts/work/1/ccache/src/SignalHandler.cpp" line="138">
+                      <a href="SignalHandler.cpp_clang-tidy_4213d796b175a7a7a0a8500b76dbe0fd.plist.html#reportHash=ae2a866335e0870186f29a2cf86721cc">
+                        /home/vsts/work/1/ccache/src/SignalHandler.cpp @ Line&nbsp;138
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>default constructor 'SignalHandlerBlocker' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>13</td>
+                    <td file="/home/vsts/work/1/ccache/src/SignalHandler.hpp" line="42">
+                      <a href="execute.cpp_clang-tidy_6800144a14c6bca11aa8340fd0bbaf9c.plist.html#reportHash=511516f4b046f4ef01c7065c05b563c2">
+                        /home/vsts/work/1/ccache/src/SignalHandler.hpp @ Line&nbsp;42
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>default constructor 'SignalHandlerBlocker' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>14</td>
+                    <td file="/home/vsts/work/1/ccache/src/Stat.hpp" line="43">
+                      <a href="execute.cpp_clang-tidy_6800144a14c6bca11aa8340fd0bbaf9c.plist.html#reportHash=eded101c407d568de6e25d2643e931c7">
+                        /home/vsts/work/1/ccache/src/Stat.hpp @ Line&nbsp;43
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>default constructor 'Stat' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>15</td>
+                    <td file="/home/vsts/work/1/ccache/src/Stat.hpp" line="105">
+                      <a href="execute.cpp_clang-tidy_6800144a14c6bca11aa8340fd0bbaf9c.plist.html#reportHash=e2d00c42e9c46abbb118d467f1af80f9">
+                        /home/vsts/work/1/ccache/src/Stat.hpp @ Line&nbsp;105
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>default constructor 'Stat' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>16</td>
+                    <td file="/home/vsts/work/1/ccache/src/argprocessing.cpp" line="39">
+                      <a href="argprocessing.cpp_clang-tidy_57efd3226b20a4e59a429f45c1d5a814.plist.html#reportHash=cc45bdb306a99084f199e15909db461b">
+                        /home/vsts/work/1/ccache/src/argprocessing.cpp @ Line&nbsp;39
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>default constructor 'ArgumentProcessingState' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>17</td>
+                    <td file="/home/vsts/work/1/ccache/src/compress.cpp" line="301">
+                      <a href="compress.cpp_clang-tidy_182bd5f398122e4cdac06ea91fddefc9.plist.html#reportHash=30a1520623934643df594fb35748d5a6">
+                        /home/vsts/work/1/ccache/src/compress.cpp @ Line&nbsp;301
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>move constructor '' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>18</td>
+                    <td file="/home/vsts/work/1/ccache/src/exceptions.hpp" line="48">
+                      <a href="execute.cpp_clang-tidy_6800144a14c6bca11aa8340fd0bbaf9c.plist.html#reportHash=d8744c56e346dbddbc117bb2b83a3b6b">
+                        /home/vsts/work/1/ccache/src/exceptions.hpp @ Line&nbsp;48
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>default constructor 'Error' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>19</td>
+                    <td file="/home/vsts/work/1/ccache/src/exceptions.hpp" line="56">
+                      <a href="execute.cpp_clang-tidy_6800144a14c6bca11aa8340fd0bbaf9c.plist.html#reportHash=b10c3aee984436d921e019395e2f278f">
+                        /home/vsts/work/1/ccache/src/exceptions.hpp @ Line&nbsp;56
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>default constructor 'Error' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>20</td>
+                    <td file="/home/vsts/work/1/ccache/src/exceptions.hpp" line="70">
+                      <a href="execute.cpp_clang-tidy_6800144a14c6bca11aa8340fd0bbaf9c.plist.html#reportHash=30a9442c88c19b28cd98f33e5a7ef360">
+                        /home/vsts/work/1/ccache/src/exceptions.hpp @ Line&nbsp;70
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>default constructor 'Fatal' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>21</td>
+                    <td file="/home/vsts/work/1/ccache/src/exceptions.hpp" line="78">
+                      <a href="execute.cpp_clang-tidy_6800144a14c6bca11aa8340fd0bbaf9c.plist.html#reportHash=2830ce57a38b34ecf46bd72df61fdde9">
+                        /home/vsts/work/1/ccache/src/exceptions.hpp @ Line&nbsp;78
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>default constructor 'Fatal' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>22</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/doctest.h" line="496">
+                      <a href="test_Util.cpp_clang-tidy_025cfc5dd7ef8939de8a7e87a09c2e8e.plist.html#reportHash=75f17b76b94bdcc92aea482717964e7b">
+                        /home/vsts/work/1/ccache/src/third_party/doctest.h @ Line&nbsp;496
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>default constructor 'String' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>23</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/doctest.h" line="509">
+                      <a href="test_Util.cpp_clang-tidy_025cfc5dd7ef8939de8a7e87a09c2e8e.plist.html#reportHash=0fe5b5e4580b5de3977c145ee847989b">
+                        /home/vsts/work/1/ccache/src/third_party/doctest.h @ Line&nbsp;509
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>move constructor 'String' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>24</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/doctest.h" line="510">
+                      <a href="test_Util.cpp_clang-tidy_025cfc5dd7ef8939de8a7e87a09c2e8e.plist.html#reportHash=b266dfe0e142a05cbd68921b779d8f8f">
+                        /home/vsts/work/1/ccache/src/third_party/doctest.h @ Line&nbsp;510
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>move assignment operator 'operator=' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>25</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/doctest.h" line="715">
+                      <a href="test_Util.cpp_clang-tidy_025cfc5dd7ef8939de8a7e87a09c2e8e.plist.html#reportHash=8f0ca68ff8fb9b167c0929d05c679619">
+                        /home/vsts/work/1/ccache/src/third_party/doctest.h @ Line&nbsp;715
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>default constructor 'IContextScope' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>26</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/doctest.h" line="1073">
+                      <a href="test_Util.cpp_clang-tidy_025cfc5dd7ef8939de8a7e87a09c2e8e.plist.html#reportHash=670c39fd8868890a52e2098efe52079e">
+                        /home/vsts/work/1/ccache/src/third_party/doctest.h @ Line&nbsp;1073
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>move constructor 'Result' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>27</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/doctest.h" line="1442">
+                      <a href="test_Util.cpp_clang-tidy_025cfc5dd7ef8939de8a7e87a09c2e8e.plist.html#reportHash=dbcd9246c8dbd2f9ebd3fc4c6c6c54c4">
+                        /home/vsts/work/1/ccache/src/third_party/doctest.h @ Line&nbsp;1442
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>default constructor 'IExceptionTranslator' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>28</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/doctest.h" line="1530">
+                      <a href="test_Util.cpp_clang-tidy_025cfc5dd7ef8939de8a7e87a09c2e8e.plist.html#reportHash=23eac19a5f45c556d938d53e3d9df4c1">
+                        /home/vsts/work/1/ccache/src/third_party/doctest.h @ Line&nbsp;1530
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>default constructor 'ContextScopeBase' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>29</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/doctest.h" line="1542">
+                      <a href="test_Util.cpp_clang-tidy_025cfc5dd7ef8939de8a7e87a09c2e8e.plist.html#reportHash=b97ff30d7f5abe61e02884519b4e52e0">
+                        /home/vsts/work/1/ccache/src/third_party/doctest.h @ Line&nbsp;1542
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>move constructor 'ContextScope<L>' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>30</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/doctest.h" line="1546">
+                      <a href="test_Util.cpp_clang-tidy_025cfc5dd7ef8939de8a7e87a09c2e8e.plist.html#reportHash=66ccbb4462331c8cbe3421c08a2795ee">
+                        /home/vsts/work/1/ccache/src/third_party/doctest.h @ Line&nbsp;1546
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>destructor '~ContextScope<L>' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>31</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/doctest.h" line="1554">
+                      <a href="test_Util.cpp_clang-tidy_025cfc5dd7ef8939de8a7e87a09c2e8e.plist.html#reportHash=03dd42b7aa9d6ed9183d0475afc1a668">
+                        /home/vsts/work/1/ccache/src/third_party/doctest.h @ Line&nbsp;1554
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>default constructor 'MessageBuilder' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>32</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/doctest.h" line="1595">
+                      <a href="test_Util.cpp_clang-tidy_025cfc5dd7ef8939de8a7e87a09c2e8e.plist.html#reportHash=be6b53b1d4485b73fba106822d7fadbf">
+                        /home/vsts/work/1/ccache/src/third_party/doctest.h @ Line&nbsp;1595
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>default constructor 'test_suite' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>33</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/doctest.h" line="1596">
+                      <a href="test_Util.cpp_clang-tidy_025cfc5dd7ef8939de8a7e87a09c2e8e.plist.html#reportHash=aacb2fd4cf4bb0efb20d8b8d75e8f581">
+                        /home/vsts/work/1/ccache/src/third_party/doctest.h @ Line&nbsp;1596
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>default constructor 'description' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>34</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/doctest.h" line="1597">
+                      <a href="test_Util.cpp_clang-tidy_025cfc5dd7ef8939de8a7e87a09c2e8e.plist.html#reportHash=b650564c7ee785d8e5b2557b211f8413">
+                        /home/vsts/work/1/ccache/src/third_party/doctest.h @ Line&nbsp;1597
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>default constructor 'skip' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>35</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/doctest.h" line="1598">
+                      <a href="test_Util.cpp_clang-tidy_025cfc5dd7ef8939de8a7e87a09c2e8e.plist.html#reportHash=deb4833c6e4a09ab8a7b16c666ebe615">
+                        /home/vsts/work/1/ccache/src/third_party/doctest.h @ Line&nbsp;1598
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>default constructor 'no_breaks' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>36</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/doctest.h" line="1599">
+                      <a href="test_Util.cpp_clang-tidy_025cfc5dd7ef8939de8a7e87a09c2e8e.plist.html#reportHash=c4876affbdec4d8471c85a435d4467b4">
+                        /home/vsts/work/1/ccache/src/third_party/doctest.h @ Line&nbsp;1599
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>default constructor 'no_output' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>37</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/doctest.h" line="1600">
+                      <a href="test_Util.cpp_clang-tidy_025cfc5dd7ef8939de8a7e87a09c2e8e.plist.html#reportHash=b9021db1341c931b051df5f135edf078">
+                        /home/vsts/work/1/ccache/src/third_party/doctest.h @ Line&nbsp;1600
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>default constructor 'timeout' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>38</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/doctest.h" line="1601">
+                      <a href="test_Util.cpp_clang-tidy_025cfc5dd7ef8939de8a7e87a09c2e8e.plist.html#reportHash=cc293d007ff9ed859614589cdec00d07">
+                        /home/vsts/work/1/ccache/src/third_party/doctest.h @ Line&nbsp;1601
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>default constructor 'may_fail' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>39</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/doctest.h" line="1602">
+                      <a href="test_Util.cpp_clang-tidy_025cfc5dd7ef8939de8a7e87a09c2e8e.plist.html#reportHash=1043a848f8430833afaefcd03df2ca6b">
+                        /home/vsts/work/1/ccache/src/third_party/doctest.h @ Line&nbsp;1602
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>default constructor 'should_fail' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>40</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/doctest.h" line="1603">
+                      <a href="test_Util.cpp_clang-tidy_025cfc5dd7ef8939de8a7e87a09c2e8e.plist.html#reportHash=5ef51509cf030e96854e3b8af3e22aaf">
+                        /home/vsts/work/1/ccache/src/third_party/doctest.h @ Line&nbsp;1603
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>default constructor 'expected_failures' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>41</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/doctest.h" line="1642">
+                      <a href="test_Util.cpp_clang-tidy_025cfc5dd7ef8939de8a7e87a09c2e8e.plist.html#reportHash=02c51f2663b753b51628d222c555f0ed">
+                        /home/vsts/work/1/ccache/src/third_party/doctest.h @ Line&nbsp;1642
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>default constructor 'Context' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>42</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/doctest.h" line="657">
+                      <a href="main.cpp_clang-tidy_ad32c7df11c1a69c868297fa4204d773.plist.html#reportHash=9baab1a7bc602b11a01c58139fafd860">
+                        /home/vsts/work/1/ccache/src/third_party/doctest.h @ Line&nbsp;657
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>default constructor 'TestCaseData' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>43</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/doctest.h" line="673">
+                      <a href="main.cpp_clang-tidy_ad32c7df11c1a69c868297fa4204d773.plist.html#reportHash=cd3f5b6b3a131e149e8005a7f3a0f8ae">
+                        /home/vsts/work/1/ccache/src/third_party/doctest.h @ Line&nbsp;673
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>default constructor 'AssertData' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>44</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/doctest.h" line="696">
+                      <a href="main.cpp_clang-tidy_ad32c7df11c1a69c868297fa4204d773.plist.html#reportHash=55ca80412bf310b64260434ff218db58">
+                        /home/vsts/work/1/ccache/src/third_party/doctest.h @ Line&nbsp;696
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>default constructor 'MessageData' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>45</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/doctest.h" line="704">
+                      <a href="main.cpp_clang-tidy_ad32c7df11c1a69c868297fa4204d773.plist.html#reportHash=bd4276a4971bdd2a04cea938bd854645">
+                        /home/vsts/work/1/ccache/src/third_party/doctest.h @ Line&nbsp;704
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>move constructor 'SubcaseSignature' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>46</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/doctest.h" line="724">
+                      <a href="main.cpp_clang-tidy_ad32c7df11c1a69c868297fa4204d773.plist.html#reportHash=edab9d96768145e16437a8969f5a3199">
+                        /home/vsts/work/1/ccache/src/third_party/doctest.h @ Line&nbsp;724
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>default constructor 'ContextOptions' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>47</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/doctest.h" line="3082">
+                      <a href="main.cpp_clang-tidy_ad32c7df11c1a69c868297fa4204d773.plist.html#reportHash=a44aa7c8bbcd6fadf27e362de35e2fc0">
+                        /home/vsts/work/1/ccache/src/third_party/doctest.h @ Line&nbsp;3082
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>default constructor 'ContextState' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>48</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/doctest.h" line="3183">
+                      <a href="main.cpp_clang-tidy_ad32c7df11c1a69c868297fa4204d773.plist.html#reportHash=d2d4eadae275146cb4fd6b6bb85c1c6c">
+                        /home/vsts/work/1/ccache/src/third_party/doctest.h @ Line&nbsp;3183
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>default constructor 'String' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>49</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/doctest.h" line="3280">
+                      <a href="main.cpp_clang-tidy_ad32c7df11c1a69c868297fa4204d773.plist.html#reportHash=1fd6ec6bfa1e82333e062bf12acac8e9">
+                        /home/vsts/work/1/ccache/src/third_party/doctest.h @ Line&nbsp;3280
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>move constructor 'String' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>50</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/doctest.h" line="3287">
+                      <a href="main.cpp_clang-tidy_ad32c7df11c1a69c868297fa4204d773.plist.html#reportHash=ff31757c091cd78a0d7129cfffbabf79">
+                        /home/vsts/work/1/ccache/src/third_party/doctest.h @ Line&nbsp;3287
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>move assignment operator 'operator=' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>51</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/doctest.h" line="3456">
+                      <a href="main.cpp_clang-tidy_ad32c7df11c1a69c868297fa4204d773.plist.html#reportHash=1d72094d44c3c75ba9972f719516b8ac">
+                        /home/vsts/work/1/ccache/src/third_party/doctest.h @ Line&nbsp;3456
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>default constructor 'IContextScope' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>52</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/doctest.h" line="4014">
+                      <a href="main.cpp_clang-tidy_ad32c7df11c1a69c868297fa4204d773.plist.html#reportHash=edd1f6112642bbfe9a41155ddf215f96">
+                        /home/vsts/work/1/ccache/src/third_party/doctest.h @ Line&nbsp;4014
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>default constructor 'ErrnoGuard' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>53</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/doctest.h" line="4095">
+                      <a href="main.cpp_clang-tidy_ad32c7df11c1a69c868297fa4204d773.plist.html#reportHash=279844d11dd824bbac2ca6f9c2881bb2">
+                        /home/vsts/work/1/ccache/src/third_party/doctest.h @ Line&nbsp;4095
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>default constructor 'ContextScopeBase' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>54</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/doctest.h" line="4315">
+                      <a href="main.cpp_clang-tidy_ad32c7df11c1a69c868297fa4204d773.plist.html#reportHash=a392bb7341711f4d684d4c6d8056c912">
+                        /home/vsts/work/1/ccache/src/third_party/doctest.h @ Line&nbsp;4315
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>default constructor 'FatalConditionHandler' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>55</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/doctest.h" line="4485">
+                      <a href="main.cpp_clang-tidy_ad32c7df11c1a69c868297fa4204d773.plist.html#reportHash=411b94b533d5a74c9ddbaab3210b6554">
+                        /home/vsts/work/1/ccache/src/third_party/doctest.h @ Line&nbsp;4485
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>default constructor 'IExceptionTranslator' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>56</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/doctest.h" line="4577">
+                      <a href="main.cpp_clang-tidy_ad32c7df11c1a69c868297fa4204d773.plist.html#reportHash=964f5e43d4dc33393cc7f13cbf8db796">
+                        /home/vsts/work/1/ccache/src/third_party/doctest.h @ Line&nbsp;4577
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>default constructor 'XmlWriter' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>57</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/doctest.h" line="4802">
+                      <a href="main.cpp_clang-tidy_ad32c7df11c1a69c868297fa4204d773.plist.html#reportHash=6b2ea0ade8ce66cd89cc4feeac282980">
+                        /home/vsts/work/1/ccache/src/third_party/doctest.h @ Line&nbsp;4802
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>default constructor 'XmlWriter' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>58</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/doctest.h" line="6043">
+                      <a href="main.cpp_clang-tidy_ad32c7df11c1a69c868297fa4204d773.plist.html#reportHash=2735a4b2c7ae4fb460914008a76bd17e">
+                        /home/vsts/work/1/ccache/src/third_party/doctest.h @ Line&nbsp;6043
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>default constructor 'Context' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>59</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/core.h" line="632">
+                      <a href="execute.cpp_clang-tidy_6800144a14c6bca11aa8340fd0bbaf9c.plist.html#reportHash=763f8cfaf1d43e6f779ac980fc983cb5">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/core.h @ Line&nbsp;632
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>default constructor 'formatter<T, Char, Enable>' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>60</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/core.h" line="681">
+                      <a href="execute.cpp_clang-tidy_6800144a14c6bca11aa8340fd0bbaf9c.plist.html#reportHash=af89bc1f3569818aae06feda9ba24807">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/core.h @ Line&nbsp;681
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>destructor '~buffer<T>' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>61</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/core.h" line="789">
+                      <a href="execute.cpp_clang-tidy_6800144a14c6bca11aa8340fd0bbaf9c.plist.html#reportHash=568e994e11168bec0a277693e0ced8ac">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/core.h @ Line&nbsp;789
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>destructor '~iterator_buffer<OutputIt, T, Traits>' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>62</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/core.h" line="848">
+                      <a href="execute.cpp_clang-tidy_6800144a14c6bca11aa8340fd0bbaf9c.plist.html#reportHash=ad9dbde4a8f1ba1d117fc1f78dd1082c">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/core.h @ Line&nbsp;848
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>default constructor 'counting_buffer' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>63</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/core.h" line="848">
+                      <a href="execute.cpp_clang-tidy_6800144a14c6bca11aa8340fd0bbaf9c.plist.html#reportHash=9e74fb9bc218ed9cdabe7b5b14016dc5">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/core.h @ Line&nbsp;848
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>default constructor 'counting_buffer<T>' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>64</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/core.h" line="897">
+                      <a href="execute.cpp_clang-tidy_6800144a14c6bca11aa8340fd0bbaf9c.plist.html#reportHash=d93082c0a7ed0ef6c3a6a6f2e039945d">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/core.h @ Line&nbsp;897
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>default constructor 'fallback_formatter' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>65</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/core.h" line="897">
+                      <a href="execute.cpp_clang-tidy_6800144a14c6bca11aa8340fd0bbaf9c.plist.html#reportHash=60603c6184cfb2b1b7ed4331e4614812">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/core.h @ Line&nbsp;897
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>default constructor 'fallback_formatter<T, Char, Enable>' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>66</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/core.h" line="926">
+                      <a href="execute.cpp_clang-tidy_6800144a14c6bca11aa8340fd0bbaf9c.plist.html#reportHash=ca32e861ca8a5dddba6f9c180ce157bb">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/core.h @ Line&nbsp;926
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>default constructor 'arg_data<T, Char, NUM_ARGS, NUM_NAMED_ARGS>' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>67</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/core.h" line="938">
+                      <a href="execute.cpp_clang-tidy_6800144a14c6bca11aa8340fd0bbaf9c.plist.html#reportHash=776aa547bf2ab50b31cfb1c2a1dd7bc6">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/core.h @ Line&nbsp;938
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>default constructor 'arg_data' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>68</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/core.h" line="938">
+                      <a href="execute.cpp_clang-tidy_6800144a14c6bca11aa8340fd0bbaf9c.plist.html#reportHash=24f5b628a9721c3aece46d359e16cc57">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/core.h @ Line&nbsp;938
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>default constructor 'arg_data<type-parameter-0-0, type-parameter-0-1, NUM_ARGS, 0>' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>69</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/core.h" line="1071">
+                      <a href="execute.cpp_clang-tidy_6800144a14c6bca11aa8340fd0bbaf9c.plist.html#reportHash=0670de366283677de1f08a5f25aebf44">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/core.h @ Line&nbsp;1071
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>default constructor 'value' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>70</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/core.h" line="1071">
+                      <a href="execute.cpp_clang-tidy_6800144a14c6bca11aa8340fd0bbaf9c.plist.html#reportHash=476c5dd0a5be9c2f0c8b14d2a9955ee0">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/core.h @ Line&nbsp;1071
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>default constructor 'value<Context>' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>71</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/core.h" line="1290">
+                      <a href="execute.cpp_clang-tidy_6800144a14c6bca11aa8340fd0bbaf9c.plist.html#reportHash=3d8aad0404c9aaed008c00abcb2de677">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/core.h @ Line&nbsp;1290
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>default constructor 'basic_format_arg<Context>' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>72</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/core.h" line="1397">
+                      <a href="execute.cpp_clang-tidy_6800144a14c6bca11aa8340fd0bbaf9c.plist.html#reportHash=0cd906364ac6eb99a08911c9e9d5e8dc">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/core.h @ Line&nbsp;1397
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>default constructor 'locale_ref' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>73</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/core.h" line="1461">
+                      <a href="execute.cpp_clang-tidy_6800144a14c6bca11aa8340fd0bbaf9c.plist.html#reportHash=e0f6f802bf42dcd1a33eb4927b42f8f2">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/core.h @ Line&nbsp;1461
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>destructor '~node<type-parameter-0-0>' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>74</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/core.h" line="1582">
+                      <a href="execute.cpp_clang-tidy_6800144a14c6bca11aa8340fd0bbaf9c.plist.html#reportHash=00420ce796bde3fa70e907e9bd79a066">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/core.h @ Line&nbsp;1582
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>default constructor 'format_arg_store<Context, Args...>' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>75</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/core.h" line="1867">
+                      <a href="execute.cpp_clang-tidy_6800144a14c6bca11aa8340fd0bbaf9c.plist.html#reportHash=b519029407f3d0e9208870380e613429">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/core.h @ Line&nbsp;1867
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>default constructor 'basic_format_args' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>76</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/core.h" line="1867">
+                      <a href="execute.cpp_clang-tidy_6800144a14c6bca11aa8340fd0bbaf9c.plist.html#reportHash=1b93208a86e36894a7ff50fb03166422">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/core.h @ Line&nbsp;1867
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>default constructor 'basic_format_args<Context>' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>77</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/core.h" line="1943">
+                      <a href="execute.cpp_clang-tidy_6800144a14c6bca11aa8340fd0bbaf9c.plist.html#reportHash=3f3473620c2fd7e7305692c274cfec8e">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/core.h @ Line&nbsp;1943
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>default constructor 'format_args' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>78</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/core.h" line="938">
+                      <a href="CacheEntryWriter.cpp_clang-tidy_564becb6e6620a9cf035e306b73503e0.plist.html#reportHash=b3c0462f62f8f2539ed6d9800a1cc8c7">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/core.h @ Line&nbsp;938
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>default constructor 'arg_data<>' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>79</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/core.h" line="1582">
+                      <a href="CacheEntryWriter.cpp_clang-tidy_564becb6e6620a9cf035e306b73503e0.plist.html#reportHash=949fbc4867bb3d7c3b9dc55e77941e02">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/core.h @ Line&nbsp;1582
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>default constructor 'format_arg_store' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>80</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/core.h" line="632">
+                      <a href="TemporaryFile.cpp_clang-tidy_143ea6eecb93bd46496fb78b09e7ca0d.plist.html#reportHash=768cef10a058838ee486ede9e9415432">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/core.h @ Line&nbsp;632
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>default constructor 'formatter' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>81</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/core.h" line="1290">
+                      <a href="format.cpp_clang-tidy_be2267f304e3cd5558888cacf4bc2722.plist.html#reportHash=055cadd5173d467c921c7c44467f92cc">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/core.h @ Line&nbsp;1290
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>default constructor 'basic_format_arg' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>82</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/format-inl.h" line="1117">
+                      <a href="format.cpp_clang-tidy_be2267f304e3cd5558888cacf4bc2722.plist.html#reportHash=bd463bd6a5b634658dbf3a87e6ab0bb1">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/format-inl.h @ Line&nbsp;1117
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>default constructor 'fp' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>83</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/format-inl.h" line="1223">
+                      <a href="format.cpp_clang-tidy_be2267f304e3cd5558888cacf4bc2722.plist.html#reportHash=aad4b56dbaa74ce75dbf408e211ff3d2">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/format-inl.h @ Line&nbsp;1223
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>default constructor 'accumulator' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>84</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/format-inl.h" line="1308">
+                      <a href="format.cpp_clang-tidy_be2267f304e3cd5558888cacf4bc2722.plist.html#reportHash=e9c3ef800e81b414ff1cd42095f1d2c7">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/format-inl.h @ Line&nbsp;1308
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>default constructor 'bigint' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>85</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/format.h" line="432">
+                      <a href="execute.cpp_clang-tidy_6800144a14c6bca11aa8340fd0bbaf9c.plist.html#reportHash=184d71702168eb1fd3c9a6c5a8025e01">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/format.h @ Line&nbsp;432
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>default constructor 'counting_iterator' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>86</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/format.h" line="674">
+                      <a href="execute.cpp_clang-tidy_6800144a14c6bca11aa8340fd0bbaf9c.plist.html#reportHash=05848d8dae1fb2aa120c9bb6ccfa07d6">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/format.h @ Line&nbsp;674
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>default constructor 'basic_memory_buffer' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>87</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/format.h" line="674">
+                      <a href="execute.cpp_clang-tidy_6800144a14c6bca11aa8340fd0bbaf9c.plist.html#reportHash=dfad8b942434e1a8685b2c417d918129">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/format.h @ Line&nbsp;674
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>default constructor 'basic_memory_buffer<T, SIZE, Allocator>' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>88</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/format.h" line="678">
+                      <a href="execute.cpp_clang-tidy_6800144a14c6bca11aa8340fd0bbaf9c.plist.html#reportHash=4d51258eed280343473b79dae3ab3b9d">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/format.h @ Line&nbsp;678
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>destructor '~basic_memory_buffer<T, SIZE, Allocator>' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>89</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/format.h" line="1194">
+                      <a href="execute.cpp_clang-tidy_6800144a14c6bca11aa8340fd0bbaf9c.plist.html#reportHash=5d0ba0612a4504bf04017699a4a4d05e">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/format.h @ Line&nbsp;1194
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>default constructor 'basic_format_specs' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>90</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/format.h" line="1194">
+                      <a href="execute.cpp_clang-tidy_6800144a14c6bca11aa8340fd0bbaf9c.plist.html#reportHash=48a98068bf62b433921ba2cc28b3d110">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/format.h @ Line&nbsp;1194
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>default constructor 'basic_format_specs<Char>' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>91</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/format.h" line="2615">
+                      <a href="execute.cpp_clang-tidy_6800144a14c6bca11aa8340fd0bbaf9c.plist.html#reportHash=e2c3d7e9e78bb03a01bd7f23031d33df">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/format.h @ Line&nbsp;2615
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>default constructor 'arg_ref' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>92</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/format.h" line="2615">
+                      <a href="execute.cpp_clang-tidy_6800144a14c6bca11aa8340fd0bbaf9c.plist.html#reportHash=878ea0d4ffb46e2da1454d30a6cc71fa">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/format.h @ Line&nbsp;2615
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>default constructor 'arg_ref<Char>' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>93</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/format.h" line="2630">
+                      <a href="execute.cpp_clang-tidy_6800144a14c6bca11aa8340fd0bbaf9c.plist.html#reportHash=ab7d757bb06583621f9be6211676b1e6">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/format.h @ Line&nbsp;2630
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>default constructor 'value' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>94</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/format.h" line="2642">
+                      <a href="execute.cpp_clang-tidy_6800144a14c6bca11aa8340fd0bbaf9c.plist.html#reportHash=23cc11672df1127b9f1596ae3ff67559">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/format.h @ Line&nbsp;2642
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>default constructor 'dynamic_format_specs' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>95</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/format.h" line="3274">
+                      <a href="execute.cpp_clang-tidy_6800144a14c6bca11aa8340fd0bbaf9c.plist.html#reportHash=1358dd6979c8410799a6a17211fc3cf7">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/format.h @ Line&nbsp;3274
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>default constructor 'system_error' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>96</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/format.h" line="3399">
+                      <a href="execute.cpp_clang-tidy_6800144a14c6bca11aa8340fd0bbaf9c.plist.html#reportHash=881e995579ef90b2e85dd416ced18230">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/format.h @ Line&nbsp;3399
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>default constructor 'formatter' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>97</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/format.h" line="3399">
+                      <a href="execute.cpp_clang-tidy_6800144a14c6bca11aa8340fd0bbaf9c.plist.html#reportHash=aec369a57d10db9d90fffbd40015e6f9">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/format.h @ Line&nbsp;3399
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>default constructor 'formatter<type-parameter-0-0, type-parameter-0-1, typename enable_if<detail::type_constant<T, Char>::value != detail::type::custom_type, void>::type>' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>98</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/format.h" line="3496">
+                      <a href="execute.cpp_clang-tidy_6800144a14c6bca11aa8340fd0bbaf9c.plist.html#reportHash=594ce21498e70118986e1f9681edc30f">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/format.h @ Line&nbsp;3496
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>default constructor 'formatter' should be marked noexcept</td>
+                    <td class="bug-path-length">4</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>99</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/format.h" line="3497">
+                      <a href="execute.cpp_clang-tidy_6800144a14c6bca11aa8340fd0bbaf9c.plist.html#reportHash=5ba998a2d56d95a7812652b8edcc7c30">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/format.h @ Line&nbsp;3497
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>default constructor 'formatter' should be marked noexcept</td>
+                    <td class="bug-path-length">4</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>100</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/format.h" line="3495">
+                      <a href="ResultDumper.cpp_clang-tidy_cd05075a38ba124a17ee4dd4834d21c2.plist.html#reportHash=bc74706be82f04253a18d8b551b38bec">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/format.h @ Line&nbsp;3495
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>default constructor 'formatter' should be marked noexcept</td>
+                    <td class="bug-path-length">4</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>101</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/format.h" line="3510">
+                      <a href="test_Config.cpp_clang-tidy_1ec79011d9633e15489633659bd18a81.plist.html#reportHash=4073e6abe5546ac6803e6f856f07a43d">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/format.h @ Line&nbsp;3510
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>default constructor 'formatter' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>102</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/format.h" line="3490">
+                      <a href="compress.cpp_clang-tidy_182bd5f398122e4cdac06ea91fddefc9.plist.html#reportHash=42d800cbc62feb496c0d40ed264bc74c">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/format.h @ Line&nbsp;3490
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>default constructor 'formatter' should be marked noexcept</td>
+                    <td class="bug-path-length">4</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>103</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/format.h" line="3494">
+                      <a href="Statistics.cpp_clang-tidy_4827cb32adeb3f9c596d4c2ffa637d2f.plist.html#reportHash=8baa60b93b9b3a102ffb5f7a757dd4e3">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/format.h @ Line&nbsp;3494
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>default constructor 'formatter' should be marked noexcept</td>
+                    <td class="bug-path-length">4</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>104</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/fmt/format.h" line="3491">
+                      <a href="CacheEntryReader.cpp_clang-tidy_538f104adbe57f1a310665c2286fb124.plist.html#reportHash=ce07e36805498feb42f0012d654674ff">
+                        /home/vsts/work/1/ccache/src/third_party/fmt/format.h @ Line&nbsp;3491
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>default constructor 'formatter' should be marked noexcept</td>
+                    <td class="bug-path-length">4</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>105</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/nonstd/optional.hpp" line="677">
+                      <a href="execute.cpp_clang-tidy_6800144a14c6bca11aa8340fd0bbaf9c.plist.html#reportHash=016b936fe1a95b749457c6571df25f2a">
+                        /home/vsts/work/1/ccache/src/third_party/nonstd/optional.hpp @ Line&nbsp;677
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>default constructor 'alignment_of_hack<T>' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>106</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/nonstd/optional.hpp" line="757">
+                      <a href="execute.cpp_clang-tidy_6800144a14c6bca11aa8340fd0bbaf9c.plist.html#reportHash=acbc689b8268378812c9b097411cc923">
+                        /home/vsts/work/1/ccache/src/third_party/nonstd/optional.hpp @ Line&nbsp;757
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>default constructor 'storage_t<T>' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>107</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/nonstd/optional.hpp" line="909">
+                      <a href="execute.cpp_clang-tidy_6800144a14c6bca11aa8340fd0bbaf9c.plist.html#reportHash=c3ac21e8ecc2013cf4e1a500e7a39ca3">
+                        /home/vsts/work/1/ccache/src/third_party/nonstd/optional.hpp @ Line&nbsp;909
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>default constructor 'bad_optional_access' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>108</td>
+                    <td file="/home/vsts/work/1/ccache/src/third_party/nonstd/optional.hpp" line="1148">
+                      <a href="execute.cpp_clang-tidy_6800144a14c6bca11aa8340fd0bbaf9c.plist.html#reportHash=a49ee0ba72d28ae5f928a44dd5a2e13e">
+                        /home/vsts/work/1/ccache/src/third_party/nonstd/optional.hpp @ Line&nbsp;1148
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>destructor '~optional<T>' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>109</td>
+                    <td file="/home/vsts/work/1/ccache/unittest/TestUtil.cpp" line="29">
+                      <a href="TestUtil.cpp_clang-tidy_7b5b692b5b203c666fb8b0d6294f0dee.plist.html#reportHash=3dce1e40b23ef7b5d31850145384a2a4">
+                        /home/vsts/work/1/ccache/unittest/TestUtil.cpp @ Line&nbsp;29
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>default constructor 'TestContext' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>110</td>
+                    <td file="/home/vsts/work/1/ccache/unittest/TestUtil.hpp" line="36">
+                      <a href="test_Util.cpp_clang-tidy_025cfc5dd7ef8939de8a7e87a09c2e8e.plist.html#reportHash=e8692315fa3abb549cc9e2d29279de6d">
+                        /home/vsts/work/1/ccache/unittest/TestUtil.hpp @ Line&nbsp;36
+                      </a>
+                    </td>
+                    <td class="severity" severity="unspecified">
+                      <i class="severity-unspecified"
+                         title="unspecified"></i>
+                    </td>
+                    <td>cppcoreguidelines-noexcept</td>
+                    <td>default constructor 'TestContext' should be marked noexcept</td>
+                    <td class="bug-path-length">2</td>
+                    <td class="review-status review-status-">
+                      
+                    </td>
+                  </tr>
+    </table>
+  </div>
+  </body>
+</html>
