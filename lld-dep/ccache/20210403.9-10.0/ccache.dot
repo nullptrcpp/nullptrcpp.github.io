@@ -1,0 +1,17 @@
+digraph "ccache" {
+	label="ccache";
+
+	Node0x55be1695c6e8 [shape=record,shape=record,label="{CMakeFiles/ccache.dir/src/main.cpp.o}"];
+	Node0x55be1695c6e8 -> Node0x55be1695b090;
+	Node0x55be1695b090 [shape=record,shape=record,label="{src/libccache_lib.a}"];
+	Node0x55be1695b090 -> Node0x55be1695c750;
+	Node0x55be1695b090 -> Node0x55be1695b9e8;
+	Node0x55be1695b090 -> Node0x55be1695cd00;
+	Node0x55be1695c750 [shape=record,shape=record,label="{/lib/x86_64-linux-gnu/libm.so.6}"];
+	Node0x55be1695b9e8 [shape=record,shape=record,label="{/lib/x86_64-linux-gnu/libc.so.6}"];
+	Node0x55be1695cd00 [shape=record,shape=record,label="{src/third_party/libthird_party_lib.a}"];
+	Node0x55be1695cd00 -> Node0x55be1695b090;
+	Node0x55be1695cd00 -> Node0x55be1695b9e8;
+	Node0x55be1695b6a8 [shape=record,shape=record,label="{src/third_party/blake3/libblake3.a}"];
+	Node0x55be1695b6a8 -> Node0x55be1695b9e8;
+}
