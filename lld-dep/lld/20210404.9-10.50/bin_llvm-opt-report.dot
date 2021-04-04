@@ -1,0 +1,19 @@
+digraph "bin/llvm-opt-report" {
+	label="bin/llvm-opt-report";
+
+	Node0x563b8c87e248 [shape=record,shape=record,style=filled,fillcolor="1.000000 0.5 1",label="{tools/llvm-opt-report/CMakeFiles/llvm-opt-report.dir/OptReport.cpp.o}"];
+	Node0x563b8c87e248 -> Node0x563b8c87eb58;
+	Node0x563b8c87e248 -> Node0x563b8c87e1f8[color="1.000000 0.5 1"];
+	Node0x563b8c87e248 -> Node0x563b8c87dd98[color="1.000000 0.5 1"];
+	Node0x563b8c87eb58 [shape=record,shape=record,label="{lib/libLLVMDemangle.a}"];
+	Node0x563b8c87e1f8 [shape=record,shape=record,style=filled,fillcolor="1.000000 0.5 1",label="{lib/libLLVMRemarks.a}"];
+	Node0x563b8c87e1f8 -> Node0x563b8c87dd98[color="1.000000 0.5 1"];
+	Node0x563b8c87e1f8 -> Node0x563b8c87e248[color="1.000000 0.5 1"];
+	Node0x563b8c87e1f8 -> Node0x563b8c87f2d8[color="1.000000 0.5 1"];
+	Node0x563b8c87dd98 [shape=record,shape=record,style=filled,fillcolor="1.000000 0.5 1",label="{lib/libLLVMSupport.a}"];
+	Node0x563b8c87dd98 -> Node0x563b8c87e248[color="1.000000 0.5 1"];
+	Node0x563b8c87dd98 -> Node0x563b8c87e1f8[color="1.000000 0.5 1"];
+	Node0x563b8c87f2d8 [shape=record,shape=record,style=filled,fillcolor="1.000000 0.5 1",label="{lib/libLLVMBitstreamReader.a}"];
+	Node0x563b8c87f2d8 -> Node0x563b8c87e1f8[color="1.000000 0.5 1"];
+	Node0x563b8c87f2d8 -> Node0x563b8c87dd98[color="1.000000 0.5 1"];
+}

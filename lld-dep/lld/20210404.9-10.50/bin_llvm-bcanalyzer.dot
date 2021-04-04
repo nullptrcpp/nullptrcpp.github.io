@@ -1,0 +1,17 @@
+digraph "bin/llvm-bcanalyzer" {
+	label="bin/llvm-bcanalyzer";
+
+	Node0x55e5f9efe818 [shape=record,shape=record,style=filled,fillcolor="1.000000 0.5 1",label="{tools/llvm-bcanalyzer/CMakeFiles/llvm-bcanalyzer.dir/llvm-bcanalyzer.cpp.o}"];
+	Node0x55e5f9efe818 -> Node0x55e5f9efea48[color="1.000000 0.5 1"];
+	Node0x55e5f9efe818 -> Node0x55e5f9efe048[color="1.000000 0.5 1"];
+	Node0x55e5f9efea48 [shape=record,shape=record,style=filled,fillcolor="1.000000 0.5 1",label="{lib/libLLVMBitReader.a}"];
+	Node0x55e5f9efea48 -> Node0x55e5f9efef48[color="1.000000 0.5 1"];
+	Node0x55e5f9efea48 -> Node0x55e5f9efe048[color="1.000000 0.5 1"];
+	Node0x55e5f9efe048 [shape=record,shape=record,style=filled,fillcolor="1.000000 0.5 1",label="{lib/libLLVMSupport.a}"];
+	Node0x55e5f9efe048 -> Node0x55e5f9efe818[color="1.000000 0.5 1"];
+	Node0x55e5f9efe048 -> Node0x55e5f9efea48[color="1.000000 0.5 1"];
+	Node0x55e5f9efe048 -> Node0x55e5f9efef48[color="1.000000 0.5 1"];
+	Node0x55e5f9efef48 [shape=record,shape=record,style=filled,fillcolor="1.000000 0.5 1",label="{lib/libLLVMBitstreamReader.a}"];
+	Node0x55e5f9efef48 -> Node0x55e5f9efea48[color="1.000000 0.5 1"];
+	Node0x55e5f9efef48 -> Node0x55e5f9efe048[color="1.000000 0.5 1"];
+}
