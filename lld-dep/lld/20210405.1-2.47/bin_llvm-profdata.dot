@@ -1,0 +1,30 @@
+digraph "bin/llvm-profdata" {
+	label="bin/llvm-profdata";
+
+	Node0x562e78ad3218 [shape=record,shape=record,style=filled,fillcolor="1.000000 0.5 1",label="{tools/llvm-profdata/CMakeFiles/llvm-profdata.dir/llvm-profdata.cpp.o}"];
+	Node0x562e78ad3218 -> Node0x562e78ad3858[color="1.000000 0.5 1"];
+	Node0x562e78ad3218 -> Node0x562e78ad3358[color="1.000000 0.5 1"];
+	Node0x562e78ad3218 -> Node0x562e78acefd8[color="1.000000 0.5 1"];
+	Node0x562e78ad3858 [shape=record,shape=record,style=filled,fillcolor="1.000000 0.5 1",label="{lib/libLLVMCore.a}"];
+	Node0x562e78ad3858 -> Node0x562e78acefd8[color="1.000000 0.5 1"];
+	Node0x562e78ad3858 -> Node0x562e78ad3218[color="1.000000 0.5 1"];
+	Node0x562e78ad3858 -> Node0x562e78acf4d8[color="1.000000 0.5 1"];
+	Node0x562e78ad3358 [shape=record,shape=record,style=filled,fillcolor="1.000000 0.5 1",label="{lib/libLLVMProfileData.a}"];
+	Node0x562e78ad3358 -> Node0x562e78ad3218[color="1.000000 0.5 1"];
+	Node0x562e78ad3358 -> Node0x562e78ad3858[color="1.000000 0.5 1"];
+	Node0x562e78ad3358 -> Node0x562e78acefd8[color="1.000000 0.5 1"];
+	Node0x562e78acefd8 [shape=record,shape=record,style=filled,fillcolor="1.000000 0.5 1",label="{lib/libLLVMSupport.a}"];
+	Node0x562e78acefd8 -> Node0x562e78ad3218[color="1.000000 0.5 1"];
+	Node0x562e78acefd8 -> Node0x562e78ad3858[color="1.000000 0.5 1"];
+	Node0x562e78acefd8 -> Node0x562e78ad3358[color="1.000000 0.5 1"];
+	Node0x562e78acefd8 -> Node0x562e78ad0dd8[color="1.000000 0.5 1"];
+	Node0x562e78acf4d8 [shape=record,shape=record,style=filled,fillcolor="1.000000 0.5 1",label="{lib/libLLVMRemarks.a}"];
+	Node0x562e78acf4d8 -> Node0x562e78acefd8[color="1.000000 0.5 1"];
+	Node0x562e78acf4d8 -> Node0x562e78ad3218[color="1.000000 0.5 1"];
+	Node0x562e78acf4d8 -> Node0x562e78ad3858[color="1.000000 0.5 1"];
+	Node0x562e78ad0dd8 [shape=record,shape=record,style=filled,fillcolor="1.000000 0.5 1",label="{lib/libLLVMDemangle.a}"];
+	Node0x562e78ad0dd8 -> Node0x562e78acefd8[color="1.000000 0.5 1"];
+	Node0x562e78ad03d8 [shape=record,shape=record,label="{lib/libLLVMBitstreamReader.a}"];
+	Node0x562e78ad03d8 -> Node0x562e78ad3218;
+	Node0x562e78ad03d8 -> Node0x562e78acefd8;
+}
