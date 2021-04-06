@@ -1,0 +1,32 @@
+digraph "bin/llvm-profdata" {
+	label="bin/llvm-profdata";
+	{ rank=same; Node0x55b93e449ce8;  }
+	{ rank=same; Node0x55b93e44a328; Node0x55b93e449e28; Node0x55b93e44e6a8;  }
+
+	Node0x55b93e449ce8 [shape=record,shape=box,style=filled,fillcolor="1.000000 0.5 1",group=1,label="{tools/llvm-profdata/CMakeFiles/llvm-profdata.dir/llvm-profdata.cpp.o}"];
+	Node0x55b93e449ce8 -> Node0x55b93e44a328[color="1.000000 0.5 1"];
+	Node0x55b93e449ce8 -> Node0x55b93e449e28[color="1.000000 0.5 1"];
+	Node0x55b93e449ce8 -> Node0x55b93e44e6a8[color="1.000000 0.5 1"];
+	Node0x55b93e44a328 [shape=record,shape=box,style=filled,fillcolor="1.000000 0.5 1",group=1,label="{lib/libLLVMCore.a}"];
+	Node0x55b93e44a328 -> Node0x55b93e44e6a8[color="1.000000 0.5 1"];
+	Node0x55b93e44a328 -> Node0x55b93e449ce8[color="1.000000 0.5 1"];
+	Node0x55b93e44a328 -> Node0x55b93e44d7a8[color="1.000000 0.5 1"];
+	Node0x55b93e449e28 [shape=record,shape=box,style=filled,fillcolor="1.000000 0.5 1",group=1,label="{lib/libLLVMProfileData.a}"];
+	Node0x55b93e449e28 -> Node0x55b93e449ce8[color="1.000000 0.5 1"];
+	Node0x55b93e449e28 -> Node0x55b93e44a328[color="1.000000 0.5 1"];
+	Node0x55b93e449e28 -> Node0x55b93e44e6a8[color="1.000000 0.5 1"];
+	Node0x55b93e44e6a8 [shape=record,shape=box,style=filled,fillcolor="1.000000 0.5 1",group=1,label="{lib/libLLVMSupport.a}"];
+	Node0x55b93e44e6a8 -> Node0x55b93e449ce8[color="1.000000 0.5 1"];
+	Node0x55b93e44e6a8 -> Node0x55b93e44a328[color="1.000000 0.5 1"];
+	Node0x55b93e44e6a8 -> Node0x55b93e449e28[color="1.000000 0.5 1"];
+	Node0x55b93e44e6a8 -> Node0x55b93e44c8a8[color="1.000000 0.5 1"];
+	Node0x55b93e44d7a8 [shape=record,shape=box,style=filled,fillcolor="1.000000 0.5 1",group=1,label="{lib/libLLVMRemarks.a}"];
+	Node0x55b93e44d7a8 -> Node0x55b93e44e6a8[color="1.000000 0.5 1"];
+	Node0x55b93e44d7a8 -> Node0x55b93e449ce8[color="1.000000 0.5 1"];
+	Node0x55b93e44d7a8 -> Node0x55b93e44a328[color="1.000000 0.5 1"];
+	Node0x55b93e44c8a8 [shape=record,shape=box,style=filled,fillcolor="1.000000 0.5 1",group=1,label="{lib/libLLVMDemangle.a}"];
+	Node0x55b93e44c8a8 -> Node0x55b93e44e6a8[color="1.000000 0.5 1"];
+	Node0x55b93e44d2a8 [shape=record,shape=box,group=0,label="{lib/libLLVMBitstreamReader.a}"];
+	Node0x55b93e44d2a8 -> Node0x55b93e449ce8;
+	Node0x55b93e44d2a8 -> Node0x55b93e44e6a8;
+}
