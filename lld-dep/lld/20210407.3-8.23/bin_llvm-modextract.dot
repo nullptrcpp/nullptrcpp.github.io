@@ -1,0 +1,88 @@
+digraph "bin/llvm-modextract" {
+	label="bin/llvm-modextract";
+	rankdir="LR"
+	{ rank=same; Node0x55bddf72cb68;  }
+	{ rank=same; Node0x55bddf730588; Node0x55bddf72cfc8; Node0x55bddf72c5c8; Node0x55bddf72d4c8;  }
+	{ rank=same; Node0x55bddf72a048; Node0x55bddf72e288; Node0x55bddf72d888; Node0x55bddf72ba88; Node0x55bddf72b128; Node0x55bddf72af48;  }
+
+	Node0x55bddf72cb68 [shape=record,shape=box,style=filled,fillcolor="1.000000 0.5 1",group=1,label="{tools/llvm-modextract/CMakeFiles/llvm-modextract.dir/llvm-modextract.cpp.o}"];
+	Node0x55bddf72cb68 -> Node0x55bddf730588[color="1.000000 0.5 1"];
+	Node0x55bddf72cb68 -> Node0x55bddf72cfc8[color="1.000000 0.5 1"];
+	Node0x55bddf72cb68 -> Node0x55bddf72c5c8[color="1.000000 0.5 1"];
+	Node0x55bddf72cb68 -> Node0x55bddf72d4c8[color="1.000000 0.5 1"];
+	Node0x55bddf730588 [shape=record,shape=box,style=filled,fillcolor="1.000000 0.5 1",group=1,label="{lib/libLLVMBitReader.a}"];
+	Node0x55bddf730588 -> Node0x55bddf72cb68[color="1.000000 0.5 1"];
+	Node0x55bddf730588 -> Node0x55bddf72d4c8[color="1.000000 0.5 1"];
+	Node0x55bddf730588 -> Node0x55bddf72c5c8[color="1.000000 0.5 1"];
+	Node0x55bddf730588 -> Node0x55bddf72a048[color="1.000000 0.5 1"];
+	Node0x55bddf72cfc8 [shape=record,shape=box,style=filled,fillcolor="1.000000 0.5 1",group=1,label="{lib/libLLVMBitWriter.a}"];
+	Node0x55bddf72cfc8 -> Node0x55bddf72cb68[color="1.000000 0.5 1"];
+	Node0x55bddf72cfc8 -> Node0x55bddf730588[color="1.000000 0.5 1"];
+	Node0x55bddf72cfc8 -> Node0x55bddf72d4c8[color="1.000000 0.5 1"];
+	Node0x55bddf72cfc8 -> Node0x55bddf72c5c8[color="1.000000 0.5 1"];
+	Node0x55bddf72cfc8 -> Node0x55bddf72e288[color="1.000000 0.5 1"];
+	Node0x55bddf72cfc8 -> Node0x55bddf72d888[color="1.000000 0.5 1"];
+	Node0x55bddf72cfc8 -> Node0x55bddf72ba88[color="1.000000 0.5 1"];
+	Node0x55bddf72c5c8 [shape=record,shape=box,style=filled,fillcolor="1.000000 0.5 1",group=1,label="{lib/libLLVMSupport.a}"];
+	Node0x55bddf72c5c8 -> Node0x55bddf730588[color="1.000000 0.5 1"];
+	Node0x55bddf72c5c8 -> Node0x55bddf72d4c8[color="1.000000 0.5 1"];
+	Node0x55bddf72c5c8 -> Node0x55bddf72cb68[color="1.000000 0.5 1"];
+	Node0x55bddf72c5c8 -> Node0x55bddf72cfc8[color="1.000000 0.5 1"];
+	Node0x55bddf72d4c8 [shape=record,shape=box,style=filled,fillcolor="1.000000 0.5 1",group=1,label="{lib/libLLVMCore.a}"];
+	Node0x55bddf72d4c8 -> Node0x55bddf72cb68[color="1.000000 0.5 1"];
+	Node0x55bddf72d4c8 -> Node0x55bddf730588[color="1.000000 0.5 1"];
+	Node0x55bddf72d4c8 -> Node0x55bddf72cfc8[color="1.000000 0.5 1"];
+	Node0x55bddf72d4c8 -> Node0x55bddf72c5c8[color="1.000000 0.5 1"];
+	Node0x55bddf72d4c8 -> Node0x55bddf72b128[color="1.000000 0.5 1"];
+	Node0x55bddf72d4c8 -> Node0x55bddf72af48[color="1.000000 0.5 1"];
+	Node0x55bddf72a048 [shape=record,shape=box,style=filled,fillcolor="1.000000 0.5 1",group=1,label="{lib/libLLVMBitstreamReader.a}"];
+	Node0x55bddf72a048 -> Node0x55bddf730588[color="1.000000 0.5 1"];
+	Node0x55bddf72a048 -> Node0x55bddf72cfc8[color="1.000000 0.5 1"];
+	Node0x55bddf72a048 -> Node0x55bddf72c5c8[color="1.000000 0.5 1"];
+	Node0x55bddf72e288 [shape=record,shape=box,style=filled,fillcolor="1.000000 0.5 1",group=1,label="{lib/libLLVMAnalysis.a}"];
+	Node0x55bddf72e288 -> Node0x55bddf72cb68[color="1.000000 0.5 1"];
+	Node0x55bddf72e288 -> Node0x55bddf730588[color="1.000000 0.5 1"];
+	Node0x55bddf72e288 -> Node0x55bddf72d4c8[color="1.000000 0.5 1"];
+	Node0x55bddf72e288 -> Node0x55bddf72c5c8[color="1.000000 0.5 1"];
+	Node0x55bddf72e288 -> Node0x55bddf72d888[color="1.000000 0.5 1"];
+	Node0x55bddf72e288 -> Node0x55bddf72cfc8[color="1.000000 0.5 1"];
+	Node0x55bddf72d888 [shape=record,shape=box,style=filled,fillcolor="1.000000 0.5 1",group=1,label="{lib/libLLVMObject.a}"];
+	Node0x55bddf72d888 -> Node0x55bddf72cb68[color="1.000000 0.5 1"];
+	Node0x55bddf72d888 -> Node0x55bddf730588[color="1.000000 0.5 1"];
+	Node0x55bddf72d888 -> Node0x55bddf72cfc8[color="1.000000 0.5 1"];
+	Node0x55bddf72d888 -> Node0x55bddf72d4c8[color="1.000000 0.5 1"];
+	Node0x55bddf72d888 -> Node0x55bddf72c5c8[color="1.000000 0.5 1"];
+	Node0x55bddf72d888 -> Node0x55bddf72ba88[color="1.000000 0.5 1"];
+	Node0x55bddf72d888 -> Node0x55bddf72a548[color="1.000000 0.5 1"];
+	Node0x55bddf72ba88 [shape=record,shape=box,style=filled,fillcolor="1.000000 0.5 1",group=1,label="{lib/libLLVMMC.a}"];
+	Node0x55bddf72ba88 -> Node0x55bddf72d4c8[color="1.000000 0.5 1"];
+	Node0x55bddf72ba88 -> Node0x55bddf72c5c8[color="1.000000 0.5 1"];
+	Node0x55bddf72ba88 -> Node0x55bddf72d888[color="1.000000 0.5 1"];
+	Node0x55bddf72ba88 -> Node0x55bddf730588[color="1.000000 0.5 1"];
+	Node0x55bddf72ba88 -> Node0x55bddf72e788[color="1.000000 0.5 1"];
+	Node0x55bddf72ba88 -> Node0x55bddf72a548[color="1.000000 0.5 1"];
+	Node0x55bddf72ba88 -> Node0x55bddf72b128[color="1.000000 0.5 1"];
+	Node0x55bddf72b128 [shape=record,shape=box,style=filled,fillcolor="1.000000 0.5 1",group=1,label="{lib/libLLVMBinaryFormat.a}"];
+	Node0x55bddf72b128 -> Node0x55bddf72d4c8[color="1.000000 0.5 1"];
+	Node0x55bddf72b128 -> Node0x55bddf72c5c8[color="1.000000 0.5 1"];
+	Node0x55bddf72af48 [shape=record,shape=box,style=filled,fillcolor="1.000000 0.5 1",group=1,label="{lib/libLLVMRemarks.a}"];
+	Node0x55bddf72af48 -> Node0x55bddf72c5c8[color="1.000000 0.5 1"];
+	Node0x55bddf72af48 -> Node0x55bddf730588[color="1.000000 0.5 1"];
+	Node0x55bddf72af48 -> Node0x55bddf72cfc8[color="1.000000 0.5 1"];
+	Node0x55bddf72af48 -> Node0x55bddf72d4c8[color="1.000000 0.5 1"];
+	Node0x55bddf72af48 -> Node0x55bddf72cb68[color="1.000000 0.5 1"];
+	Node0x55bddf72af48 -> Node0x55bddf72a048[color="1.000000 0.5 1"];
+	Node0x55bddf72e788 [shape=record,shape=box,style=filled,fillcolor="1.000000 0.5 1",group=1,label="{lib/libLLVMProfileData.a}"];
+	Node0x55bddf72e788 -> Node0x55bddf72cb68[color="1.000000 0.5 1"];
+	Node0x55bddf72e788 -> Node0x55bddf730588[color="1.000000 0.5 1"];
+	Node0x55bddf72e788 -> Node0x55bddf72d4c8[color="1.000000 0.5 1"];
+	Node0x55bddf72e788 -> Node0x55bddf72c5c8[color="1.000000 0.5 1"];
+	Node0x55bddf72e788 -> Node0x55bddf72cfc8[color="1.000000 0.5 1"];
+	Node0x55bddf72a548 [shape=record,shape=box,style=filled,fillcolor="1.000000 0.5 1",group=1,label="{lib/libLLVMMCParser.a}"];
+	Node0x55bddf72a548 -> Node0x55bddf72cb68[color="1.000000 0.5 1"];
+	Node0x55bddf72a548 -> Node0x55bddf730588[color="1.000000 0.5 1"];
+	Node0x55bddf72a548 -> Node0x55bddf72c5c8[color="1.000000 0.5 1"];
+	Node0x55bddf72a548 -> Node0x55bddf72d888[color="1.000000 0.5 1"];
+	Node0x55bddf72a548 -> Node0x55bddf72ba88[color="1.000000 0.5 1"];
+	Node0x55bddf72a548 -> Node0x55bddf72d4c8[color="1.000000 0.5 1"];
+}
