@@ -1,0 +1,24 @@
+digraph "bin/llvm-stress" {
+	label="bin/llvm-stress";
+	{ rank=same; Node0x55e2e84f0a48;  }
+	{ rank=same; Node0x55e2e84f14e8; Node0x55e2e84f18f8;  }
+
+	Node0x55e2e84f0a48 [shape=record,shape=box,style=filled,fillcolor="1.000000 0.5 1",group=1,label="{tools/llvm-stress/CMakeFiles/llvm-stress.dir/llvm-stress.cpp.o}"];
+	Node0x55e2e84f0a48 -> Node0x55e2e84f14e8[color="1.000000 0.5 1"];
+	Node0x55e2e84f0a48 -> Node0x55e2e84f18f8[color="1.000000 0.5 1"];
+	Node0x55e2e84f14e8 [shape=record,shape=box,style=filled,fillcolor="1.000000 0.5 1",group=1,label="{lib/libLLVMCore.a}"];
+	Node0x55e2e84f14e8 -> Node0x55e2e84f18f8[color="1.000000 0.5 1"];
+	Node0x55e2e84f14e8 -> Node0x55e2e84f0a48[color="1.000000 0.5 1"];
+	Node0x55e2e84f14e8 -> Node0x55e2e84ee248;
+	Node0x55e2e84f14e8 -> Node0x55e2e84ee6f8[color="1.000000 0.5 1"];
+	Node0x55e2e84f18f8 [shape=record,shape=box,style=filled,fillcolor="1.000000 0.5 1",group=1,label="{lib/libLLVMSupport.a}"];
+	Node0x55e2e84f18f8 -> Node0x55e2e84f0a48[color="1.000000 0.5 1"];
+	Node0x55e2e84f18f8 -> Node0x55e2e84f14e8[color="1.000000 0.5 1"];
+	Node0x55e2e84ee248 [shape=record,shape=box,group=0,label="{lib/libLLVMBinaryFormat.a}"];
+	Node0x55e2e84ee6f8 [shape=record,shape=box,style=filled,fillcolor="1.000000 0.5 1",group=1,label="{lib/libLLVMRemarks.a}"];
+	Node0x55e2e84ee6f8 -> Node0x55e2e84f18f8[color="1.000000 0.5 1"];
+	Node0x55e2e84ee6f8 -> Node0x55e2e84f14e8[color="1.000000 0.5 1"];
+	Node0x55e2e84f04a8 [shape=record,shape=box,group=0,label="{lib/libLLVMBitstreamReader.a}"];
+	Node0x55e2e84f04a8 -> Node0x55e2e84f14e8;
+	Node0x55e2e84f04a8 -> Node0x55e2e84f18f8;
+}
