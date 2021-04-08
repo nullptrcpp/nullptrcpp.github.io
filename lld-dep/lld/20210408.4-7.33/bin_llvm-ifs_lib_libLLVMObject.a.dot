@@ -1,0 +1,35 @@
+digraph "bin/llvm-ifs_lib/libLLVMObject.a" {
+	label="bin/llvm-ifs_lib/libLLVMObject.a";
+	rankdir="LR"
+
+	Node0x55caea0d3c98 [shape=record,shape=box,group=0,label="{lib/libLLVMObject.a(Binary.cpp.o)}"];
+	Node0x55caea0d34c8 [shape=record,shape=box,group=0,label="{lib/libLLVMObject.a(Archive.cpp.o)}"];
+	Node0x55caea0d2348 [shape=record,shape=box,group=0,label="{lib/libLLVMObject.a(ELF.cpp.o)}"];
+	Node0x55caea0dbe48 [shape=record,shape=box,group=0,label="{lib/libLLVMObject.a(Error.cpp.o)}"];
+	Node0x55caea0d7168 [shape=record,shape=box,group=0,label="{lib/libLLVMObject.a(MachOUniversal.cpp.o)}"];
+	Node0x55caea0d64e8 [shape=record,shape=box,group=0,label="{lib/libLLVMObject.a(MachOObjectFile.cpp.o)}"];
+	Node0x55caea0d64e8 -> Node0x55caea0d2348;
+	Node0x55caea0d2f28 [shape=record,shape=box,group=0,label="{lib/libLLVMObject.a(IRObjectFile.cpp.o)}"];
+	Node0x55caea0d2f28 -> Node0x55caea0d64e8;
+	Node0x55caea0d22a8 [shape=record,shape=box,group=0,label="{lib/libLLVMObject.a(IRSymtab.cpp.o)}"];
+	Node0x55caea0d22a8 -> Node0x55caea0d64e8;
+	Node0x55caea0d2bb8 [shape=record,shape=box,group=0,label="{lib/libLLVMObject.a(Minidump.cpp.o)}"];
+	Node0x55caea0d4698 [shape=record,shape=box,group=0,label="{lib/libLLVMObject.a(ModuleSymbolTable.cpp.o)}"];
+	Node0x55caea0d3ab8 [shape=record,shape=box,group=0,label="{lib/libLLVMObject.a(ObjectFile.cpp.o)}"];
+	Node0x55caea0d3ab8 -> Node0x55caea0d2348;
+	Node0x55caea0da6d8 [shape=record,shape=box,group=0,label="{lib/libLLVMObject.a(ELFObjectFile.cpp.o)}"];
+	Node0x55caea0da6d8 -> Node0x55caea0d2348;
+	Node0x55caea0dae08 [shape=record,shape=box,group=0,label="{lib/libLLVMObject.a(COFFObjectFile.cpp.o)}"];
+	Node0x55caea0d9c88 [shape=record,shape=box,group=0,label="{lib/libLLVMObject.a(RecordStreamer.cpp.o)}"];
+	Node0x55caea0dbd08 [shape=record,shape=box,group=0,label="{lib/libLLVMObject.a(SymbolicFile.cpp.o)}"];
+	Node0x55caea0d5638 [shape=record,shape=box,group=0,label="{lib/libLLVMObject.a(TapiUniversal.cpp.o)}"];
+	Node0x55caea0d5638 -> Node0x55caea0dae08;
+	Node0x55caea0d51d8 [shape=record,shape=box,group=0,label="{lib/libLLVMObject.a(TapiFile.cpp.o)}"];
+	Node0x55caea0d4738 [shape=record,shape=box,group=0,label="{lib/libLLVMObject.a(WasmObjectFile.cpp.o)}"];
+	Node0x55caea0d4468 [shape=record,shape=box,group=0,label="{lib/libLLVMObject.a(WindowsResource.cpp.o)}"];
+	Node0x55caea0d4468 -> Node0x55caea0dbe48;
+	Node0x55caea0d4468 -> Node0x55caea0dae08;
+	Node0x55caea0d37e8 [shape=record,shape=box,group=0,label="{lib/libLLVMObject.a(XCOFFObjectFile.cpp.o)}"];
+	Node0x55caea0d37e8 -> Node0x55caea0d2348;
+	Node0x55caea0d37e8 -> Node0x55caea0d64e8;
+}
