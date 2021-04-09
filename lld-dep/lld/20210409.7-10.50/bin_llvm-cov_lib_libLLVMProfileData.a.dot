@@ -1,0 +1,15 @@
+digraph "bin/llvm-cov_lib/libLLVMProfileData.a" {
+	label="bin/llvm-cov_lib/libLLVMProfileData.a";
+	rankdir=LR;
+
+	Node0x5605c12f1b18 [shape=record,shape=box,group=0,label="{lib/libLLVMProfileData.a(GCOV.cpp.o)}"];
+	Node0x5605c12ec578 [shape=record,shape=box,group=0,label="{lib/libLLVMProfileData.a(InstrProf.cpp.o)}"];
+	Node0x5605c12ec2a8 [shape=record,shape=box,group=0,label="{lib/libLLVMProfileData.a(InstrProfReader.cpp.o)}"];
+	Node0x5605c12ec2a8 -> Node0x5605c12ec578;
+	Node0x5605c12ec2a8 -> Node0x5605c12eaf98;
+	Node0x5605c12eaf98 [shape=record,shape=box,group=0,label="{lib/libLLVMProfileData.a(ProfileSummaryBuilder.cpp.o)}"];
+	Node0x5605c12ea408 [shape=record,shape=box,group=0,label="{lib/libLLVMProfileData.a(SampleProf.cpp.o)}"];
+	Node0x5605c12eef58 [shape=record,shape=box,group=0,label="{lib/libLLVMProfileData.a(SampleProfReader.cpp.o)}"];
+	Node0x5605c12eef58 -> Node0x5605c12ec2a8;
+	Node0x5605c12eef58 -> Node0x5605c12eaf98;
+}
