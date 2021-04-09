@@ -1,0 +1,40 @@
+digraph "bin/llc_lib/libLLVMVectorize.a" {
+	label="bin/llc_lib/libLLVMVectorize.a";
+	rankdir=LR;
+	{ rank=same; Node0x55b5bda9cb38;  }
+	{ rank=same; Node0x55b5bda9c3b8; Node0x55b5bda9b9b8; Node0x55b5bdab9be8; Node0x55b5bdaba2c8;  }
+	{ rank=same; Node0x55b5bda9bc38; Node0x55b5bdabaae8; Node0x55b5bdabb0d8; Node0x55b5bdaae5b8; Node0x55b5bdaab638;  }
+
+	Node0x55b5bda9cb38 [shape=record,shape=box,group=0,label="{lib/libLLVMVectorize.a(Vectorize.cpp.o)}"];
+	Node0x55b5bda9cb38 -> Node0x55b5bda9c3b8;
+	Node0x55b5bda9cb38 -> Node0x55b5bda9b9b8;
+	Node0x55b5bda9cb38 -> Node0x55b5bdab9be8;
+	Node0x55b5bda9cb38 -> Node0x55b5bdaba2c8;
+	Node0x55b5bda9c3b8 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMVectorize.a(LoopVectorize.cpp.o)}"];
+	Node0x55b5bda9c3b8 -> Node0x55b5bda9bc38[color="0.600000 0.5 1"];
+	Node0x55b5bda9c3b8 -> Node0x55b5bdabaae8[color="0.600000 0.5 1"];
+	Node0x55b5bda9c3b8 -> Node0x55b5bdabb0d8[color="0.600000 0.5 1"];
+	Node0x55b5bda9c3b8 -> Node0x55b5bdaae5b8[color="0.600000 0.5 1"];
+	Node0x55b5bda9c3b8 -> Node0x55b5bdaab638[color="0.600000 0.5 1"];
+	Node0x55b5bda9b9b8 [shape=record,shape=box,group=0,label="{lib/libLLVMVectorize.a(SLPVectorizer.cpp.o)}"];
+	Node0x55b5bda9b9b8 -> Node0x55b5bda9c3b8;
+	Node0x55b5bdab9be8 [shape=record,shape=box,group=0,label="{lib/libLLVMVectorize.a(LoadStoreVectorizer.cpp.o)}"];
+	Node0x55b5bdab9be8 -> Node0x55b5bda9c3b8;
+	Node0x55b5bdaba2c8 [shape=record,shape=box,group=0,label="{lib/libLLVMVectorize.a(VectorCombine.cpp.o)}"];
+	Node0x55b5bdaba2c8 -> Node0x55b5bda9b9b8;
+	Node0x55b5bda9bc38 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMVectorize.a(LoopVectorizationLegality.cpp.o)}"];
+	Node0x55b5bda9bc38 -> Node0x55b5bda9c3b8[color="0.600000 0.5 1"];
+	Node0x55b5bdabaae8 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMVectorize.a(VPlan.cpp.o)}"];
+	Node0x55b5bdabaae8 -> Node0x55b5bda9c3b8[color="0.600000 0.5 1"];
+	Node0x55b5bdabb0d8 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMVectorize.a(VPlanHCFGBuilder.cpp.o)}"];
+	Node0x55b5bdabb0d8 -> Node0x55b5bda9c3b8[color="0.600000 0.5 1"];
+	Node0x55b5bdabb0d8 -> Node0x55b5bdabaae8[color="0.600000 0.5 1"];
+	Node0x55b5bdabb0d8 -> Node0x55b5bdaaaeb8;
+	Node0x55b5bdaae5b8 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMVectorize.a(VPlanPredicator.cpp.o)}"];
+	Node0x55b5bdaae5b8 -> Node0x55b5bda9c3b8[color="0.600000 0.5 1"];
+	Node0x55b5bdaae5b8 -> Node0x55b5bdabaae8[color="0.600000 0.5 1"];
+	Node0x55b5bdaab638 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMVectorize.a(VPlanTransforms.cpp.o)}"];
+	Node0x55b5bdaab638 -> Node0x55b5bda9c3b8[color="0.600000 0.5 1"];
+	Node0x55b5bdaab638 -> Node0x55b5bdabaae8[color="0.600000 0.5 1"];
+	Node0x55b5bdaaaeb8 [shape=record,shape=box,group=0,label="{lib/libLLVMVectorize.a(VPlanVerifier.cpp.o)}"];
+}
