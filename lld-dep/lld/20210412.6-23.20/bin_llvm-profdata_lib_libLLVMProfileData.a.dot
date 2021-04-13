@@ -1,0 +1,31 @@
+digraph "bin/llvm-profdata_lib/libLLVMProfileData.a" {
+	label="bin/llvm-profdata_lib/libLLVMProfileData.a";
+	rankdir=LR;
+	{ rank=same; Node0x55a9a9f830e8;  }
+	{ rank=same; Node0x55a9a9f82eb8;  }
+	{ rank=same; Node0x55a9a9f81e78;  }
+	{ rank=same; Node0x55a9a9f7ff38;  }
+
+	Node0x55a9a9f830e8 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMProfileData.a(InstrProf.cpp.o)}"];
+	Node0x55a9a9f830e8 -> Node0x55a9a9f82eb8[color="0.600000 0.5 1"];
+	Node0x55a9a9f82eb8 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMProfileData.a(InstrProfReader.cpp.o)}"];
+	Node0x55a9a9f82eb8 -> Node0x55a9a9f830e8[color="0.600000 0.5 1"];
+	Node0x55a9a9f82eb8 -> Node0x55a9a9f81e78[color="0.600000 0.5 1"];
+	Node0x55a9a9f80cf8 [shape=record,shape=box,group=0,label="{lib/libLLVMProfileData.a(InstrProfWriter.cpp.o)}"];
+	Node0x55a9a9f80cf8 -> Node0x55a9a9f830e8;
+	Node0x55a9a9f80cf8 -> Node0x55a9a9f81e78;
+	Node0x55a9a9f81e78 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMProfileData.a(ProfileSummaryBuilder.cpp.o)}"];
+	Node0x55a9a9f81e78 -> Node0x55a9a9f7ff38[color="0.600000 0.5 1"];
+	Node0x55a9a9f7ff38 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMProfileData.a(SampleProf.cpp.o)}"];
+	Node0x55a9a9f7ff38 -> Node0x55a9a9f830e8[color="0.600000 0.5 1"];
+	Node0x55a9a9f7ff38 -> Node0x55a9a9f7fc68[color="0.600000 0.5 1"];
+	Node0x55a9a9f7fc68 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMProfileData.a(SampleProfReader.cpp.o)}"];
+	Node0x55a9a9f7fc68 -> Node0x55a9a9f830e8[color="0.600000 0.5 1"];
+	Node0x55a9a9f7fc68 -> Node0x55a9a9f82eb8[color="0.600000 0.5 1"];
+	Node0x55a9a9f7fc68 -> Node0x55a9a9f81e78[color="0.600000 0.5 1"];
+	Node0x55a9a9f7fc68 -> Node0x55a9a9f7ff38[color="0.600000 0.5 1"];
+	Node0x55a9a9f80ac8 [shape=record,shape=box,group=0,label="{lib/libLLVMProfileData.a(SampleProfWriter.cpp.o)}"];
+	Node0x55a9a9f80ac8 -> Node0x55a9a9f81e78;
+	Node0x55a9a9f80ac8 -> Node0x55a9a9f7ff38;
+	Node0x55a9a9f80ac8 -> Node0x55a9a9f7fc68;
+}
