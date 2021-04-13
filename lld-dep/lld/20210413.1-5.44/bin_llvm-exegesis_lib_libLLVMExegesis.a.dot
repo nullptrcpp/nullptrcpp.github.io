@@ -1,0 +1,67 @@
+digraph "bin/llvm-exegesis_lib/libLLVMExegesis.a" {
+	label="bin/llvm-exegesis_lib/libLLVMExegesis.a";
+	rankdir=LR;
+	{ rank=same; Node0x55b82e705558;  }
+	{ rank=same; Node0x55b82e7078f8; Node0x55b82e6e8e58;  }
+	{ rank=same; Node0x55b82e705558;  }
+	{ rank=same; Node0x55b82e7078f8; Node0x55b82e6e8e58;  }
+
+	Node0x55b82e705558 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMExegesis.a(Analysis.cpp.o)}"];
+	Node0x55b82e705558 -> Node0x55b82e7078f8[color="0.600000 0.5 1"];
+	Node0x55b82e705558 -> Node0x55b82e6e8e58;
+	Node0x55b82e705d78 [shape=record,shape=box,group=0,label="{lib/libLLVMExegesis.a(BenchmarkResult.cpp.o)}"];
+	Node0x55b82e7078f8 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMExegesis.a(Clustering.cpp.o)}"];
+	Node0x55b82e7078f8 -> Node0x55b82e705558[color="0.600000 0.5 1"];
+	Node0x55b82e7078f8 -> Node0x55b82e705d78;
+	Node0x55b82e7078f8 -> Node0x55b82e6e6158;
+	Node0x55b82e708618 [shape=record,shape=box,group=0,label="{lib/libLLVMExegesis.a(CodeTemplate.cpp.o)}"];
+	Node0x55b82e708618 -> Node0x55b82e6e4628;
+	Node0x55b82e6e6158 [shape=record,shape=box,group=0,label="{lib/libLLVMExegesis.a(Error.cpp.o)}"];
+	Node0x55b82e6e5438 [shape=record,shape=box,group=0,label="{lib/libLLVMExegesis.a(LlvmState.cpp.o)}"];
+	Node0x55b82e6e5438 -> Node0x55b82e6e52a8;
+	Node0x55b82e6e5438 -> Node0x55b82e6e4628;
+	Node0x55b82e6e5438 -> Node0x55b82e6e9128;
+	Node0x55b82e6e5438 -> Node0x55b82e6e8138;
+	Node0x55b82e6e8e58 [shape=record,shape=box,group=0,label="{lib/libLLVMExegesis.a(SchedClassResolution.cpp.o)}"];
+	Node0x55b82e6e4628 [shape=record,shape=box,group=0,label="{lib/libLLVMExegesis.a(MCInstrDescView.cpp.o)}"];
+	Node0x55b82e6e4628 -> Node0x55b82e6e9128;
+	Node0x55b82e6e52a8 [shape=record,shape=box,group=0,label="{lib/libLLVMExegesis.a(Assembler.cpp.o)}"];
+	Node0x55b82e6e9128 [shape=record,shape=box,group=0,label="{lib/libLLVMExegesis.a(RegisterAliasing.cpp.o)}"];
+	Node0x55b82e6e8138 [shape=record,shape=box,group=0,label="{lib/libLLVMExegesis.a(Target.cpp.o)}"];
+	Node0x55b82e6e8138 -> Node0x55b82e708618;
+	Node0x55b82e6e8138 -> Node0x55b82e6e5438;
+	Node0x55b82e6e8138 -> Node0x55b82e6e52a8;
+	Node0x55b82e6e8138 -> Node0x55b82e6e7f58;
+	Node0x55b82e6e8138 -> Node0x55b82e6e7378;
+	Node0x55b82e6e8138 -> Node0x55b82e6e7148;
+	Node0x55b82e6e8138 -> Node0x55b82e6eb608;
+	Node0x55b82e6e8138 -> Node0x55b82e6ebba8;
+	Node0x55b82e6e8138 -> Node0x55b82e6eaf28;
+	Node0x55b82e6e8138 -> Node0x55b82e6eacf8;
+	Node0x55b82e6e7f58 [shape=record,shape=box,group=0,label="{lib/libLLVMExegesis.a(SnippetGenerator.cpp.o)}"];
+	Node0x55b82e6e7f58 -> Node0x55b82e708618;
+	Node0x55b82e6e7f58 -> Node0x55b82e6e4628;
+	Node0x55b82e6e7f58 -> Node0x55b82e6e9128;
+	Node0x55b82e6e7f58 -> Node0x55b82e6e8138;
+	Node0x55b82e6e7378 [shape=record,shape=box,group=0,label="{lib/libLLVMExegesis.a(SerialSnippetGenerator.cpp.o)}"];
+	Node0x55b82e6e7378 -> Node0x55b82e708618;
+	Node0x55b82e6e7378 -> Node0x55b82e6e4628;
+	Node0x55b82e6e7378 -> Node0x55b82e6e8138;
+	Node0x55b82e6e7378 -> Node0x55b82e6e7f58;
+	Node0x55b82e6e7148 [shape=record,shape=box,group=0,label="{lib/libLLVMExegesis.a(ParallelSnippetGenerator.cpp.o)}"];
+	Node0x55b82e6e7148 -> Node0x55b82e708618;
+	Node0x55b82e6e7148 -> Node0x55b82e6e4628;
+	Node0x55b82e6e7148 -> Node0x55b82e6e9128;
+	Node0x55b82e6e7148 -> Node0x55b82e6e8138;
+	Node0x55b82e6e7148 -> Node0x55b82e6e7f58;
+	Node0x55b82e6eb608 [shape=record,shape=box,group=0,label="{lib/libLLVMExegesis.a(LatencyBenchmarkRunner.cpp.o)}"];
+	Node0x55b82e6eb608 -> Node0x55b82e6ebba8;
+	Node0x55b82e6ebba8 [shape=record,shape=box,group=0,label="{lib/libLLVMExegesis.a(BenchmarkRunner.cpp.o)}"];
+	Node0x55b82e6ebba8 -> Node0x55b82e6e8138;
+	Node0x55b82e6ebba8 -> Node0x55b82e6eb608;
+	Node0x55b82e6ebba8 -> Node0x55b82e6eaf28;
+	Node0x55b82e6eaf28 [shape=record,shape=box,group=0,label="{lib/libLLVMExegesis.a(PerfHelper.cpp.o)}"];
+	Node0x55b82e6eacf8 [shape=record,shape=box,group=0,label="{lib/libLLVMExegesis.a(UopsBenchmarkRunner.cpp.o)}"];
+	Node0x55b82e6eacf8 -> Node0x55b82e6eb608;
+	Node0x55b82e6eacf8 -> Node0x55b82e6ebba8;
+}

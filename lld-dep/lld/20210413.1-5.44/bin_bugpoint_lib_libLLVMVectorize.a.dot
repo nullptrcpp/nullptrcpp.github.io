@@ -1,0 +1,35 @@
+digraph "bin/bugpoint_lib/libLLVMVectorize.a" {
+	label="bin/bugpoint_lib/libLLVMVectorize.a";
+	rankdir=LR;
+
+	Node0x55e5f8ed63d8 [shape=record,shape=box,group=0,label="{lib/libLLVMVectorize.a(LoadStoreVectorizer.cpp.o)}"];
+	Node0x55e5f8ed6ba8 [shape=record,shape=box,group=0,label="{lib/libLLVMVectorize.a(LoopVectorize.cpp.o)}"];
+	Node0x55e5f8ed6ba8 -> Node0x55e5f8ed6518;
+	Node0x55e5f8ed6ba8 -> Node0x55e5f8ed9c68;
+	Node0x55e5f8ed6ba8 -> Node0x55e5f8ed9a38;
+	Node0x55e5f8ed6ba8 -> Node0x55e5f8ed9628;
+	Node0x55e5f8ed6ba8 -> Node0x55e5f8ed8908;
+	Node0x55e5f8ed7698 [shape=record,shape=box,group=0,label="{lib/libLLVMVectorize.a(SLPVectorizer.cpp.o)}"];
+	Node0x55e5f8ed7698 -> Node0x55e5f8ed6ba8;
+	Node0x55e5f8ed31d8 [shape=record,shape=box,group=0,label="{lib/libLLVMVectorize.a(Vectorize.cpp.o)}"];
+	Node0x55e5f8ed31d8 -> Node0x55e5f8ed63d8;
+	Node0x55e5f8ed31d8 -> Node0x55e5f8ed6ba8;
+	Node0x55e5f8ed31d8 -> Node0x55e5f8ed7698;
+	Node0x55e5f8ed31d8 -> Node0x55e5f8ec6258;
+	Node0x55e5f8ec6258 [shape=record,shape=box,group=0,label="{lib/libLLVMVectorize.a(VectorCombine.cpp.o)}"];
+	Node0x55e5f8ed6518 [shape=record,shape=box,group=0,label="{lib/libLLVMVectorize.a(LoopVectorizationLegality.cpp.o)}"];
+	Node0x55e5f8ed6518 -> Node0x55e5f8ed6ba8;
+	Node0x55e5f8ed9c68 [shape=record,shape=box,group=0,label="{lib/libLLVMVectorize.a(VPlan.cpp.o)}"];
+	Node0x55e5f8ed9c68 -> Node0x55e5f8ed6ba8;
+	Node0x55e5f8ed9a38 [shape=record,shape=box,group=0,label="{lib/libLLVMVectorize.a(VPlanHCFGBuilder.cpp.o)}"];
+	Node0x55e5f8ed9a38 -> Node0x55e5f8ed6ba8;
+	Node0x55e5f8ed9a38 -> Node0x55e5f8ed9c68;
+	Node0x55e5f8ed9a38 -> Node0x55e5f8ed8778;
+	Node0x55e5f8ed9628 [shape=record,shape=box,group=0,label="{lib/libLLVMVectorize.a(VPlanPredicator.cpp.o)}"];
+	Node0x55e5f8ed9628 -> Node0x55e5f8ed6ba8;
+	Node0x55e5f8ed9628 -> Node0x55e5f8ed9c68;
+	Node0x55e5f8ed8908 [shape=record,shape=box,group=0,label="{lib/libLLVMVectorize.a(VPlanTransforms.cpp.o)}"];
+	Node0x55e5f8ed8908 -> Node0x55e5f8ed6ba8;
+	Node0x55e5f8ed8908 -> Node0x55e5f8ed9c68;
+	Node0x55e5f8ed8778 [shape=record,shape=box,group=0,label="{lib/libLLVMVectorize.a(VPlanVerifier.cpp.o)}"];
+}
