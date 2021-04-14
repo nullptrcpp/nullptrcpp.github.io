@@ -1,0 +1,28 @@
+digraph "bin/lli_lib/libLLVMTextAPI.a" {
+	label="bin/lli_lib/libLLVMTextAPI.a";
+	rankdir=LR;
+	{ rank=same; Node0x5646196bd548;  }
+
+	Node0x5646196bd548 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMTextAPI.a(Target.cpp.o)}"];
+	Node0x5646196bd548 -> Node0x5646196c1008;
+	Node0x5646196bd548 -> Node0x5646196c17d8[color="0.600000 0.5 1"];
+	Node0x5646196c1288 [shape=record,shape=box,group=0,label="{lib/libLLVMTextAPI.a(TextStub.cpp.o)}"];
+	Node0x5646196c1288 -> Node0x5646196bd548;
+	Node0x5646196c1288 -> Node0x5646196c1008;
+	Node0x5646196c1288 -> Node0x5646196c17d8;
+	Node0x5646196c1288 -> Node0x5646196be628;
+	Node0x5646196c1288 -> Node0x5646196be8f8;
+	Node0x5646196c1288 -> Node0x5646196baa28;
+	Node0x5646196c1008 [shape=record,shape=box,group=0,label="{lib/libLLVMTextAPI.a(Architecture.cpp.o)}"];
+	Node0x5646196c17d8 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMTextAPI.a(Platform.cpp.o)}"];
+	Node0x5646196c17d8 -> Node0x5646196bd548[color="0.600000 0.5 1"];
+	Node0x5646196be628 [shape=record,shape=box,group=0,label="{lib/libLLVMTextAPI.a(InterfaceFile.cpp.o)}"];
+	Node0x5646196be628 -> Node0x5646196c1288;
+	Node0x5646196be8f8 [shape=record,shape=box,group=0,label="{lib/libLLVMTextAPI.a(ArchitectureSet.cpp.o)}"];
+	Node0x5646196be8f8 -> Node0x5646196c1008;
+	Node0x5646196baa28 [shape=record,shape=box,group=0,label="{lib/libLLVMTextAPI.a(TextStubCommon.cpp.o)}"];
+	Node0x5646196baa28 -> Node0x5646196bd548;
+	Node0x5646196baa28 -> Node0x5646196c1008;
+	Node0x5646196baa28 -> Node0x5646196ba708;
+	Node0x5646196ba708 [shape=record,shape=box,group=0,label="{lib/libLLVMTextAPI.a(PackedVersion.cpp.o)}"];
+}
