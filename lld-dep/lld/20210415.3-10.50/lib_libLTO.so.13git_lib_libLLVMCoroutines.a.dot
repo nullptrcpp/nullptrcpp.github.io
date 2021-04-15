@@ -1,0 +1,19 @@
+digraph "lib/libLTO.so.13git_lib/libLLVMCoroutines.a" {
+	label="lib/libLTO.so.13git_lib/libLLVMCoroutines.a";
+	rankdir=LR;
+	{ rank=same; Node0x5641b2976f68;  }
+
+	Node0x5641b2976f68 [shape=record,shape=box,group=0,label="{lib/libLLVMCoroutines.a(CoroCleanup.cpp.o)}"];
+	Node0x5641b2976f68 -> Node0x5641b29777d8;
+	Node0x5641b2977f58 [shape=record,shape=box,group=0,label="{lib/libLLVMCoroutines.a(CoroEarly.cpp.o)}"];
+	Node0x5641b2977f58 -> Node0x5641b29777d8;
+	Node0x5641b2970c58 [shape=record,shape=box,group=0,label="{lib/libLLVMCoroutines.a(CoroElide.cpp.o)}"];
+	Node0x5641b2970c58 -> Node0x5641b29777d8;
+	Node0x5641b2971928 [shape=record,shape=box,group=0,label="{lib/libLLVMCoroutines.a(CoroSplit.cpp.o)}"];
+	Node0x5641b2971928 -> Node0x5641b29777d8;
+	Node0x5641b2971928 -> Node0x5641b2971a68;
+	Node0x5641b29777d8 [shape=record,shape=box,group=0,label="{lib/libLLVMCoroutines.a(Coroutines.cpp.o)}"];
+	Node0x5641b2971a68 [shape=record,shape=box,group=0,label="{lib/libLLVMCoroutines.a(CoroFrame.cpp.o)}"];
+	Node0x5641b2971a68 -> Node0x5641b29777d8;
+	Node0x5641b2971a68 -> Node0x5641b2971928;
+}

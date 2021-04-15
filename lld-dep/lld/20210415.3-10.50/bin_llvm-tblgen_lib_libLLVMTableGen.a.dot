@@ -1,0 +1,35 @@
+digraph "bin/llvm-tblgen_lib/libLLVMTableGen.a" {
+	label="bin/llvm-tblgen_lib/libLLVMTableGen.a";
+	rankdir=LR;
+	{ rank=same; Node0x55a4fe0a2768;  }
+	{ rank=same; Node0x55a4fe0a2768;  }
+
+	Node0x55a4fe0a2768 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMTableGen.a(Error.cpp.o)}"];
+	Node0x55a4fe0a2768 -> Node0x55a4fe09f9c8[color="0.600000 0.5 1"];
+	Node0x55a4fe09f9c8 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMTableGen.a(Record.cpp.o)}"];
+	Node0x55a4fe09f9c8 -> Node0x55a4fe0a2768[color="0.600000 0.5 1"];
+	Node0x55a4fe0a0e18 [shape=record,shape=box,group=0,label="{lib/libLLVMTableGen.a(StringMatcher.cpp.o)}"];
+	Node0x55a4fe0a05f8 [shape=record,shape=box,group=0,label="{lib/libLLVMTableGen.a(TableGenBackend.cpp.o)}"];
+	Node0x55a4fe0a12c8 [shape=record,shape=box,group=0,label="{lib/libLLVMTableGen.a(SetTheory.cpp.o)}"];
+	Node0x55a4fe0a12c8 -> Node0x55a4fe0a2768;
+	Node0x55a4fe0a12c8 -> Node0x55a4fe09f9c8;
+	Node0x55a4fe0a2a38 [shape=record,shape=box,group=0,label="{lib/libLLVMTableGen.a(DetailedRecordsBackend.cpp.o)}"];
+	Node0x55a4fe0a2a38 -> Node0x55a4fe0a2768;
+	Node0x55a4fe0a2a38 -> Node0x55a4fe09f9c8;
+	Node0x55a4fe0a2178 [shape=record,shape=box,group=0,label="{lib/libLLVMTableGen.a(JSONBackend.cpp.o)}"];
+	Node0x55a4fe0a2178 -> Node0x55a4fe09f9c8;
+	Node0x55a4fe0a1278 [shape=record,shape=box,group=0,label="{lib/libLLVMTableGen.a(Main.cpp.o)}"];
+	Node0x55a4fe0a1278 -> Node0x55a4fe0a2a38;
+	Node0x55a4fe0a1278 -> Node0x55a4fe0a2768;
+	Node0x55a4fe0a1278 -> Node0x55a4fe09f9c8;
+	Node0x55a4fe0a1278 -> Node0x55a4fe09fec8;
+	Node0x55a4fe0a1278 -> Node0x55a4fe09f6a8;
+	Node0x55a4fe09fec8 [shape=record,shape=box,group=0,label="{lib/libLLVMTableGen.a(TGLexer.cpp.o)}"];
+	Node0x55a4fe09fec8 -> Node0x55a4fe0a2768;
+	Node0x55a4fe09f6a8 [shape=record,shape=box,group=0,label="{lib/libLLVMTableGen.a(TGParser.cpp.o)}"];
+	Node0x55a4fe09f6a8 -> Node0x55a4fe0a2a38;
+	Node0x55a4fe09f6a8 -> Node0x55a4fe0a2768;
+	Node0x55a4fe09f6a8 -> Node0x55a4fe0a1278;
+	Node0x55a4fe09f6a8 -> Node0x55a4fe09f9c8;
+	Node0x55a4fe09f6a8 -> Node0x55a4fe09fec8;
+}
