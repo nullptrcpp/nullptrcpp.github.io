@@ -1,0 +1,28 @@
+digraph "lib/libLTO.so.13git_lib/libLLVMLTO.a" {
+	label="lib/libLTO.so.13git_lib/libLLVMLTO.a";
+	rankdir=LR;
+	{ rank=same; Node0x557b8fc7e8d8;  }
+
+	Node0x557b8fc7e8d8 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMLTO.a(LTO.cpp.o)}"];
+	Node0x557b8fc7e8d8 -> Node0x557b8fc7dcf8[color="0.600000 0.5 1"];
+	Node0x557b8fc7e8d8 -> Node0x557b8fc77c68;
+	Node0x557b8fc7bc28 [shape=record,shape=box,group=0,label="{lib/libLLVMLTO.a(LTOModule.cpp.o)}"];
+	Node0x557b8fc7bc28 -> Node0x557b8fc7e8d8;
+	Node0x557b8fc788e8 [shape=record,shape=box,group=0,label="{lib/libLLVMLTO.a(LTOCodeGenerator.cpp.o)}"];
+	Node0x557b8fc788e8 -> Node0x557b8fc7e8d8;
+	Node0x557b8fc788e8 -> Node0x557b8fc7dcf8;
+	Node0x557b8fc788e8 -> Node0x557b8fc7bc28;
+	Node0x557b8fc788e8 -> Node0x557b8fc778f8;
+	Node0x557b8fc79dd8 [shape=record,shape=box,group=0,label="{lib/libLLVMLTO.a(ThinLTOCodeGenerator.cpp.o)}"];
+	Node0x557b8fc79dd8 -> Node0x557b8fc7e8d8;
+	Node0x557b8fc79dd8 -> Node0x557b8fc7dcf8;
+	Node0x557b8fc79dd8 -> Node0x557b8fc7bc28;
+	Node0x557b8fc79dd8 -> Node0x557b8fc788e8;
+	Node0x557b8fc79dd8 -> Node0x557b8fc77c68;
+	Node0x557b8fc7dcf8 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMLTO.a(LTOBackend.cpp.o)}"];
+	Node0x557b8fc7dcf8 -> Node0x557b8fc7e8d8[color="0.600000 0.5 1"];
+	Node0x557b8fc77c68 [shape=record,shape=box,group=0,label="{lib/libLLVMLTO.a(SummaryBasedOptimizations.cpp.o)}"];
+	Node0x557b8fc778f8 [shape=record,shape=box,group=0,label="{lib/libLLVMLTO.a(UpdateCompilerUsed.cpp.o)}"];
+	Node0x557b8fc778f8 -> Node0x557b8fc7e8d8;
+	Node0x557b8fc778f8 -> Node0x557b8fc7bc28;
+}
