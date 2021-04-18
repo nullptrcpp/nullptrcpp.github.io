@@ -1,0 +1,21 @@
+digraph "bin/llvm-c-test_lib/libLLVMBitReader.a" {
+	label="bin/llvm-c-test_lib/libLLVMBitReader.a";
+	rankdir=LR;
+	{ rank=same; Node0x55bae0ca6be8;  }
+	{ rank=same; Node0x55bae0ca6468;  }
+	{ rank=same; Node0x55bae0ca6be8;  }
+	{ rank=same; Node0x55bae0ca6468;  }
+
+	Node0x55bae0ca6be8 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMBitReader.a(BitReader.cpp.o)}"];
+	Node0x55bae0ca6be8 -> Node0x55bae0ca6468[color="0.600000 0.5 1"];
+	Node0x55bae0ca6468 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMBitReader.a(BitcodeReader.cpp.o)}"];
+	Node0x55bae0ca6468 -> Node0x55bae0ca6be8[color="0.600000 0.5 1"];
+	Node0x55bae0ca6468 -> Node0x55bae0ca5338[color="0.600000 0.5 1"];
+	Node0x55bae0ca6468 -> Node0x55bae0cb8e38[color="0.600000 0.5 1"];
+	Node0x55bae0ca5338 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMBitReader.a(MetadataLoader.cpp.o)}"];
+	Node0x55bae0ca5338 -> Node0x55bae0ca6be8[color="0.600000 0.5 1"];
+	Node0x55bae0ca5338 -> Node0x55bae0ca6468[color="0.600000 0.5 1"];
+	Node0x55bae0ca5338 -> Node0x55bae0cb8e38[color="0.600000 0.5 1"];
+	Node0x55bae0cb8e38 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMBitReader.a(ValueList.cpp.o)}"];
+	Node0x55bae0cb8e38 -> Node0x55bae0ca6468[color="0.600000 0.5 1"];
+}
