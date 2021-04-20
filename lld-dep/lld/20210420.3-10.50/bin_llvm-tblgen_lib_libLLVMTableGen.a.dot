@@ -1,0 +1,34 @@
+digraph "bin/llvm-tblgen_lib/libLLVMTableGen.a" {
+	label="bin/llvm-tblgen_lib/libLLVMTableGen.a";
+	rankdir=LR;
+	{ rank=same; Node0x55c6b62737c8;  }
+	{ rank=same; Node0x55c6b62737c8;  }
+
+	Node0x55c6b62737c8 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMTableGen.a(Error.cpp.o)}"];
+	Node0x55c6b62737c8 -> Node0x55c6b6270f28[color="0.600000 0.5 1"];
+	Node0x55c6b6270f28 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMTableGen.a(Record.cpp.o)}"];
+	Node0x55c6b6270f28 -> Node0x55c6b62737c8[color="0.600000 0.5 1"];
+	Node0x55c6b6274df8 [shape=record,shape=box,group=0,label="{lib/libLLVMTableGen.a(StringMatcher.cpp.o)}"];
+	Node0x55c6b6270cf8 [shape=record,shape=box,group=0,label="{lib/libLLVMTableGen.a(TableGenBackend.cpp.o)}"];
+	Node0x55c6b6275028 [shape=record,shape=box,group=0,label="{lib/libLLVMTableGen.a(SetTheory.cpp.o)}"];
+	Node0x55c6b6275028 -> Node0x55c6b62737c8;
+	Node0x55c6b6275028 -> Node0x55c6b6270f28;
+	Node0x55c6b6273638 [shape=record,shape=box,group=0,label="{lib/libLLVMTableGen.a(DetailedRecordsBackend.cpp.o)}"];
+	Node0x55c6b6273638 -> Node0x55c6b62737c8;
+	Node0x55c6b6273638 -> Node0x55c6b6270f28;
+	Node0x55c6b62744e8 [shape=record,shape=box,group=0,label="{lib/libLLVMTableGen.a(JSONBackend.cpp.o)}"];
+	Node0x55c6b62744e8 -> Node0x55c6b6270f28;
+	Node0x55c6b6274ad8 [shape=record,shape=box,group=0,label="{lib/libLLVMTableGen.a(Main.cpp.o)}"];
+	Node0x55c6b6274ad8 -> Node0x55c6b6273638;
+	Node0x55c6b6274ad8 -> Node0x55c6b62737c8;
+	Node0x55c6b6274ad8 -> Node0x55c6b6270f28;
+	Node0x55c6b6274ad8 -> Node0x55c6b6271478;
+	Node0x55c6b6274ad8 -> Node0x55c6b6271108;
+	Node0x55c6b6271478 [shape=record,shape=box,group=0,label="{lib/libLLVMTableGen.a(TGLexer.cpp.o)}"];
+	Node0x55c6b6271478 -> Node0x55c6b62737c8;
+	Node0x55c6b6271108 [shape=record,shape=box,group=0,label="{lib/libLLVMTableGen.a(TGParser.cpp.o)}"];
+	Node0x55c6b6271108 -> Node0x55c6b6273638;
+	Node0x55c6b6271108 -> Node0x55c6b62737c8;
+	Node0x55c6b6271108 -> Node0x55c6b6270f28;
+	Node0x55c6b6271108 -> Node0x55c6b6271478;
+}

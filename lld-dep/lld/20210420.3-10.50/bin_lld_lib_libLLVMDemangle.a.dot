@@ -1,0 +1,14 @@
+digraph "bin/lld_lib/libLLVMDemangle.a" {
+	label="bin/lld_lib/libLLVMDemangle.a";
+	rankdir=LR;
+	{ rank=same; Node0x55ad06c10488;  }
+	{ rank=same; Node0x55ad06c0fd08; Node0x55ad06c10118;  }
+
+	Node0x55ad06c10488 [shape=record,shape=box,group=0,label="{lib/libLLVMDemangle.a(Demangle.cpp.o)}"];
+	Node0x55ad06c10488 -> Node0x55ad06c0fd08;
+	Node0x55ad06c10488 -> Node0x55ad06c10118;
+	Node0x55ad06c0fd08 [shape=record,shape=box,group=0,label="{lib/libLLVMDemangle.a(ItaniumDemangle.cpp.o)}"];
+	Node0x55ad06c10118 [shape=record,shape=box,group=0,label="{lib/libLLVMDemangle.a(MicrosoftDemangle.cpp.o)}"];
+	Node0x55ad06c10118 -> Node0x55ad06c0ff88;
+	Node0x55ad06c0ff88 [shape=record,shape=box,group=0,label="{lib/libLLVMDemangle.a(MicrosoftDemangleNodes.cpp.o)}"];
+}
