@@ -1,0 +1,17 @@
+digraph "bin/lld_lib/liblldCore.a" {
+	label="bin/lld_lib/liblldCore.a";
+	rankdir=LR;
+
+	Node0x55bc7292b4c8 [shape=record,shape=box,group=0,label="{lib/liblldCore.a(Error.cpp.o)}"];
+	Node0x55bc7292b6f8 [shape=record,shape=box,group=0,label="{lib/liblldCore.a(File.cpp.o)}"];
+	Node0x55bc7292a898 [shape=record,shape=box,group=0,label="{lib/liblldCore.a(LinkingContext.cpp.o)}"];
+	Node0x55bc7292a898 -> Node0x55bc7292b6f8;
+	Node0x55bc7292a898 -> Node0x55bc7292f0c8;
+	Node0x55bc7292f0c8 [shape=record,shape=box,group=0,label="{lib/liblldCore.a(Reader.cpp.o)}"];
+	Node0x55bc7292f2a8 [shape=record,shape=box,group=0,label="{lib/liblldCore.a(Resolver.cpp.o)}"];
+	Node0x55bc7292f2a8 -> Node0x55bc7292b6f8;
+	Node0x55bc7292f2a8 -> Node0x55bc7292eb28;
+	Node0x55bc7292eb28 [shape=record,shape=box,group=0,label="{lib/liblldCore.a(SymbolTable.cpp.o)}"];
+	Node0x55bc72933498 [shape=record,shape=box,group=0,label="{lib/liblldCore.a(DefinedAtom.cpp.o)}"];
+	Node0x55bc7292dae8 [shape=record,shape=box,group=0,label="{lib/liblldCore.a(Writer.cpp.o)}"];
+}
