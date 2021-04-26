@@ -1,0 +1,42 @@
+digraph "bin/llvm-c-test_lib/libLLVMX86Desc.a" {
+	label="bin/llvm-c-test_lib/libLLVMX86Desc.a";
+	rankdir=LR;
+	{ rank=same; Node0x55e7046e8108;  }
+	{ rank=same; Node0x55e7046e8d88; Node0x55e7046dfff8; Node0x55e7046e05e8; Node0x55e7046e36f8; Node0x55e7046e3e28; Node0x55e7046e30b8; Node0x55e7046e5e58;  }
+	{ rank=same; Node0x55e7046e1948; Node0x55e7046e1fd8; Node0x55e7046e45f8; Node0x55e7046e2168; Node0x55e7046e2898;  }
+
+	Node0x55e7046e8108 [shape=record,shape=box,group=2,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMX86Desc.a(X86MCTargetDesc.cpp.o)}"];
+	Node0x55e7046e8108 -> Node0x55e7046e8d88;
+	Node0x55e7046e8108 -> Node0x55e7046dfff8;
+	Node0x55e7046e8108 -> Node0x55e7046e05e8;
+	Node0x55e7046e8108 -> Node0x55e7046e36f8;
+	Node0x55e7046e8108 -> Node0x55e7046e3e28[color="0.600000 0.5 1"];
+	Node0x55e7046e8108 -> Node0x55e7046e30b8;
+	Node0x55e7046e8108 -> Node0x55e7046e5e58;
+	Node0x55e7046e74d8 [shape=record,shape=box,group=0,label="{lib/libLLVMX86Desc.a(X86ShuffleDecode.cpp.o)}"];
+	Node0x55e7046e8d88 [shape=record,shape=box,group=1,style=filled,fillcolor="0.450000 0.5 1",label="{lib/libLLVMX86Desc.a(X86IntelInstPrinter.cpp.o)}"];
+	Node0x55e7046e8d88 -> Node0x55e7046e1948;
+	Node0x55e7046e8d88 -> Node0x55e7046e1fd8[color="0.450000 0.5 1"];
+	Node0x55e7046dfff8 [shape=record,shape=box,group=1,style=filled,fillcolor="0.450000 0.5 1",label="{lib/libLLVMX86Desc.a(X86ATTInstPrinter.cpp.o)}"];
+	Node0x55e7046dfff8 -> Node0x55e7046e8d88[color="0.450000 0.5 1"];
+	Node0x55e7046dfff8 -> Node0x55e7046e1948;
+	Node0x55e7046dfff8 -> Node0x55e7046e1fd8[color="0.450000 0.5 1"];
+	Node0x55e7046e05e8 [shape=record,shape=box,group=0,label="{lib/libLLVMX86Desc.a(X86AsmBackend.cpp.o)}"];
+	Node0x55e7046e05e8 -> Node0x55e7046e45f8;
+	Node0x55e7046e05e8 -> Node0x55e7046e2168;
+	Node0x55e7046e05e8 -> Node0x55e7046e2898;
+	Node0x55e7046e36f8 [shape=record,shape=box,group=0,label="{lib/libLLVMX86Desc.a(X86MCAsmInfo.cpp.o)}"];
+	Node0x55e7046e3e28 [shape=record,shape=box,group=2,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMX86Desc.a(X86MCCodeEmitter.cpp.o)}"];
+	Node0x55e7046e3e28 -> Node0x55e7046e8108[color="0.600000 0.5 1"];
+	Node0x55e7046e3e28 -> Node0x55e7046e8d88;
+	Node0x55e7046e30b8 [shape=record,shape=box,group=0,label="{lib/libLLVMX86Desc.a(X86WinCOFFStreamer.cpp.o)}"];
+	Node0x55e7046e5e58 [shape=record,shape=box,group=0,label="{lib/libLLVMX86Desc.a(X86WinCOFFTargetStreamer.cpp.o)}"];
+	Node0x55e7046e1948 [shape=record,shape=box,group=0,label="{lib/libLLVMX86Desc.a(X86InstPrinterCommon.cpp.o)}"];
+	Node0x55e7046e1fd8 [shape=record,shape=box,group=1,style=filled,fillcolor="0.450000 0.5 1",label="{lib/libLLVMX86Desc.a(X86InstComments.cpp.o)}"];
+	Node0x55e7046e1fd8 -> Node0x55e7046e74d8;
+	Node0x55e7046e1fd8 -> Node0x55e7046dfff8[color="0.450000 0.5 1"];
+	Node0x55e7046e45f8 [shape=record,shape=box,group=0,label="{lib/libLLVMX86Desc.a(X86MachObjectWriter.cpp.o)}"];
+	Node0x55e7046e45f8 -> Node0x55e7046dfff8;
+	Node0x55e7046e2168 [shape=record,shape=box,group=0,label="{lib/libLLVMX86Desc.a(X86ELFObjectWriter.cpp.o)}"];
+	Node0x55e7046e2898 [shape=record,shape=box,group=0,label="{lib/libLLVMX86Desc.a(X86WinCOFFObjectWriter.cpp.o)}"];
+}
