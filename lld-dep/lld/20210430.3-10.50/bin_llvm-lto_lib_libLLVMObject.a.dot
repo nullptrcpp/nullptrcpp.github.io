@@ -1,0 +1,84 @@
+digraph "bin/llvm-lto_lib/libLLVMObject.a" {
+	label="bin/llvm-lto_lib/libLLVMObject.a";
+	rankdir=LR;
+	{ rank=same; Node0x55627701bbd8;  }
+	{ rank=same; Node0x556276ff6c48;  }
+	{ rank=same; Node0x55627701bbd8;  }
+	{ rank=same; Node0x556276ff6c48;  }
+
+	Node0x55627701bbd8 [shape=record,shape=box,group=0,label="{lib/libLLVMObject.a(IRSymtab.cpp.o)}"];
+	Node0x55627701bbd8 -> Node0x556276ff6c48;
+	Node0x556276ff6c48 [shape=record,shape=box,group=0,label="{lib/libLLVMObject.a(ModuleSymbolTable.cpp.o)}"];
+	Node0x556276ff6c48 -> Node0x5562770088f8;
+	Node0x55627701abe8 [shape=record,shape=box,group=0,label="{lib/libLLVMObject.a(IRObjectFile.cpp.o)}"];
+	Node0x55627701abe8 -> Node0x556276ff6c48;
+	Node0x55627701abe8 -> Node0x556276ff78c8;
+	Node0x55627701abe8 -> Node0x556277008628;
+	Node0x55627701abe8 -> Node0x5562770187a8;
+	Node0x55627701abe8 -> Node0x55627701a468;
+	Node0x55627701abe8 -> Node0x55627701bbd8;
+	Node0x5562770187a8 [shape=record,shape=box,group=0,label="{lib/libLLVMObject.a(Error.cpp.o)}"];
+	Node0x556276ff78c8 [shape=record,shape=box,group=0,label="{lib/libLLVMObject.a(ObjectFile.cpp.o)}"];
+	Node0x556276ff78c8 -> Node0x556276ff8c78;
+	Node0x556276ff78c8 -> Node0x556276ff7a58;
+	Node0x556276ff78c8 -> Node0x556276ff62e8;
+	Node0x556276ff78c8 -> Node0x556277008628;
+	Node0x556276ff78c8 -> Node0x5562770187a8;
+	Node0x556276ff78c8 -> Node0x556276fff938;
+	Node0x556276ff78c8 -> Node0x5562770007e8;
+	Node0x556277008628 [shape=record,shape=box,group=0,label="{lib/libLLVMObject.a(SymbolicFile.cpp.o)}"];
+	Node0x556277008628 -> Node0x556276ff78c8;
+	Node0x556277008628 -> Node0x5562770187a8;
+	Node0x556277008628 -> Node0x55627701abe8;
+	Node0x556277008628 -> Node0x55627701a468;
+	Node0x55627701a468 [shape=record,shape=box,group=0,label="{lib/libLLVMObject.a(Binary.cpp.o)}"];
+	Node0x55627701a468 -> Node0x5562770187a8;
+	Node0x556277019d38 [shape=record,shape=box,group=0,label="{lib/libLLVMObject.a(Archive.cpp.o)}"];
+	Node0x556277019d38 -> Node0x5562770187a8;
+	Node0x556277019d38 -> Node0x55627701a468;
+	Node0x55627701b638 [shape=record,shape=box,group=0,label="{lib/libLLVMObject.a(MachOUniversal.cpp.o)}"];
+	Node0x55627701b638 -> Node0x556276ff8c78;
+	Node0x55627701b638 -> Node0x5562770187a8;
+	Node0x55627701b638 -> Node0x55627701a468;
+	Node0x556276ff8c78 [shape=record,shape=box,group=0,label="{lib/libLLVMObject.a(MachOObjectFile.cpp.o)}"];
+	Node0x556276ff8c78 -> Node0x556276ff78c8;
+	Node0x556276ff8c78 -> Node0x556277008628;
+	Node0x556276ff8c78 -> Node0x5562770187a8;
+	Node0x556276ff8c78 -> Node0x55627701a468;
+	Node0x556276ff8f48 [shape=record,shape=box,group=0,label="{lib/libLLVMObject.a(Minidump.cpp.o)}"];
+	Node0x556276ff8f48 -> Node0x5562770187a8;
+	Node0x556276ff8f48 -> Node0x55627701a468;
+	Node0x5562770088f8 [shape=record,shape=box,group=0,label="{lib/libLLVMObject.a(RecordStreamer.cpp.o)}"];
+	Node0x556276ff7a58 [shape=record,shape=box,group=0,label="{lib/libLLVMObject.a(ELFObjectFile.cpp.o)}"];
+	Node0x556276ff7a58 -> Node0x556276ff78c8;
+	Node0x556276ff7a58 -> Node0x556276ff5f78;
+	Node0x556276ff7a58 -> Node0x556277008628;
+	Node0x556276ff7a58 -> Node0x5562770187a8;
+	Node0x556276ff7a58 -> Node0x55627701a468;
+	Node0x556276ff62e8 [shape=record,shape=box,group=0,label="{lib/libLLVMObject.a(COFFObjectFile.cpp.o)}"];
+	Node0x556276ff62e8 -> Node0x556276ff78c8;
+	Node0x556276ff62e8 -> Node0x556277008628;
+	Node0x556276ff62e8 -> Node0x5562770187a8;
+	Node0x556276fff938 [shape=record,shape=box,group=0,label="{lib/libLLVMObject.a(WasmObjectFile.cpp.o)}"];
+	Node0x556276fff938 -> Node0x556276ff78c8;
+	Node0x556276fff938 -> Node0x556277008628;
+	Node0x556276fff938 -> Node0x5562770187a8;
+	Node0x556276fff938 -> Node0x55627701a468;
+	Node0x5562770007e8 [shape=record,shape=box,group=0,label="{lib/libLLVMObject.a(XCOFFObjectFile.cpp.o)}"];
+	Node0x5562770007e8 -> Node0x556276ff78c8;
+	Node0x5562770007e8 -> Node0x556277008628;
+	Node0x5562770007e8 -> Node0x5562770187a8;
+	Node0x556276ff5f78 [shape=record,shape=box,group=0,label="{lib/libLLVMObject.a(ELF.cpp.o)}"];
+	Node0x556276ff5f78 -> Node0x5562770187a8;
+	Node0x556277008da8 [shape=record,shape=box,group=0,label="{lib/libLLVMObject.a(TapiUniversal.cpp.o)}"];
+	Node0x556277008da8 -> Node0x55627701a468;
+	Node0x5562770075e8 [shape=record,shape=box,group=0,label="{lib/libLLVMObject.a(TapiFile.cpp.o)}"];
+	Node0x5562770075e8 -> Node0x556277008628;
+	Node0x556276ffff78 [shape=record,shape=box,group=0,label="{lib/libLLVMObject.a(WindowsResource.cpp.o)}"];
+	Node0x556276ffff78 -> Node0x5562770187a8;
+	Node0x556276ffff78 -> Node0x55627701a468;
+	Node0x55627700bc38 [shape=record,shape=box,group=0,label="{lib/libLLVMObject.a(RelocationResolver.cpp.o)}"];
+	Node0x55627700bc38 -> Node0x5562770187a8;
+	Node0x556277012f88 [shape=record,shape=box,group=0,label="{lib/libLLVMObject.a(Decompressor.cpp.o)}"];
+	Node0x556277012f88 -> Node0x5562770187a8;
+}
