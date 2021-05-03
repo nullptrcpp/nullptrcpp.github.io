@@ -1,0 +1,54 @@
+digraph "bin/llvm-exegesis_lib/libLLVMExegesis.a" {
+	label="bin/llvm-exegesis_lib/libLLVMExegesis.a";
+	rankdir=LR;
+	{ rank=same; Node0x559ef9aee1a8;  }
+	{ rank=same; Node0x559ef9af5a48; Node0x559ef9ae5468;  }
+	{ rank=same; Node0x559ef9aee1a8;  }
+	{ rank=same; Node0x559ef9af5a48; Node0x559ef9ae5468;  }
+
+	Node0x559ef9aee1a8 [shape=record,shape=box,group=0,label="{lib/libLLVMExegesis.a(Analysis.cpp.o)}"];
+	Node0x559ef9aee1a8 -> Node0x559ef9af5a48;
+	Node0x559ef9aee1a8 -> Node0x559ef9ae5468;
+	Node0x559ef9aee928 [shape=record,shape=box,group=0,label="{lib/libLLVMExegesis.a(BenchmarkResult.cpp.o)}"];
+	Node0x559ef9af5a48 [shape=record,shape=box,group=0,label="{lib/libLLVMExegesis.a(Clustering.cpp.o)}"];
+	Node0x559ef9af5a48 -> Node0x559ef9aee928;
+	Node0x559ef9af66c8 [shape=record,shape=box,group=0,label="{lib/libLLVMExegesis.a(CodeTemplate.cpp.o)}"];
+	Node0x559ef9af66c8 -> Node0x559ef9ae6d68;
+	Node0x559ef9ae7e98 [shape=record,shape=box,group=0,label="{lib/libLLVMExegesis.a(Error.cpp.o)}"];
+	Node0x559ef9ae7178 [shape=record,shape=box,group=0,label="{lib/libLLVMExegesis.a(LlvmState.cpp.o)}"];
+	Node0x559ef9ae7178 -> Node0x559ef9ae6598;
+	Node0x559ef9ae7178 -> Node0x559ef9ae6d68;
+	Node0x559ef9ae7178 -> Node0x559ef9ae60e8;
+	Node0x559ef9ae7178 -> Node0x559ef9ae47e8;
+	Node0x559ef9ae5468 [shape=record,shape=box,group=0,label="{lib/libLLVMExegesis.a(SchedClassResolution.cpp.o)}"];
+	Node0x559ef9ae6d68 [shape=record,shape=box,group=0,label="{lib/libLLVMExegesis.a(MCInstrDescView.cpp.o)}"];
+	Node0x559ef9ae6d68 -> Node0x559ef9ae60e8;
+	Node0x559ef9ae6598 [shape=record,shape=box,group=0,label="{lib/libLLVMExegesis.a(Assembler.cpp.o)}"];
+	Node0x559ef9ae60e8 [shape=record,shape=box,group=0,label="{lib/libLLVMExegesis.a(RegisterAliasing.cpp.o)}"];
+	Node0x559ef9ae47e8 [shape=record,shape=box,group=0,label="{lib/libLLVMExegesis.a(Target.cpp.o)}"];
+	Node0x559ef9ae47e8 -> Node0x559ef9af66c8;
+	Node0x559ef9ae47e8 -> Node0x559ef9ae4f18;
+	Node0x559ef9ae47e8 -> Node0x559ef9aed848;
+	Node0x559ef9ae47e8 -> Node0x559ef9ade4d8;
+	Node0x559ef9ae47e8 -> Node0x559ef9adef78;
+	Node0x559ef9ae4f18 [shape=record,shape=box,group=0,label="{lib/libLLVMExegesis.a(SnippetGenerator.cpp.o)}"];
+	Node0x559ef9ae4f18 -> Node0x559ef9af66c8;
+	Node0x559ef9ae4f18 -> Node0x559ef9ae6d68;
+	Node0x559ef9ae4f18 -> Node0x559ef9ae60e8;
+	Node0x559ef9aed848 [shape=record,shape=box,group=0,label="{lib/libLLVMExegesis.a(LatencyBenchmarkRunner.cpp.o)}"];
+	Node0x559ef9aed848 -> Node0x559ef9ade4d8;
+	Node0x559ef9ade4d8 [shape=record,shape=box,group=0,label="{lib/libLLVMExegesis.a(BenchmarkRunner.cpp.o)}"];
+	Node0x559ef9ade4d8 -> Node0x559ef9adef78;
+	Node0x559ef9adef78 [shape=record,shape=box,group=0,label="{lib/libLLVMExegesis.a(PerfHelper.cpp.o)}"];
+	Node0x559ef9ae3e38 [shape=record,shape=box,group=0,label="{lib/libLLVMExegesis.a(SerialSnippetGenerator.cpp.o)}"];
+	Node0x559ef9ae3e38 -> Node0x559ef9af66c8;
+	Node0x559ef9ae3e38 -> Node0x559ef9ae6d68;
+	Node0x559ef9ae3e38 -> Node0x559ef9ae4f18;
+	Node0x559ef9aed618 [shape=record,shape=box,group=0,label="{lib/libLLVMExegesis.a(ParallelSnippetGenerator.cpp.o)}"];
+	Node0x559ef9aed618 -> Node0x559ef9af66c8;
+	Node0x559ef9aed618 -> Node0x559ef9ae6d68;
+	Node0x559ef9aed618 -> Node0x559ef9ae60e8;
+	Node0x559ef9aed618 -> Node0x559ef9ae4f18;
+	Node0x559ef9adf1a8 [shape=record,shape=box,group=0,label="{lib/libLLVMExegesis.a(UopsBenchmarkRunner.cpp.o)}"];
+	Node0x559ef9adf1a8 -> Node0x559ef9ade4d8;
+}
