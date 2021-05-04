@@ -1,0 +1,26 @@
+digraph "bin/llvm-lto_lib/libLLVMVectorize.a" {
+	label="bin/llvm-lto_lib/libLLVMVectorize.a";
+	rankdir=LR;
+
+	Node0x5589fcfd3e98 [shape=record,shape=box,group=0,label="{lib/libLLVMVectorize.a(LoadStoreVectorizer.cpp.o)}"];
+	Node0x5589fcfd2188 [shape=record,shape=box,group=0,label="{lib/libLLVMVectorize.a(LoopVectorize.cpp.o)}"];
+	Node0x5589fcfd2188 -> Node0x5589fcfd1a58;
+	Node0x5589fcfd2188 -> Node0x5589fcfd6558;
+	Node0x5589fcfd2188 -> Node0x5589fcfd6968;
+	Node0x5589fcfd2188 -> Node0x5589fcfd4988;
+	Node0x5589fcfd2188 -> Node0x5589fcfd54c8;
+	Node0x5589fcfd2bd8 [shape=record,shape=box,group=0,label="{lib/libLLVMVectorize.a(SLPVectorizer.cpp.o)}"];
+	Node0x5589fcfd5a18 [shape=record,shape=box,group=0,label="{lib/libLLVMVectorize.a(VectorCombine.cpp.o)}"];
+	Node0x5589fcfd1a58 [shape=record,shape=box,group=0,label="{lib/libLLVMVectorize.a(LoopVectorizationLegality.cpp.o)}"];
+	Node0x5589fcfd1a58 -> Node0x5589fcfd2188;
+	Node0x5589fcfd6558 [shape=record,shape=box,group=0,label="{lib/libLLVMVectorize.a(VPlan.cpp.o)}"];
+	Node0x5589fcfd6558 -> Node0x5589fcfd2188;
+	Node0x5589fcfd6968 [shape=record,shape=box,group=0,label="{lib/libLLVMVectorize.a(VPlanHCFGBuilder.cpp.o)}"];
+	Node0x5589fcfd6968 -> Node0x5589fcfd6558;
+	Node0x5589fcfd6968 -> Node0x5589fcfd5068;
+	Node0x5589fcfd4988 [shape=record,shape=box,group=0,label="{lib/libLLVMVectorize.a(VPlanPredicator.cpp.o)}"];
+	Node0x5589fcfd4988 -> Node0x5589fcfd6558;
+	Node0x5589fcfd54c8 [shape=record,shape=box,group=0,label="{lib/libLLVMVectorize.a(VPlanTransforms.cpp.o)}"];
+	Node0x5589fcfd54c8 -> Node0x5589fcfd6558;
+	Node0x5589fcfd5068 [shape=record,shape=box,group=0,label="{lib/libLLVMVectorize.a(VPlanVerifier.cpp.o)}"];
+}
