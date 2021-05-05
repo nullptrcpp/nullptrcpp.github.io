@@ -1,0 +1,25 @@
+digraph "bin/lld_lib/libLLVMCoroutines.a" {
+	label="bin/lld_lib/libLLVMCoroutines.a";
+	rankdir=LR;
+	{ rank=same; Node0x55cb31505f98;  }
+	{ rank=same; Node0x55cb31505bd8;  }
+	{ rank=same; Node0x55cb314fe888; Node0x55cb314ff418; Node0x55cb314fff58;  }
+
+	Node0x55cb31505f98 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMCoroutines.a(CoroCleanup.cpp.o)}"];
+	Node0x55cb31505f98 -> Node0x55cb31505bd8[color="0.600000 0.5 1"];
+	Node0x55cb314fe888 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMCoroutines.a(CoroEarly.cpp.o)}"];
+	Node0x55cb314fe888 -> Node0x55cb31505bd8[color="0.600000 0.5 1"];
+	Node0x55cb314ff418 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMCoroutines.a(CoroElide.cpp.o)}"];
+	Node0x55cb314ff418 -> Node0x55cb31505bd8[color="0.600000 0.5 1"];
+	Node0x55cb314fff58 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMCoroutines.a(CoroSplit.cpp.o)}"];
+	Node0x55cb314fff58 -> Node0x55cb31505bd8[color="0.600000 0.5 1"];
+	Node0x55cb314fff58 -> Node0x55cb314fd488[color="0.600000 0.5 1"];
+	Node0x55cb31505bd8 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMCoroutines.a(Coroutines.cpp.o)}"];
+	Node0x55cb31505bd8 -> Node0x55cb31505f98[color="0.600000 0.5 1"];
+	Node0x55cb31505bd8 -> Node0x55cb314fe888[color="0.600000 0.5 1"];
+	Node0x55cb31505bd8 -> Node0x55cb314ff418[color="0.600000 0.5 1"];
+	Node0x55cb31505bd8 -> Node0x55cb314fff58[color="0.600000 0.5 1"];
+	Node0x55cb314fd488 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMCoroutines.a(CoroFrame.cpp.o)}"];
+	Node0x55cb314fd488 -> Node0x55cb31505bd8[color="0.600000 0.5 1"];
+	Node0x55cb314fd488 -> Node0x55cb314fff58[color="0.600000 0.5 1"];
+}
