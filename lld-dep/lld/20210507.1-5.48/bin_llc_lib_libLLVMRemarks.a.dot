@@ -1,0 +1,23 @@
+digraph "bin/llc_lib/libLLVMRemarks.a" {
+	label="bin/llc_lib/libLLVMRemarks.a";
+	rankdir=LR;
+
+	Node0x5631c7188998 [shape=record,shape=box,group=0,label="{lib/libLLVMRemarks.a(RemarkStreamer.cpp.o)}"];
+	Node0x5631c7189fc8 [shape=record,shape=box,group=0,label="{lib/libLLVMRemarks.a(RemarkFormat.cpp.o)}"];
+	Node0x5631c71897f8 [shape=record,shape=box,group=0,label="{lib/libLLVMRemarks.a(RemarkSerializer.cpp.o)}"];
+	Node0x5631c71897f8 -> Node0x5631c71890c8;
+	Node0x5631c71897f8 -> Node0x5631c71873b8;
+	Node0x5631c71890c8 [shape=record,shape=box,group=0,label="{lib/libLLVMRemarks.a(BitstreamRemarkSerializer.cpp.o)}"];
+	Node0x5631c71890c8 -> Node0x5631c71a1c18;
+	Node0x5631c71873b8 [shape=record,shape=box,group=0,label="{lib/libLLVMRemarks.a(YAMLRemarkSerializer.cpp.o)}"];
+	Node0x5631c71873b8 -> Node0x5631c71a1c18;
+	Node0x5631c71a1c18 [shape=record,shape=box,group=0,label="{lib/libLLVMRemarks.a(RemarkStringTable.cpp.o)}"];
+	Node0x5631c71a1c18 -> Node0x5631c71a2398;
+	Node0x5631c71a2398 [shape=record,shape=box,group=0,label="{lib/libLLVMRemarks.a(RemarkParser.cpp.o)}"];
+	Node0x5631c71a2398 -> Node0x5631c71a2a28;
+	Node0x5631c71a2398 -> Node0x5631c718aba8;
+	Node0x5631c71a2a28 [shape=record,shape=box,group=0,label="{lib/libLLVMRemarks.a(BitstreamRemarkParser.cpp.o)}"];
+	Node0x5631c71a2a28 -> Node0x5631c71a2398;
+	Node0x5631c718aba8 [shape=record,shape=box,group=0,label="{lib/libLLVMRemarks.a(YAMLRemarkParser.cpp.o)}"];
+	Node0x5631c718aba8 -> Node0x5631c71a2398;
+}
