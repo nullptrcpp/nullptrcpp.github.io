@@ -1,0 +1,25 @@
+digraph "bin/llvm-lto_lib/libLLVMObjCARCOpts.a" {
+	label="bin/llvm-lto_lib/libLLVMObjCARCOpts.a";
+	rankdir=LR;
+	{ rank=same; Node0x5605a62bd468;  }
+	{ rank=same; Node0x5605a62bc018; Node0x5605a62bdcd8;  }
+
+	Node0x5605a62bd468 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMObjCARCOpts.a(ObjCARCContract.cpp.o)}"];
+	Node0x5605a62bd468 -> Node0x5605a62bc018[color="0.600000 0.5 1"];
+	Node0x5605a62bd468 -> Node0x5605a62bdcd8;
+	Node0x5605a62b63e8 [shape=record,shape=box,group=0,label="{lib/libLLVMObjCARCOpts.a(ObjCARCOpts.cpp.o)}"];
+	Node0x5605a62b63e8 -> Node0x5605a62bc018;
+	Node0x5605a62b63e8 -> Node0x5605a62bdcd8;
+	Node0x5605a62b63e8 -> Node0x5605a62b5308;
+	Node0x5605a62bc428 [shape=record,shape=box,group=0,label="{lib/libLLVMObjCARCOpts.a(ObjCARCExpand.cpp.o)}"];
+	Node0x5605a62bcc48 [shape=record,shape=box,group=0,label="{lib/libLLVMObjCARCOpts.a(ObjCARCAPElim.cpp.o)}"];
+	Node0x5605a62bc018 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMObjCARCOpts.a(ObjCARC.cpp.o)}"];
+	Node0x5605a62bc018 -> Node0x5605a62bd468[color="0.600000 0.5 1"];
+	Node0x5605a62bdcd8 [shape=record,shape=box,group=0,label="{lib/libLLVMObjCARCOpts.a(DependencyAnalysis.cpp.o)}"];
+	Node0x5605a62bdcd8 -> Node0x5605a62b4548;
+	Node0x5605a62b5308 [shape=record,shape=box,group=0,label="{lib/libLLVMObjCARCOpts.a(PtrState.cpp.o)}"];
+	Node0x5605a62b5308 -> Node0x5605a62bdcd8;
+	Node0x5605a62b4548 [shape=record,shape=box,group=0,label="{lib/libLLVMObjCARCOpts.a(ProvenanceAnalysis.cpp.o)}"];
+	Node0x5605a62b4818 [shape=record,shape=box,group=0,label="{lib/libLLVMObjCARCOpts.a(ProvenanceAnalysisEvaluator.cpp.o)}"];
+	Node0x5605a62b4818 -> Node0x5605a62b4548;
+}
