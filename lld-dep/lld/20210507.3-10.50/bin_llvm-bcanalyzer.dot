@@ -1,0 +1,17 @@
+digraph "bin/llvm-bcanalyzer" {
+	label="bin/llvm-bcanalyzer";
+	rankdir=LR;
+	{ rank=same; Node0x563e1c612778;  }
+	{ rank=same; Node0x563e1c611aa8; Node0x563e1c611328;  }
+
+	Node0x563e1c612778 [shape=record,shape=box,group=0,label="{tools/llvm-bcanalyzer/CMakeFiles/llvm-bcanalyzer.dir/llvm-bcanalyzer.cpp.o}"];
+	Node0x563e1c612778 -> Node0x563e1c611aa8;
+	Node0x563e1c612778 -> Node0x563e1c611328;
+	Node0x563e1c611aa8 [shape=record,shape=box,group=0,label="{lib/libLLVMBitReader.a}"];
+	Node0x563e1c611aa8 -> Node0x563e1c611fa8;
+	Node0x563e1c611aa8 -> Node0x563e1c611328;
+	Node0x563e1c611328 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMSupport.a}"];
+	Node0x563e1c611328 -> Node0x563e1c611fa8[color="0.600000 0.5 1"];
+	Node0x563e1c611fa8 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMBitstreamReader.a}"];
+	Node0x563e1c611fa8 -> Node0x563e1c611328[color="0.600000 0.5 1"];
+}
