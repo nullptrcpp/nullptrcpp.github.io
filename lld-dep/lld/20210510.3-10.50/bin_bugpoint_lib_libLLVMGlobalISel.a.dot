@@ -1,0 +1,70 @@
+digraph "bin/bugpoint_lib/libLLVMGlobalISel.a" {
+	label="bin/bugpoint_lib/libLLVMGlobalISel.a";
+	rankdir=LR;
+	{ rank=same; Node0x55cbf8e48aa8;  }
+	{ rank=same; Node0x55cbf8e30278; Node0x55cbf8e2e248;  }
+	{ rank=same; Node0x55cbf8e44d68; Node0x55cbf8e48f58; Node0x55cbf8e31808;  }
+
+	Node0x55cbf8e48aa8 [shape=record,shape=box,group=0,label="{lib/libLLVMGlobalISel.a(CallLowering.cpp.o)}"];
+	Node0x55cbf8e48aa8 -> Node0x55cbf8e30278;
+	Node0x55cbf8e48aa8 -> Node0x55cbf8e2e248;
+	Node0x55cbf8e30278 [shape=record,shape=box,group=0,label="{lib/libLLVMGlobalISel.a(MachineIRBuilder.cpp.o)}"];
+	Node0x55cbf8e30278 -> Node0x55cbf8e2e248;
+	Node0x55cbf8e2e248 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMGlobalISel.a(Utils.cpp.o)}"];
+	Node0x55cbf8e2e248 -> Node0x55cbf8e44d68;
+	Node0x55cbf8e2e248 -> Node0x55cbf8e48f58[color="0.600000 0.5 1"];
+	Node0x55cbf8e2e248 -> Node0x55cbf8e31808;
+	Node0x55cbf8e46988 [shape=record,shape=box,group=0,label="{lib/libLLVMGlobalISel.a(LegalityPredicates.cpp.o)}"];
+	Node0x55cbf8e47b08 [shape=record,shape=box,group=0,label="{lib/libLLVMGlobalISel.a(LegalizeMutations.cpp.o)}"];
+	Node0x55cbf8e48e68 [shape=record,shape=box,group=0,label="{lib/libLLVMGlobalISel.a(LegalizerInfo.cpp.o)}"];
+	Node0x55cbf8e324d8 [shape=record,shape=box,group=0,label="{lib/libLLVMGlobalISel.a(RegisterBank.cpp.o)}"];
+	Node0x55cbf8e31808 [shape=record,shape=box,group=0,label="{lib/libLLVMGlobalISel.a(RegisterBankInfo.cpp.o)}"];
+	Node0x55cbf8e31808 -> Node0x55cbf8e324d8;
+	Node0x55cbf8e46de8 [shape=record,shape=box,group=0,label="{lib/libLLVMGlobalISel.a(InstructionSelector.cpp.o)}"];
+	Node0x55cbf8e46de8 -> Node0x55cbf8e2e248;
+	Node0x55cbf8e49228 [shape=record,shape=box,group=0,label="{lib/libLLVMGlobalISel.a(CSEInfo.cpp.o)}"];
+	Node0x55cbf8e48328 [shape=record,shape=box,group=0,label="{lib/libLLVMGlobalISel.a(GlobalISel.cpp.o)}"];
+	Node0x55cbf8e48328 -> Node0x55cbf8e45538;
+	Node0x55cbf8e48328 -> Node0x55cbf8e47c98;
+	Node0x55cbf8e48328 -> Node0x55cbf8e47568;
+	Node0x55cbf8e48328 -> Node0x55cbf8e48738;
+	Node0x55cbf8e48328 -> Node0x55cbf8e31e98;
+	Node0x55cbf8e45538 [shape=record,shape=box,group=0,label="{lib/libLLVMGlobalISel.a(IRTranslator.cpp.o)}"];
+	Node0x55cbf8e45538 -> Node0x55cbf8e49228;
+	Node0x55cbf8e45538 -> Node0x55cbf8e48aa8;
+	Node0x55cbf8e45538 -> Node0x55cbf8e44d68;
+	Node0x55cbf8e45538 -> Node0x55cbf8e45038;
+	Node0x55cbf8e45538 -> Node0x55cbf8e30278;
+	Node0x55cbf8e45538 -> Node0x55cbf8e2e248;
+	Node0x55cbf8e47c98 [shape=record,shape=box,group=0,label="{lib/libLLVMGlobalISel.a(InstructionSelect.cpp.o)}"];
+	Node0x55cbf8e47c98 -> Node0x55cbf8e48f58;
+	Node0x55cbf8e47c98 -> Node0x55cbf8e2e248;
+	Node0x55cbf8e47568 [shape=record,shape=box,group=0,label="{lib/libLLVMGlobalISel.a(Legalizer.cpp.o)}"];
+	Node0x55cbf8e47568 -> Node0x55cbf8e49228;
+	Node0x55cbf8e47568 -> Node0x55cbf8e44d68;
+	Node0x55cbf8e47568 -> Node0x55cbf8e481e8;
+	Node0x55cbf8e47568 -> Node0x55cbf8e48e68;
+	Node0x55cbf8e47568 -> Node0x55cbf8e30f98;
+	Node0x55cbf8e47568 -> Node0x55cbf8e30278;
+	Node0x55cbf8e47568 -> Node0x55cbf8e2e248;
+	Node0x55cbf8e31e98 [shape=record,shape=box,group=0,label="{lib/libLLVMGlobalISel.a(RegBankSelect.cpp.o)}"];
+	Node0x55cbf8e31e98 -> Node0x55cbf8e30278;
+	Node0x55cbf8e31e98 -> Node0x55cbf8e31808;
+	Node0x55cbf8e31e98 -> Node0x55cbf8e2e248;
+	Node0x55cbf8e48738 [shape=record,shape=box,group=0,label="{lib/libLLVMGlobalISel.a(Localizer.cpp.o)}"];
+	Node0x55cbf8e48738 -> Node0x55cbf8e2e248;
+	Node0x55cbf8e44d68 [shape=record,shape=box,group=0,label="{lib/libLLVMGlobalISel.a(GISelChangeObserver.cpp.o)}"];
+	Node0x55cbf8e45038 [shape=record,shape=box,group=0,label="{lib/libLLVMGlobalISel.a(InlineAsmLowering.cpp.o)}"];
+	Node0x55cbf8e45038 -> Node0x55cbf8e30278;
+	Node0x55cbf8e44138 [shape=record,shape=box,group=0,label="{lib/libLLVMGlobalISel.a(CSEMIRBuilder.cpp.o)}"];
+	Node0x55cbf8e44138 -> Node0x55cbf8e49228;
+	Node0x55cbf8e44138 -> Node0x55cbf8e30278;
+	Node0x55cbf8e44138 -> Node0x55cbf8e2e248;
+	Node0x55cbf8e48f58 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMGlobalISel.a(GISelKnownBits.cpp.o)}"];
+	Node0x55cbf8e48f58 -> Node0x55cbf8e2e248[color="0.600000 0.5 1"];
+	Node0x55cbf8e481e8 [shape=record,shape=box,group=0,label="{lib/libLLVMGlobalISel.a(LegalizerHelper.cpp.o)}"];
+	Node0x55cbf8e481e8 -> Node0x55cbf8e48e68;
+	Node0x55cbf8e481e8 -> Node0x55cbf8e30278;
+	Node0x55cbf8e481e8 -> Node0x55cbf8e2e248;
+	Node0x55cbf8e30f98 [shape=record,shape=box,group=0,label="{lib/libLLVMGlobalISel.a(LostDebugLocObserver.cpp.o)}"];
+}
