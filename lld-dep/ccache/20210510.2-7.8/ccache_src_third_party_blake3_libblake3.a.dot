@@ -1,0 +1,20 @@
+digraph "ccache_src/third_party/blake3/libblake3.a" {
+	label="ccache_src/third_party/blake3/libblake3.a";
+	rankdir=LR;
+	{ rank=same; Node0x5648ee157258;  }
+	{ rank=same; Node0x5648ee157f78;  }
+
+	Node0x5648ee157258 [shape=record,shape=box,group=0,label="{src/third_party/blake3/libblake3.a(blake3.c.o)}"];
+	Node0x5648ee157258 -> Node0x5648ee157f78;
+	Node0x5648ee157f78 [shape=record,shape=box,group=0,label="{src/third_party/blake3/libblake3.a(blake3_dispatch_ccache.c.o)}"];
+	Node0x5648ee157f78 -> Node0x5648ee158248;
+	Node0x5648ee157f78 -> Node0x5648ee1573e8;
+	Node0x5648ee157f78 -> Node0x5648ee157ed8;
+	Node0x5648ee157f78 -> Node0x5648ee1581a8;
+	Node0x5648ee157f78 -> Node0x5648ee156038;
+	Node0x5648ee158248 [shape=record,shape=box,group=0,label="{src/third_party/blake3/libblake3.a(blake3_portable.c.o)}"];
+	Node0x5648ee1573e8 [shape=record,shape=box,group=0,label="{src/third_party/blake3/libblake3.a(blake3_sse2_x86-64_unix.S.o)}"];
+	Node0x5648ee157ed8 [shape=record,shape=box,group=0,label="{src/third_party/blake3/libblake3.a(blake3_sse41_x86-64_unix.S.o)}"];
+	Node0x5648ee1581a8 [shape=record,shape=box,group=0,label="{src/third_party/blake3/libblake3.a(blake3_avx2_x86-64_unix.S.o)}"];
+	Node0x5648ee156038 [shape=record,shape=box,group=0,label="{src/third_party/blake3/libblake3.a(blake3_avx512_x86-64_unix.S.o)}"];
+}
