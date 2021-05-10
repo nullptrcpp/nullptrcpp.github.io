@@ -1,0 +1,31 @@
+digraph "bin/llvm-opt-fuzzer_lib/libLLVMObjCARCOpts.a" {
+	label="bin/llvm-opt-fuzzer_lib/libLLVMObjCARCOpts.a";
+	rankdir=LR;
+	{ rank=same; Node0x5633b82d7818;  }
+	{ rank=same; Node0x5633b82d8678; Node0x5633b82ebb88; Node0x5633b82e87f8; Node0x5633b82e7b78; Node0x5633b82e8e88;  }
+	{ rank=same; Node0x5633b82d7818;  }
+	{ rank=same; Node0x5633b82d8678; Node0x5633b82ebb88; Node0x5633b82e87f8; Node0x5633b82e7b78; Node0x5633b82e8e88;  }
+
+	Node0x5633b82d7818 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMObjCARCOpts.a(ObjCARC.cpp.o)}"];
+	Node0x5633b82d7818 -> Node0x5633b82d8678[color="0.600000 0.5 1"];
+	Node0x5633b82d7818 -> Node0x5633b82ebb88;
+	Node0x5633b82d7818 -> Node0x5633b82e87f8;
+	Node0x5633b82d7818 -> Node0x5633b82e7b78[color="0.600000 0.5 1"];
+	Node0x5633b82d7818 -> Node0x5633b82e8e88;
+	Node0x5633b82d8678 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMObjCARCOpts.a(ObjCARCOpts.cpp.o)}"];
+	Node0x5633b82d8678 -> Node0x5633b82d7818[color="0.600000 0.5 1"];
+	Node0x5633b82d8678 -> Node0x5633b82e7f88;
+	Node0x5633b82d8678 -> Node0x5633b82e9658;
+	Node0x5633b82ebb88 [shape=record,shape=box,group=0,label="{lib/libLLVMObjCARCOpts.a(ObjCARCExpand.cpp.o)}"];
+	Node0x5633b82e87f8 [shape=record,shape=box,group=0,label="{lib/libLLVMObjCARCOpts.a(ObjCARCAPElim.cpp.o)}"];
+	Node0x5633b82e7b78 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMObjCARCOpts.a(ObjCARCContract.cpp.o)}"];
+	Node0x5633b82e7b78 -> Node0x5633b82d7818[color="0.600000 0.5 1"];
+	Node0x5633b82e7b78 -> Node0x5633b82e7f88;
+	Node0x5633b82e8e88 [shape=record,shape=box,group=0,label="{lib/libLLVMObjCARCOpts.a(ProvenanceAnalysisEvaluator.cpp.o)}"];
+	Node0x5633b82e8e88 -> Node0x5633b82e9a68;
+	Node0x5633b82e7f88 [shape=record,shape=box,group=0,label="{lib/libLLVMObjCARCOpts.a(DependencyAnalysis.cpp.o)}"];
+	Node0x5633b82e7f88 -> Node0x5633b82e9a68;
+	Node0x5633b82e9658 [shape=record,shape=box,group=0,label="{lib/libLLVMObjCARCOpts.a(PtrState.cpp.o)}"];
+	Node0x5633b82e9658 -> Node0x5633b82e7f88;
+	Node0x5633b82e9a68 [shape=record,shape=box,group=0,label="{lib/libLLVMObjCARCOpts.a(ProvenanceAnalysis.cpp.o)}"];
+}
