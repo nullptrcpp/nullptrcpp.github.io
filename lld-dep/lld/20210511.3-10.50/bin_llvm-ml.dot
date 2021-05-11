@@ -1,0 +1,49 @@
+digraph "bin/llvm-ml" {
+	label="bin/llvm-ml";
+	rankdir=LR;
+	{ rank=same; Node0x55baa24f0eb8;  }
+	{ rank=same; Node0x55baa24edee8; Node0x55baa24ed9e8; Node0x55baa24ef428; Node0x55baa24ee848; Node0x55baa24ee348; Node0x55baa24ef928; Node0x55baa24eeb18; Node0x55baa24eefc8;  }
+
+	Node0x55baa24f0eb8 [shape=record,shape=box,group=0,label="{tools/llvm-ml/CMakeFiles/llvm-ml.dir/llvm-ml.cpp.o}"];
+	Node0x55baa24f0eb8 -> Node0x55baa24edee8;
+	Node0x55baa24f0eb8 -> Node0x55baa24ed9e8;
+	Node0x55baa24f0eb8 -> Node0x55baa24ef428;
+	Node0x55baa24f0eb8 -> Node0x55baa24ee848;
+	Node0x55baa24f0eb8 -> Node0x55baa24ee348;
+	Node0x55baa24f0eb8 -> Node0x55baa24ef928;
+	Node0x55baa24f0eb8 -> Node0x55baa24eeb18;
+	Node0x55baa24f0eb8 -> Node0x55baa24eefc8;
+	Node0x55baa24edee8 [shape=record,shape=box,group=0,label="{lib/libLLVMX86AsmParser.a}"];
+	Node0x55baa24edee8 -> Node0x55baa24ed9e8;
+	Node0x55baa24edee8 -> Node0x55baa24ef428;
+	Node0x55baa24edee8 -> Node0x55baa24ee348;
+	Node0x55baa24edee8 -> Node0x55baa24ef928;
+	Node0x55baa24edee8 -> Node0x55baa24eefc8;
+	Node0x55baa24ed9e8 [shape=record,shape=box,group=0,label="{lib/libLLVMX86Desc.a}"];
+	Node0x55baa24ed9e8 -> Node0x55baa24ef428;
+	Node0x55baa24ed9e8 -> Node0x55baa24eefc8;
+	Node0x55baa24ed9e8 -> Node0x55baa24ee348;
+	Node0x55baa24ed9e8 -> Node0x55baa24f0968;
+	Node0x55baa24ed9e8 -> Node0x55baa24efec8;
+	Node0x55baa24ef428 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMMC.a}"];
+	Node0x55baa24ef428 -> Node0x55baa24eefc8[color="0.600000 0.5 1"];
+	Node0x55baa24ef428 -> Node0x55baa24efec8[color="0.600000 0.5 1"];
+	Node0x55baa24ee848 [shape=record,shape=box,group=0,label="{lib/libLLVMX86Disassembler.a}"];
+	Node0x55baa24ee848 -> Node0x55baa24ee348;
+	Node0x55baa24ee848 -> Node0x55baa24f0968;
+	Node0x55baa24ee348 [shape=record,shape=box,group=0,label="{lib/libLLVMX86Info.a}"];
+	Node0x55baa24ee348 -> Node0x55baa24eefc8;
+	Node0x55baa24ef928 [shape=record,shape=box,group=0,label="{lib/libLLVMMCParser.a}"];
+	Node0x55baa24ef928 -> Node0x55baa24eefc8;
+	Node0x55baa24ef928 -> Node0x55baa24ef428;
+	Node0x55baa24eeb18 [shape=record,shape=box,group=0,label="{lib/libLLVMOption.a}"];
+	Node0x55baa24eeb18 -> Node0x55baa24eefc8;
+	Node0x55baa24eefc8 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMSupport.a}"];
+	Node0x55baa24eefc8 -> Node0x55baa24ef428[color="0.600000 0.5 1"];
+	Node0x55baa24f0418 [shape=record,shape=box,group=0,label="{tools/llvm-ml/CMakeFiles/llvm-ml.dir/Disassembler.cpp.o}"];
+	Node0x55baa24f0418 -> Node0x55baa24ef428;
+	Node0x55baa24f0418 -> Node0x55baa24eefc8;
+	Node0x55baa24f0968 [shape=record,shape=box,group=0,label="{lib/libLLVMMCDisassembler.a}"];
+	Node0x55baa24efec8 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMBinaryFormat.a}"];
+	Node0x55baa24efec8 -> Node0x55baa24eefc8[color="0.600000 0.5 1"];
+}
