@@ -1,0 +1,46 @@
+digraph "bin/llvm-mc" {
+	label="bin/llvm-mc";
+	rankdir=LR;
+	{ rank=same; Node0x5627b6035648;  }
+	{ rank=same; Node0x5627b60349c8; Node0x5627b6037948; Node0x5627b6037e48; Node0x5627b6033e88; Node0x5627b60382a8; Node0x5627b60387a8; Node0x5627b6034388; Node0x5627b60346a8;  }
+
+	Node0x5627b6035648 [shape=record,shape=box,group=0,label="{tools/llvm-mc/CMakeFiles/llvm-mc.dir/llvm-mc.cpp.o}"];
+	Node0x5627b6035648 -> Node0x5627b60349c8;
+	Node0x5627b6035648 -> Node0x5627b6037948;
+	Node0x5627b6035648 -> Node0x5627b6037e48;
+	Node0x5627b6035648 -> Node0x5627b6033e88;
+	Node0x5627b6035648 -> Node0x5627b60382a8;
+	Node0x5627b6035648 -> Node0x5627b60387a8;
+	Node0x5627b6035648 -> Node0x5627b6034388;
+	Node0x5627b6035648 -> Node0x5627b60346a8;
+	Node0x5627b60349c8 [shape=record,shape=box,group=0,label="{tools/llvm-mc/CMakeFiles/llvm-mc.dir/Disassembler.cpp.o}"];
+	Node0x5627b60349c8 -> Node0x5627b60346a8;
+	Node0x5627b6037948 [shape=record,shape=box,group=0,label="{lib/libLLVMX86AsmParser.a}"];
+	Node0x5627b6037948 -> Node0x5627b6037e48;
+	Node0x5627b6037948 -> Node0x5627b60387a8;
+	Node0x5627b6037948 -> Node0x5627b6033e88;
+	Node0x5627b6037948 -> Node0x5627b6034388;
+	Node0x5627b6037948 -> Node0x5627b60346a8;
+	Node0x5627b6037e48 [shape=record,shape=box,group=0,label="{lib/libLLVMX86Desc.a}"];
+	Node0x5627b6037e48 -> Node0x5627b6033e88;
+	Node0x5627b6037e48 -> Node0x5627b60346a8;
+	Node0x5627b6037e48 -> Node0x5627b60387a8;
+	Node0x5627b6037e48 -> Node0x5627b6034ba8;
+	Node0x5627b6037e48 -> Node0x5627b6035698;
+	Node0x5627b6033e88 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMMC.a}"];
+	Node0x5627b6033e88 -> Node0x5627b60346a8[color="0.600000 0.5 1"];
+	Node0x5627b6033e88 -> Node0x5627b6035698[color="0.600000 0.5 1"];
+	Node0x5627b60382a8 [shape=record,shape=box,group=0,label="{lib/libLLVMX86Disassembler.a}"];
+	Node0x5627b60382a8 -> Node0x5627b60387a8;
+	Node0x5627b60382a8 -> Node0x5627b6034ba8;
+	Node0x5627b60387a8 [shape=record,shape=box,group=0,label="{lib/libLLVMX86Info.a}"];
+	Node0x5627b60387a8 -> Node0x5627b60346a8;
+	Node0x5627b6034388 [shape=record,shape=box,group=0,label="{lib/libLLVMMCParser.a}"];
+	Node0x5627b6034388 -> Node0x5627b60346a8;
+	Node0x5627b6034388 -> Node0x5627b6033e88;
+	Node0x5627b60346a8 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMSupport.a}"];
+	Node0x5627b60346a8 -> Node0x5627b6033e88[color="0.600000 0.5 1"];
+	Node0x5627b6034ba8 [shape=record,shape=box,group=0,label="{lib/libLLVMMCDisassembler.a}"];
+	Node0x5627b6035698 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMBinaryFormat.a}"];
+	Node0x5627b6035698 -> Node0x5627b60346a8[color="0.600000 0.5 1"];
+}

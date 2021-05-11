@@ -1,0 +1,31 @@
+digraph "bin/llvm-jitlink_lib/libLLVMOrcJIT.a" {
+	label="bin/llvm-jitlink_lib/libLLVMOrcJIT.a";
+	rankdir=LR;
+	{ rank=same; Node0x55ff5c073078;  }
+
+	Node0x55ff5c073078 [shape=record,shape=box,group=0,label="{lib/libLLVMOrcJIT.a(Core.cpp.o)}"];
+	Node0x55ff5c073078 -> Node0x55ff5c06ebb8;
+	Node0x55ff5c06fdd8 [shape=record,shape=box,group=0,label="{lib/libLLVMOrcJIT.a(DebugObjectManagerPlugin.cpp.o)}"];
+	Node0x55ff5c06fdd8 -> Node0x55ff5c073078;
+	Node0x55ff5c06fdd8 -> Node0x55ff5c06f838;
+	Node0x55ff5c070cd8 [shape=record,shape=box,group=0,label="{lib/libLLVMOrcJIT.a(ExecutionUtils.cpp.o)}"];
+	Node0x55ff5c070cd8 -> Node0x55ff5c073078;
+	Node0x55ff5c070cd8 -> Node0x55ff5c06fb08;
+	Node0x55ff5c0712c8 [shape=record,shape=box,group=0,label="{lib/libLLVMOrcJIT.a(Layer.cpp.o)}"];
+	Node0x55ff5c0712c8 -> Node0x55ff5c073078;
+	Node0x55ff5c0712c8 -> Node0x55ff5c070cd8;
+	Node0x55ff5c0712c8 -> Node0x55ff5c06fb08;
+	Node0x55ff5c0712c8 -> Node0x55ff5c0737f8;
+	Node0x55ff5c06fb08 [shape=record,shape=box,group=0,label="{lib/libLLVMOrcJIT.a(Mangling.cpp.o)}"];
+	Node0x55ff5c06f838 [shape=record,shape=box,group=0,label="{lib/libLLVMOrcJIT.a(ObjectLinkingLayer.cpp.o)}"];
+	Node0x55ff5c06f838 -> Node0x55ff5c073078;
+	Node0x55ff5c06f838 -> Node0x55ff5c0712c8;
+	Node0x55ff5c06ec58 [shape=record,shape=box,group=0,label="{lib/libLLVMOrcJIT.a(TargetProcessControl.cpp.o)}"];
+	Node0x55ff5c06ec58 -> Node0x55ff5c073078;
+	Node0x55ff5c072fd8 [shape=record,shape=box,group=0,label="{lib/libLLVMOrcJIT.a(TPCDebugObjectRegistrar.cpp.o)}"];
+	Node0x55ff5c0728a8 [shape=record,shape=box,group=0,label="{lib/libLLVMOrcJIT.a(TPCDynamicLibrarySearchGenerator.cpp.o)}"];
+	Node0x55ff5c0728a8 -> Node0x55ff5c073078;
+	Node0x55ff5c072128 [shape=record,shape=box,group=0,label="{lib/libLLVMOrcJIT.a(TPCEHFrameRegistrar.cpp.o)}"];
+	Node0x55ff5c06ebb8 [shape=record,shape=box,group=0,label="{lib/libLLVMOrcJIT.a(DebugUtils.cpp.o)}"];
+	Node0x55ff5c0737f8 [shape=record,shape=box,group=0,label="{lib/libLLVMOrcJIT.a(ThreadSafeModule.cpp.o)}"];
+}
