@@ -1,0 +1,17 @@
+digraph "bin/llvm-profgen_lib/libLLVMProfileData.a" {
+	label="bin/llvm-profgen_lib/libLLVMProfileData.a";
+	rankdir=LR;
+
+	Node0x5569f59c0198 [shape=record,shape=box,group=0,label="{lib/libLLVMProfileData.a(SampleProf.cpp.o)}"];
+	Node0x5569f59c1318 [shape=record,shape=box,group=0,label="{lib/libLLVMProfileData.a(ProfileSummaryBuilder.cpp.o)}"];
+	Node0x5569f59c1318 -> Node0x5569f59c0198;
+	Node0x5569f59c2588 [shape=record,shape=box,group=0,label="{lib/libLLVMProfileData.a(SampleProfWriter.cpp.o)}"];
+	Node0x5569f59c2588 -> Node0x5569f59c1318;
+	Node0x5569f59c2588 -> Node0x5569f59c0198;
+	Node0x5569f59c3e88 [shape=record,shape=box,group=0,label="{lib/libLLVMProfileData.a(InstrProf.cpp.o)}"];
+	Node0x5569f59c4158 [shape=record,shape=box,group=0,label="{lib/libLLVMProfileData.a(InstrProfReader.cpp.o)}"];
+	Node0x5569f59c4158 -> Node0x5569f59c1318;
+	Node0x5569f59c0698 [shape=record,shape=box,group=0,label="{lib/libLLVMProfileData.a(SampleProfReader.cpp.o)}"];
+	Node0x5569f59c0698 -> Node0x5569f59c1318;
+	Node0x5569f59c0698 -> Node0x5569f59c0198;
+}
