@@ -1,0 +1,17 @@
+digraph "bin/llvm-isel-fuzzer_lib/libLLVMProfileData.a" {
+	label="bin/llvm-isel-fuzzer_lib/libLLVMProfileData.a";
+	rankdir=LR;
+	{ rank=same; Node0x5596eefc1dc8;  }
+	{ rank=same; Node0x5596eefc5f68;  }
+
+	Node0x5596eefc1dc8 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMProfileData.a(SampleProf.cpp.o)}"];
+	Node0x5596eefc1dc8 -> Node0x5596eefc5f68[color="0.600000 0.5 1"];
+	Node0x5596eefc5f68 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMProfileData.a(SampleProfReader.cpp.o)}"];
+	Node0x5596eefc5f68 -> Node0x5596eefc15f8[color="0.600000 0.5 1"];
+	Node0x5596eefc5f68 -> Node0x5596eefc1dc8[color="0.600000 0.5 1"];
+	Node0x5596eefc15f8 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMProfileData.a(ProfileSummaryBuilder.cpp.o)}"];
+	Node0x5596eefc15f8 -> Node0x5596eefc1dc8[color="0.600000 0.5 1"];
+	Node0x5596eefc2ef8 [shape=record,shape=box,group=0,label="{lib/libLLVMProfileData.a(InstrProf.cpp.o)}"];
+	Node0x5596eefc3678 [shape=record,shape=box,group=0,label="{lib/libLLVMProfileData.a(InstrProfReader.cpp.o)}"];
+	Node0x5596eefc3678 -> Node0x5596eefc15f8;
+}
