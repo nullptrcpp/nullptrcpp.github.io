@@ -1,0 +1,17 @@
+digraph "bin/lld_lib/liblldCore.a" {
+	label="bin/lld_lib/liblldCore.a";
+	rankdir=LR;
+
+	Node0x5571696ef538 [shape=record,shape=box,group=0,label="{lib/liblldCore.a(Error.cpp.o)}"];
+	Node0x5571696ef9e8 [shape=record,shape=box,group=0,label="{lib/liblldCore.a(File.cpp.o)}"];
+	Node0x5571696f0668 [shape=record,shape=box,group=0,label="{lib/liblldCore.a(LinkingContext.cpp.o)}"];
+	Node0x5571696f0668 -> Node0x5571696ef9e8;
+	Node0x5571696f0668 -> Node0x5571696ee0e8;
+	Node0x5571696ee0e8 [shape=record,shape=box,group=0,label="{lib/liblldCore.a(Reader.cpp.o)}"];
+	Node0x5571696eed68 [shape=record,shape=box,group=0,label="{lib/liblldCore.a(Resolver.cpp.o)}"];
+	Node0x5571696eed68 -> Node0x5571696ef9e8;
+	Node0x5571696eed68 -> Node0x5571696ef038;
+	Node0x5571696ef038 [shape=record,shape=box,group=0,label="{lib/liblldCore.a(SymbolTable.cpp.o)}"];
+	Node0x5571696f1a18 [shape=record,shape=box,group=0,label="{lib/liblldCore.a(DefinedAtom.cpp.o)}"];
+	Node0x5571696e2c98 [shape=record,shape=box,group=0,label="{lib/liblldCore.a(Writer.cpp.o)}"];
+}

@@ -1,0 +1,39 @@
+digraph "bin/llvm-itanium-demangle-fuzzer" {
+	label="bin/llvm-itanium-demangle-fuzzer";
+	rankdir=LR;
+	{ rank=same; Node0x5562b12d4678;  }
+	{ rank=same; Node0x5562b12d5258; Node0x5562b12db3d8;  }
+
+	Node0x5562b12d4678 [shape=record,shape=box,group=0,label="{tools/llvm-itanium-demangle-fuzzer/CMakeFiles/llvm-itanium-demangle-fuzzer.dir/DummyDemanglerFuzzer.cpp.o}"];
+	Node0x5562b12d4678 -> Node0x5562b12d5258;
+	Node0x5562b12d4678 -> Node0x5562b12db3d8;
+	Node0x5562b12d5258 [shape=record,shape=box,group=0,label="{tools/llvm-itanium-demangle-fuzzer/CMakeFiles/llvm-itanium-demangle-fuzzer.dir/llvm-itanium-demangle-fuzzer.cpp.o}"];
+	Node0x5562b12d5258 -> Node0x5562b12d91c8;
+	Node0x5562b12db3d8 [shape=record,shape=box,group=0,label="{lib/libLLVMFuzzMutate.a}"];
+	Node0x5562b12db3d8 -> Node0x5562b12daf28;
+	Node0x5562b12d91c8 [shape=record,shape=box,group=0,label="{lib/libLLVMDemangle.a}"];
+	Node0x5562b12daf28 [shape=record,shape=box,group=0,label="{lib/libLLVMSupport.a}"];
+	Node0x5562b12daf28 -> Node0x5562b12d91c8;
+	Node0x5562b12da9d8 [shape=record,shape=box,group=0,label="{lib/libLLVMBitWriter.a}"];
+	Node0x5562b12da9d8 -> Node0x5562b12daf28;
+	Node0x5562b12da9d8 -> Node0x5562b12d8bd8;
+	Node0x5562b12d8bd8 [shape=record,shape=box,group=0,label="{lib/libLLVMAnalysis.a}"];
+	Node0x5562b12d8bd8 -> Node0x5562b12daf28;
+	Node0x5562b12d8bd8 -> Node0x5562b12d4b28;
+	Node0x5562b12d4b28 [shape=record,shape=box,group=0,label="{lib/libLLVMProfileData.a}"];
+	Node0x5562b12d4b28 -> Node0x5562b12daf28;
+	Node0x5562b12d8728 [shape=record,shape=box,group=0,label="{lib/libLLVMObject.a}"];
+	Node0x5562b12d8728 -> Node0x5562b12daf28;
+	Node0x5562b12d8228 [shape=record,shape=box,group=0,label="{lib/libLLVMBitReader.a}"];
+	Node0x5562b12d8228 -> Node0x5562b12daf28;
+	Node0x5562b12d8188 [shape=record,shape=box,group=0,label="{lib/libLLVMMCParser.a}"];
+	Node0x5562b12d8188 -> Node0x5562b12daf28;
+	Node0x5562b12d6388 [shape=record,shape=box,group=0,label="{lib/libLLVMCore.a}"];
+	Node0x5562b12d6388 -> Node0x5562b12daf28;
+	Node0x5562b12d66a8 [shape=record,shape=box,group=0,label="{lib/libLLVMRemarks.a}"];
+	Node0x5562b12d66a8 -> Node0x5562b12daf28;
+	Node0x5562b12d4498 [shape=record,shape=box,group=0,label="{lib/libLLVMBitstreamReader.a}"];
+	Node0x5562b12d4498 -> Node0x5562b12daf28;
+	Node0x5562b12d4948 [shape=record,shape=box,group=0,label="{lib/libLLVMMC.a}"];
+	Node0x5562b12d4948 -> Node0x5562b12daf28;
+}
