@@ -1,0 +1,29 @@
+digraph "bin/llvm-lto2_lib/libLLVMObjCARCOpts.a" {
+	label="bin/llvm-lto2_lib/libLLVMObjCARCOpts.a";
+	rankdir=LR;
+	{ rank=same; Node0x55f298d92448;  }
+	{ rank=same; Node0x55f298d91db8; Node0x55f298dab8a8; Node0x55f298daa5e8;  }
+
+	Node0x55f298d92448 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMObjCARCOpts.a(ObjCARCOpts.cpp.o)}"];
+	Node0x55f298d92448 -> Node0x55f298d91db8[color="0.600000 0.5 1"];
+	Node0x55f298d92448 -> Node0x55f298dab8a8;
+	Node0x55f298d92448 -> Node0x55f298daa5e8;
+	Node0x55f298d91e58 [shape=record,shape=box,group=0,label="{lib/libLLVMObjCARCOpts.a(ObjCARCExpand.cpp.o)}"];
+	Node0x55f298daaa48 [shape=record,shape=box,group=0,label="{lib/libLLVMObjCARCOpts.a(ObjCARCAPElim.cpp.o)}"];
+	Node0x55f298dab1c8 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMObjCARCOpts.a(ObjCARCContract.cpp.o)}"];
+	Node0x55f298dab1c8 -> Node0x55f298d91db8[color="0.600000 0.5 1"];
+	Node0x55f298dab1c8 -> Node0x55f298dab8a8;
+	Node0x55f298d91db8 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMObjCARCOpts.a(ObjCARC.cpp.o)}"];
+	Node0x55f298d91db8 -> Node0x55f298d92448[color="0.600000 0.5 1"];
+	Node0x55f298d91db8 -> Node0x55f298d91e58;
+	Node0x55f298d91db8 -> Node0x55f298daaa48;
+	Node0x55f298d91db8 -> Node0x55f298dab1c8[color="0.600000 0.5 1"];
+	Node0x55f298d91db8 -> Node0x55f298da9e18;
+	Node0x55f298dab8a8 [shape=record,shape=box,group=0,label="{lib/libLLVMObjCARCOpts.a(DependencyAnalysis.cpp.o)}"];
+	Node0x55f298dab8a8 -> Node0x55f298da9878;
+	Node0x55f298daa5e8 [shape=record,shape=box,group=0,label="{lib/libLLVMObjCARCOpts.a(PtrState.cpp.o)}"];
+	Node0x55f298daa5e8 -> Node0x55f298dab8a8;
+	Node0x55f298da9e18 [shape=record,shape=box,group=0,label="{lib/libLLVMObjCARCOpts.a(ProvenanceAnalysisEvaluator.cpp.o)}"];
+	Node0x55f298da9e18 -> Node0x55f298da9878;
+	Node0x55f298da9878 [shape=record,shape=box,group=0,label="{lib/libLLVMObjCARCOpts.a(ProvenanceAnalysis.cpp.o)}"];
+}

@@ -1,0 +1,12 @@
+digraph "bin/llvm-lto2_lib/libLLVMLTO.a" {
+	label="bin/llvm-lto2_lib/libLLVMLTO.a";
+	rankdir=LR;
+
+	Node0x55f298d94838 [shape=record,shape=box,group=0,label="{lib/libLLVMLTO.a(Caching.cpp.o)}"];
+	Node0x55f298d9b6d8 [shape=record,shape=box,group=0,label="{lib/libLLVMLTO.a(LTO.cpp.o)}"];
+	Node0x55f298d9b6d8 -> Node0x55f298d9a788;
+	Node0x55f298d9b6d8 -> Node0x55f298d9c858;
+	Node0x55f298d9a788 [shape=record,shape=box,group=0,label="{lib/libLLVMLTO.a(LTOBackend.cpp.o)}"];
+	Node0x55f298d9a788 -> Node0x55f298d9b6d8;
+	Node0x55f298d9c858 [shape=record,shape=box,group=0,label="{lib/libLLVMLTO.a(SummaryBasedOptimizations.cpp.o)}"];
+}
