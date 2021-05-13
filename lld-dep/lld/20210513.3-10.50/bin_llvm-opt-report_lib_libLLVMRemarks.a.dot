@@ -1,0 +1,13 @@
+digraph "bin/llvm-opt-report_lib/libLLVMRemarks.a" {
+	label="bin/llvm-opt-report_lib/libLLVMRemarks.a";
+	rankdir=LR;
+
+	Node0x55f7bf9fa7d8 [shape=record,shape=box,group=0,label="{lib/libLLVMRemarks.a(RemarkFormat.cpp.o)}"];
+	Node0x55f7bf9f9798 [shape=record,shape=box,group=0,label="{lib/libLLVMRemarks.a(RemarkParser.cpp.o)}"];
+	Node0x55f7bf9f9798 -> Node0x55f7bf9f8b68;
+	Node0x55f7bf9f9798 -> Node0x55f7bf9f91a8;
+	Node0x55f7bf9f8b68 [shape=record,shape=box,group=0,label="{lib/libLLVMRemarks.a(BitstreamRemarkParser.cpp.o)}"];
+	Node0x55f7bf9f8b68 -> Node0x55f7bf9f9798;
+	Node0x55f7bf9f91a8 [shape=record,shape=box,group=0,label="{lib/libLLVMRemarks.a(YAMLRemarkParser.cpp.o)}"];
+	Node0x55f7bf9f91a8 -> Node0x55f7bf9f9798;
+}
