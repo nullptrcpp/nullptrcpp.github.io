@@ -1,0 +1,13 @@
+digraph "bin/llvm-split_lib/libLLVMBitReader.a" {
+	label="bin/llvm-split_lib/libLLVMBitReader.a";
+	rankdir=LR;
+	{ rank=same; Node0x55fc3f6e4c28;  }
+
+	Node0x55fc3f6e4c28 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMBitReader.a(BitcodeReader.cpp.o)}"];
+	Node0x55fc3f6e4c28 -> Node0x55fc3f6ee318[color="0.600000 0.5 1"];
+	Node0x55fc3f6e4c28 -> Node0x55fc3f6ed468;
+	Node0x55fc3f6ee318 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMBitReader.a(MetadataLoader.cpp.o)}"];
+	Node0x55fc3f6ee318 -> Node0x55fc3f6e4c28[color="0.600000 0.5 1"];
+	Node0x55fc3f6ee318 -> Node0x55fc3f6ed468;
+	Node0x55fc3f6ed468 [shape=record,shape=box,group=0,label="{lib/libLLVMBitReader.a(ValueList.cpp.o)}"];
+}

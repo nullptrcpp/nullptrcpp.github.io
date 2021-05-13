@@ -1,0 +1,18 @@
+digraph "bin/llvm-opt-report" {
+	label="bin/llvm-opt-report";
+	rankdir=LR;
+	{ rank=same; Node0x55edfb8911d8;  }
+	{ rank=same; Node0x55edfb891868; Node0x55edfb890e68; Node0x55edfb891458;  }
+
+	Node0x55edfb8911d8 [shape=record,shape=box,group=0,label="{tools/llvm-opt-report/CMakeFiles/llvm-opt-report.dir/OptReport.cpp.o}"];
+	Node0x55edfb8911d8 -> Node0x55edfb891868;
+	Node0x55edfb8911d8 -> Node0x55edfb890e68;
+	Node0x55edfb8911d8 -> Node0x55edfb891458;
+	Node0x55edfb891868 [shape=record,shape=box,group=0,label="{lib/libLLVMDemangle.a}"];
+	Node0x55edfb890e68 [shape=record,shape=box,group=0,label="{lib/libLLVMRemarks.a}"];
+	Node0x55edfb890e68 -> Node0x55edfb891458;
+	Node0x55edfb890e68 -> Node0x55edfb88ff18;
+	Node0x55edfb891458 [shape=record,shape=box,group=0,label="{lib/libLLVMSupport.a}"];
+	Node0x55edfb88ff18 [shape=record,shape=box,group=0,label="{lib/libLLVMBitstreamReader.a}"];
+	Node0x55edfb88ff18 -> Node0x55edfb891458;
+}
