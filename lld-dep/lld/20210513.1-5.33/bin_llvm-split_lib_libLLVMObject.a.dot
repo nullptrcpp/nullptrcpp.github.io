@@ -1,0 +1,12 @@
+digraph "bin/llvm-split_lib/libLLVMObject.a" {
+	label="bin/llvm-split_lib/libLLVMObject.a";
+	rankdir=LR;
+	{ rank=same; Node0x56060b94b758;  }
+	{ rank=same; Node0x56060b94f858;  }
+
+	Node0x56060b94b758 [shape=record,shape=box,group=0,label="{lib/libLLVMObject.a(IRSymtab.cpp.o)}"];
+	Node0x56060b94b758 -> Node0x56060b94f858;
+	Node0x56060b94f858 [shape=record,shape=box,group=0,label="{lib/libLLVMObject.a(ModuleSymbolTable.cpp.o)}"];
+	Node0x56060b94f858 -> Node0x56060b94efe8;
+	Node0x56060b94efe8 [shape=record,shape=box,group=0,label="{lib/libLLVMObject.a(RecordStreamer.cpp.o)}"];
+}

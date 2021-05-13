@@ -1,0 +1,24 @@
+digraph "bin/llvm-rtdyld_lib/libLLVMRuntimeDyld.a" {
+	label="bin/llvm-rtdyld_lib/libLLVMRuntimeDyld.a";
+	rankdir=LR;
+
+	Node0x5631c017df28 [shape=record,shape=box,group=0,label="{lib/libLLVMRuntimeDyld.a(JITSymbol.cpp.o)}"];
+	Node0x5631c017e658 [shape=record,shape=box,group=0,label="{lib/libLLVMRuntimeDyld.a(RTDyldMemoryManager.cpp.o)}"];
+	Node0x5631c017e658 -> Node0x5631c017df28;
+	Node0x5631c017f2d8 [shape=record,shape=box,group=0,label="{lib/libLLVMRuntimeDyld.a(RuntimeDyld.cpp.o)}"];
+	Node0x5631c017f2d8 -> Node0x5631c017df28;
+	Node0x5631c017f2d8 -> Node0x5631c0178d98;
+	Node0x5631c017f2d8 -> Node0x5631c0178528;
+	Node0x5631c017f2d8 -> Node0x5631c0176a48;
+	Node0x5631c0178118 [shape=record,shape=box,group=0,label="{lib/libLLVMRuntimeDyld.a(RuntimeDyldChecker.cpp.o)}"];
+	Node0x5631c0178d98 [shape=record,shape=box,group=0,label="{lib/libLLVMRuntimeDyld.a(RuntimeDyldCOFF.cpp.o)}"];
+	Node0x5631c0178d98 -> Node0x5631c017f2d8;
+	Node0x5631c0178528 [shape=record,shape=box,group=0,label="{lib/libLLVMRuntimeDyld.a(RuntimeDyldELF.cpp.o)}"];
+	Node0x5631c0178528 -> Node0x5631c017f2d8;
+	Node0x5631c0176a48 [shape=record,shape=box,group=0,label="{lib/libLLVMRuntimeDyld.a(RuntimeDyldMachO.cpp.o)}"];
+	Node0x5631c0176a48 -> Node0x5631c017df28;
+	Node0x5631c0176a48 -> Node0x5631c017f2d8;
+	Node0x5631c01779e8 [shape=record,shape=box,group=0,label="{lib/libLLVMRuntimeDyld.a(RuntimeDyldELFMips.cpp.o)}"];
+	Node0x5631c01779e8 -> Node0x5631c017f2d8;
+	Node0x5631c01779e8 -> Node0x5631c0178528;
+}

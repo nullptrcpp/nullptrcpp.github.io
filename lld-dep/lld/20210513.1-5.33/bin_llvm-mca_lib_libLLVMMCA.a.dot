@@ -1,0 +1,63 @@
+digraph "bin/llvm-mca_lib/libLLVMMCA.a" {
+	label="bin/llvm-mca_lib/libLLVMMCA.a";
+	rankdir=LR;
+	{ rank=same; Node0x55f82ebd03e8;  }
+	{ rank=same; Node0x55f82ebd0848; Node0x55f82ebd1478; Node0x55f82ebd17e8; Node0x55f82ebd2468; Node0x55f82ebd2b98; Node0x55f82ebd2918; Node0x55f82ebd1338; Node0x55f82ebd1ab8; Node0x55f82ebd3ea8;  }
+
+	Node0x55f82ebd03e8 [shape=record,shape=box,group=0,label="{lib/libLLVMMCA.a(Context.cpp.o)}"];
+	Node0x55f82ebd03e8 -> Node0x55f82ebd0848;
+	Node0x55f82ebd03e8 -> Node0x55f82ebd1478;
+	Node0x55f82ebd03e8 -> Node0x55f82ebd17e8;
+	Node0x55f82ebd03e8 -> Node0x55f82ebd2468;
+	Node0x55f82ebd03e8 -> Node0x55f82ebd2b98;
+	Node0x55f82ebd03e8 -> Node0x55f82ebd2918;
+	Node0x55f82ebd03e8 -> Node0x55f82ebd1338;
+	Node0x55f82ebd03e8 -> Node0x55f82ebd1ab8;
+	Node0x55f82ebd03e8 -> Node0x55f82ebd3ea8;
+	Node0x55f82ebd07a8 [shape=record,shape=box,group=0,label="{lib/libLLVMMCA.a(InstrBuilder.cpp.o)}"];
+	Node0x55f82ebd07a8 -> Node0x55f82ebd0de8;
+	Node0x55f82ebd1338 [shape=record,shape=box,group=0,label="{lib/libLLVMMCA.a(Pipeline.cpp.o)}"];
+	Node0x55f82ebd1338 -> Node0x55f82ebcffd8;
+	Node0x55f82ebd0de8 [shape=record,shape=box,group=0,label="{lib/libLLVMMCA.a(Support.cpp.o)}"];
+	Node0x55f82ebd4998 [shape=record,shape=box,group=0,label="{lib/libLLVMMCA.a(CodeEmitter.cpp.o)}"];
+	Node0x55f82ebd0848 [shape=record,shape=box,group=0,label="{lib/libLLVMMCA.a(HardwareUnit.cpp.o)}"];
+	Node0x55f82ebd1478 [shape=record,shape=box,group=0,label="{lib/libLLVMMCA.a(LSUnit.cpp.o)}"];
+	Node0x55f82ebd1478 -> Node0x55f82ebd0848;
+	Node0x55f82ebd17e8 [shape=record,shape=box,group=0,label="{lib/libLLVMMCA.a(RegisterFile.cpp.o)}"];
+	Node0x55f82ebd17e8 -> Node0x55f82ebd0848;
+	Node0x55f82ebd17e8 -> Node0x55f82ebd1158;
+	Node0x55f82ebd2468 [shape=record,shape=box,group=0,label="{lib/libLLVMMCA.a(ResourceManager.cpp.o)}"];
+	Node0x55f82ebd2468 -> Node0x55f82ebd0de8;
+	Node0x55f82ebd2b98 [shape=record,shape=box,group=0,label="{lib/libLLVMMCA.a(RetireControlUnit.cpp.o)}"];
+	Node0x55f82ebd2b98 -> Node0x55f82ebd0848;
+	Node0x55f82ebd2918 [shape=record,shape=box,group=0,label="{lib/libLLVMMCA.a(Scheduler.cpp.o)}"];
+	Node0x55f82ebd2918 -> Node0x55f82ebd2468;
+	Node0x55f82ebd2918 -> Node0x55f82ebd1158;
+	Node0x55f82ebd1ab8 [shape=record,shape=box,group=0,label="{lib/libLLVMMCA.a(DispatchStage.cpp.o)}"];
+	Node0x55f82ebd1ab8 -> Node0x55f82ebd17e8;
+	Node0x55f82ebd1ab8 -> Node0x55f82ebd2b98;
+	Node0x55f82ebd1ab8 -> Node0x55f82ebd1158;
+	Node0x55f82ebd1ab8 -> Node0x55f82ebcffd8;
+	Node0x55f82ebd3ea8 [shape=record,shape=box,group=0,label="{lib/libLLVMMCA.a(MicroOpQueueStage.cpp.o)}"];
+	Node0x55f82ebd3ea8 -> Node0x55f82ebcffd8;
+	Node0x55f82ebd1158 [shape=record,shape=box,group=0,label="{lib/libLLVMMCA.a(Instruction.cpp.o)}"];
+	Node0x55f82ebcffd8 [shape=record,shape=box,group=0,label="{lib/libLLVMMCA.a(Stage.cpp.o)}"];
+	Node0x55f82ebd2378 [shape=record,shape=box,group=0,label="{lib/libLLVMMCA.a(EntryStage.cpp.o)}"];
+	Node0x55f82ebd2378 -> Node0x55f82ebcffd8;
+	Node0x55f82ebd3048 [shape=record,shape=box,group=0,label="{lib/libLLVMMCA.a(ExecuteStage.cpp.o)}"];
+	Node0x55f82ebd3048 -> Node0x55f82ebd2468;
+	Node0x55f82ebd3048 -> Node0x55f82ebd2918;
+	Node0x55f82ebd3048 -> Node0x55f82ebd1158;
+	Node0x55f82ebd3048 -> Node0x55f82ebcffd8;
+	Node0x55f82ebd2f58 [shape=record,shape=box,group=0,label="{lib/libLLVMMCA.a(InOrderIssueStage.cpp.o)}"];
+	Node0x55f82ebd2f58 -> Node0x55f82ebd17e8;
+	Node0x55f82ebd2f58 -> Node0x55f82ebd2468;
+	Node0x55f82ebd2f58 -> Node0x55f82ebd1158;
+	Node0x55f82ebd2f58 -> Node0x55f82ebcffd8;
+	Node0x55f82ebd3ae8 [shape=record,shape=box,group=0,label="{lib/libLLVMMCA.a(InstructionTables.cpp.o)}"];
+	Node0x55f82ebd3ae8 -> Node0x55f82ebcffd8;
+	Node0x55f82ebd4b28 [shape=record,shape=box,group=0,label="{lib/libLLVMMCA.a(RetireStage.cpp.o)}"];
+	Node0x55f82ebd4b28 -> Node0x55f82ebd17e8;
+	Node0x55f82ebd4b28 -> Node0x55f82ebd2b98;
+	Node0x55f82ebd4b28 -> Node0x55f82ebcffd8;
+}
