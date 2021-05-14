@@ -1,0 +1,28 @@
+digraph "bin/llvm-split_lib/libLLVMTransformUtils.a" {
+	label="bin/llvm-split_lib/libLLVMTransformUtils.a";
+	rankdir=LR;
+	{ rank=same; Node0x55906a7f4098;  }
+	{ rank=same; Node0x55906a7f4318;  }
+
+	Node0x55906a7f4098 [shape=record,shape=box,group=0,label="{lib/libLLVMTransformUtils.a(SplitModule.cpp.o)}"];
+	Node0x55906a7f4098 -> Node0x55906a7f4318;
+	Node0x55906a7f4318 [shape=record,shape=box,group=0,label="{lib/libLLVMTransformUtils.a(CloneModule.cpp.o)}"];
+	Node0x55906a7f4318 -> Node0x55906a7f2798;
+	Node0x55906a7f4318 -> Node0x55906a7f0ad8;
+	Node0x55906a7f2798 [shape=record,shape=box,group=0,label="{lib/libLLVMTransformUtils.a(CloneFunction.cpp.o)}"];
+	Node0x55906a7f2798 -> Node0x55906a7f0ad8;
+	Node0x55906a7f0ad8 [shape=record,shape=box,group=0,label="{lib/libLLVMTransformUtils.a(ValueMapper.cpp.o)}"];
+	Node0x55906a7f29c8 [shape=record,shape=box,group=0,label="{lib/libLLVMTransformUtils.a(BasicBlockUtils.cpp.o)}"];
+	Node0x55906a7f3468 [shape=record,shape=box,group=0,label="{lib/libLLVMTransformUtils.a(BreakCriticalEdges.cpp.o)}"];
+	Node0x55906a7f3468 -> Node0x55906a7f2798;
+	Node0x55906a7f66b8 [shape=record,shape=box,group=0,label="{lib/libLLVMTransformUtils.a(LoopSimplify.cpp.o)}"];
+	Node0x55906a7f8378 [shape=record,shape=box,group=0,label="{lib/libLLVMTransformUtils.a(LCSSA.cpp.o)}"];
+	Node0x55906a7f76f8 [shape=record,shape=box,group=0,label="{lib/libLLVMTransformUtils.a(SSAUpdater.cpp.o)}"];
+	Node0x55906a7f7b08 [shape=record,shape=box,group=0,label="{lib/libLLVMTransformUtils.a(LoopUtils.cpp.o)}"];
+	Node0x55906a7f7b08 -> Node0x55906a7f95e8;
+	Node0x55906a7f95e8 [shape=record,shape=box,group=0,label="{lib/libLLVMTransformUtils.a(ScalarEvolutionExpander.cpp.o)}"];
+	Node0x55906a7f8a08 [shape=record,shape=box,group=0,label="{lib/libLLVMTransformUtils.a(Local.cpp.o)}"];
+	Node0x55906a7f8a08 -> Node0x55906a7f29c8;
+	Node0x55906a7f08a8 [shape=record,shape=box,group=0,label="{lib/libLLVMTransformUtils.a(SimplifyCFG.cpp.o)}"];
+	Node0x55906a7f08a8 -> Node0x55906a7f0ad8;
+}
