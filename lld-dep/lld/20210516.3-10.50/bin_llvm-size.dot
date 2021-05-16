@@ -1,0 +1,44 @@
+digraph "bin/llvm-size" {
+	label="bin/llvm-size";
+	rankdir=LR;
+	{ rank=same; Node0x55972824ae38;  }
+	{ rank=same; Node0x55972824bce8; Node0x55972824c1e8;  }
+	{ rank=same; Node0x55972824a708; Node0x559728249718; Node0x55972824c788; Node0x55972824cc88; Node0x55972824b9c8; Node0x55972824a118;  }
+
+	Node0x55972824ae38 [shape=record,shape=box,group=0,label="{tools/llvm-size/CMakeFiles/llvm-size.dir/llvm-size.cpp.o}"];
+	Node0x55972824ae38 -> Node0x55972824bce8;
+	Node0x55972824ae38 -> Node0x55972824c1e8;
+	Node0x55972824bce8 [shape=record,shape=box,group=0,label="{lib/libLLVMObject.a}"];
+	Node0x55972824bce8 -> Node0x55972824c1e8;
+	Node0x55972824bce8 -> Node0x55972824a708;
+	Node0x55972824bce8 -> Node0x559728249718;
+	Node0x55972824bce8 -> Node0x55972824c788;
+	Node0x55972824bce8 -> Node0x55972824cc88;
+	Node0x55972824bce8 -> Node0x55972824b9c8;
+	Node0x55972824bce8 -> Node0x55972824a118;
+	Node0x55972824c1e8 [shape=record,shape=box,group=0,label="{lib/libLLVMSupport.a}"];
+	Node0x55972824a708 [shape=record,shape=box,group=0,label="{lib/libLLVMBinaryFormat.a}"];
+	Node0x55972824a708 -> Node0x55972824c1e8;
+	Node0x559728249718 [shape=record,shape=box,group=0,label="{lib/libLLVMMC.a}"];
+	Node0x559728249718 -> Node0x55972824c1e8;
+	Node0x559728249718 -> Node0x55972824a708;
+	Node0x55972824c788 [shape=record,shape=box,group=0,label="{lib/libLLVMBitReader.a}"];
+	Node0x55972824c788 -> Node0x55972824c1e8;
+	Node0x55972824c788 -> Node0x55972824cc88;
+	Node0x55972824c788 -> Node0x55972824ade8;
+	Node0x55972824cc88 [shape=record,shape=box,group=0,label="{lib/libLLVMCore.a}"];
+	Node0x55972824cc88 -> Node0x55972824c1e8;
+	Node0x55972824cc88 -> Node0x55972824a708;
+	Node0x55972824cc88 -> Node0x55972824a8e8;
+	Node0x55972824b9c8 [shape=record,shape=box,group=0,label="{lib/libLLVMMCParser.a}"];
+	Node0x55972824b9c8 -> Node0x55972824c1e8;
+	Node0x55972824b9c8 -> Node0x559728249718;
+	Node0x55972824a118 [shape=record,shape=box,group=0,label="{lib/libLLVMTextAPI.a}"];
+	Node0x55972824a118 -> Node0x55972824c1e8;
+	Node0x55972824a118 -> Node0x55972824a8e8;
+	Node0x55972824ade8 [shape=record,shape=box,group=0,label="{lib/libLLVMBitstreamReader.a}"];
+	Node0x55972824ade8 -> Node0x55972824c1e8;
+	Node0x55972824a8e8 [shape=record,shape=box,group=0,label="{lib/libLLVMRemarks.a}"];
+	Node0x55972824a8e8 -> Node0x55972824c1e8;
+	Node0x55972824a8e8 -> Node0x55972824ade8;
+}
