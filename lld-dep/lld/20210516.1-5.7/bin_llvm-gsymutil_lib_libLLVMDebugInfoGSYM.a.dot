@@ -1,0 +1,40 @@
+digraph "bin/llvm-gsymutil_lib/libLLVMDebugInfoGSYM.a" {
+	label="bin/llvm-gsymutil_lib/libLLVMDebugInfoGSYM.a";
+	rankdir=LR;
+	{ rank=same; Node0x55da02fd7ae8;  }
+	{ rank=same; Node0x55da02fd7d18; Node0x55da02fd8bc8; Node0x55da02fd3a88; Node0x55da02fd3d58;  }
+	{ rank=same; Node0x55da02fd6ff8; Node0x55da02fd8fd8; Node0x55da02fd9348;  }
+
+	Node0x55da02fd7ae8 [shape=record,shape=box,group=0,label="{lib/libLLVMDebugInfoGSYM.a(DwarfTransformer.cpp.o)}"];
+	Node0x55da02fd7ae8 -> Node0x55da02fd7d18;
+	Node0x55da02fd7ae8 -> Node0x55da02fd8bc8;
+	Node0x55da02fd7ae8 -> Node0x55da02fd3a88;
+	Node0x55da02fd7ae8 -> Node0x55da02fd3d58;
+	Node0x55da02fd7d18 [shape=record,shape=box,group=0,label="{lib/libLLVMDebugInfoGSYM.a(GsymCreator.cpp.o)}"];
+	Node0x55da02fd7d18 -> Node0x55da02fd6ff8;
+	Node0x55da02fd7d18 -> Node0x55da02fd8fd8;
+	Node0x55da02fd7d18 -> Node0x55da02fd9348;
+	Node0x55da02fd7d18 -> Node0x55da02fd3d58;
+	Node0x55da02fd8bc8 [shape=record,shape=box,group=0,label="{lib/libLLVMDebugInfoGSYM.a(GsymReader.cpp.o)}"];
+	Node0x55da02fd8bc8 -> Node0x55da02fd6ff8;
+	Node0x55da02fd8bc8 -> Node0x55da02fd9348;
+	Node0x55da02fd8bc8 -> Node0x55da02fd3d58;
+	Node0x55da02fd3a88 [shape=record,shape=box,group=0,label="{lib/libLLVMDebugInfoGSYM.a(LookupResult.cpp.o)}"];
+	Node0x55da02fd4208 [shape=record,shape=box,group=0,label="{lib/libLLVMDebugInfoGSYM.a(ObjectFileTransformer.cpp.o)}"];
+	Node0x55da02fd4208 -> Node0x55da02fd7d18;
+	Node0x55da02fd3d58 [shape=record,shape=box,group=0,label="{lib/libLLVMDebugInfoGSYM.a(Range.cpp.o)}"];
+	Node0x55da02fd3d58 -> Node0x55da02fd8fd8;
+	Node0x55da02fd6ff8 [shape=record,shape=box,group=0,label="{lib/libLLVMDebugInfoGSYM.a(FunctionInfo.cpp.o)}"];
+	Node0x55da02fd6ff8 -> Node0x55da02fd8fd8;
+	Node0x55da02fd6ff8 -> Node0x55da02fd21d8;
+	Node0x55da02fd6ff8 -> Node0x55da02fd2908;
+	Node0x55da02fd6ff8 -> Node0x55da02fd3d58;
+	Node0x55da02fd8fd8 [shape=record,shape=box,group=0,label="{lib/libLLVMDebugInfoGSYM.a(FileWriter.cpp.o)}"];
+	Node0x55da02fd9348 [shape=record,shape=box,group=0,label="{lib/libLLVMDebugInfoGSYM.a(Header.cpp.o)}"];
+	Node0x55da02fd9348 -> Node0x55da02fd8fd8;
+	Node0x55da02fd21d8 [shape=record,shape=box,group=0,label="{lib/libLLVMDebugInfoGSYM.a(InlineInfo.cpp.o)}"];
+	Node0x55da02fd21d8 -> Node0x55da02fd8fd8;
+	Node0x55da02fd21d8 -> Node0x55da02fd3d58;
+	Node0x55da02fd2908 [shape=record,shape=box,group=0,label="{lib/libLLVMDebugInfoGSYM.a(LineTable.cpp.o)}"];
+	Node0x55da02fd2908 -> Node0x55da02fd8fd8;
+}

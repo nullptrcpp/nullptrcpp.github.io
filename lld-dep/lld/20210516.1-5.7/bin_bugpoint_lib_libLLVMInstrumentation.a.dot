@@ -1,0 +1,44 @@
+digraph "bin/bugpoint_lib/libLLVMInstrumentation.a" {
+	label="bin/bugpoint_lib/libLLVMInstrumentation.a";
+	rankdir=LR;
+
+	Node0x56521bc8b848 [shape=record,shape=box,group=0,label="{lib/libLLVMInstrumentation.a(BoundsChecking.cpp.o)}"];
+	Node0x56521bca10f8 [shape=record,shape=box,group=0,label="{lib/libLLVMInstrumentation.a(ControlHeightReduction.cpp.o)}"];
+	Node0x56521bca1648 [shape=record,shape=box,group=0,label="{lib/libLLVMInstrumentation.a(GCOVProfiling.cpp.o)}"];
+	Node0x56521bc9cfa8 [shape=record,shape=box,group=0,label="{lib/libLLVMInstrumentation.a(IndirectCallPromotion.cpp.o)}"];
+	Node0x56521bc9d688 [shape=record,shape=box,group=0,label="{lib/libLLVMInstrumentation.a(Instrumentation.cpp.o)}"];
+	Node0x56521bc9d688 -> Node0x56521bc8b848;
+	Node0x56521bc9d688 -> Node0x56521bc8c068;
+	Node0x56521bc9d688 -> Node0x56521bca10f8;
+	Node0x56521bc9d688 -> Node0x56521bca1648;
+	Node0x56521bc9d688 -> Node0x56521bc9cfa8;
+	Node0x56521bc9d688 -> Node0x56521bc9dea8;
+	Node0x56521bc9d688 -> Node0x56521bc9e218;
+	Node0x56521bc9d688 -> Node0x56521bc9e998;
+	Node0x56521bc9d688 -> Node0x56521bca44d8;
+	Node0x56521bc9d688 -> Node0x56521bca4708;
+	Node0x56521bc9d688 -> Node0x56521bca52e8;
+	Node0x56521bc9d688 -> Node0x56521bca54c8;
+	Node0x56521bc9d688 -> Node0x56521bc90d48;
+	Node0x56521bc9d688 -> Node0x56521bc8eea8;
+	Node0x56521bc9d688 -> Node0x56521bc8fda8;
+	Node0x56521bc9d688 -> Node0x56521bc8d918;
+	Node0x56521bca52e8 [shape=record,shape=box,group=0,label="{lib/libLLVMInstrumentation.a(InstrProfiling.cpp.o)}"];
+	Node0x56521bca54c8 [shape=record,shape=box,group=0,label="{lib/libLLVMInstrumentation.a(PGOInstrumentation.cpp.o)}"];
+	Node0x56521bca54c8 -> Node0x56521bc8f6c8;
+	Node0x56521bc90d48 [shape=record,shape=box,group=0,label="{lib/libLLVMInstrumentation.a(PGOMemOPSizeOpt.cpp.o)}"];
+	Node0x56521bc90d48 -> Node0x56521bca54c8;
+	Node0x56521bc8c068 [shape=record,shape=box,group=0,label="{lib/libLLVMInstrumentation.a(CGProfile.cpp.o)}"];
+	Node0x56521bca4708 [shape=record,shape=box,group=0,label="{lib/libLLVMInstrumentation.a(InstrOrderFile.cpp.o)}"];
+	Node0x56521bc9dea8 [shape=record,shape=box,group=0,label="{lib/libLLVMInstrumentation.a(AddressSanitizer.cpp.o)}"];
+	Node0x56521bc9dea8 -> Node0x56521bc9d688;
+	Node0x56521bc9e218 [shape=record,shape=box,group=0,label="{lib/libLLVMInstrumentation.a(MemProfiler.cpp.o)}"];
+	Node0x56521bc9e998 [shape=record,shape=box,group=0,label="{lib/libLLVMInstrumentation.a(MemorySanitizer.cpp.o)}"];
+	Node0x56521bca44d8 [shape=record,shape=box,group=0,label="{lib/libLLVMInstrumentation.a(DataFlowSanitizer.cpp.o)}"];
+	Node0x56521bc8eea8 [shape=record,shape=box,group=0,label="{lib/libLLVMInstrumentation.a(SanitizerCoverage.cpp.o)}"];
+	Node0x56521bc8eea8 -> Node0x56521bc9d688;
+	Node0x56521bc8fda8 [shape=record,shape=box,group=0,label="{lib/libLLVMInstrumentation.a(ThreadSanitizer.cpp.o)}"];
+	Node0x56521bc8d918 [shape=record,shape=box,group=0,label="{lib/libLLVMInstrumentation.a(HWAddressSanitizer.cpp.o)}"];
+	Node0x56521bc8f6c8 [shape=record,shape=box,group=0,label="{lib/libLLVMInstrumentation.a(ValueProfileCollector.cpp.o)}"];
+	Node0x56521bc8f6c8 -> Node0x56521bc90d48;
+}
