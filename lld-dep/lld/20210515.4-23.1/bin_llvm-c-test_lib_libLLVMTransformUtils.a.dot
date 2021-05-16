@@ -1,0 +1,71 @@
+digraph "bin/llvm-c-test_lib/libLLVMTransformUtils.a" {
+	label="bin/llvm-c-test_lib/libLLVMTransformUtils.a";
+	rankdir=LR;
+	{ rank=same; Node0x561e67f7c7a8;  }
+	{ rank=same; Node0x561e67f82ce8; Node0x561e67f85cb8;  }
+	{ rank=same; Node0x561e67f89188; Node0x561e67f87018;  }
+	{ rank=same; Node0x561e67f82a68; Node0x561e67f86d48; Node0x561e67f86758; Node0x561e67f892c8;  }
+
+	Node0x561e67f7c7a8 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMTransformUtils.a(BasicBlockUtils.cpp.o)}"];
+	Node0x561e67f7c7a8 -> Node0x561e67f82ce8[color="0.600000 0.5 1"];
+	Node0x561e67f7c7a8 -> Node0x561e67f85cb8[color="0.600000 0.5 1"];
+	Node0x561e67f88468 [shape=record,shape=box,group=0,label="{lib/libLLVMTransformUtils.a(SizeOpts.cpp.o)}"];
+	Node0x561e67f85cb8 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMTransformUtils.a(Local.cpp.o)}"];
+	Node0x561e67f85cb8 -> Node0x561e67f7c7a8[color="0.600000 0.5 1"];
+	Node0x561e67f82ce8 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMTransformUtils.a(BreakCriticalEdges.cpp.o)}"];
+	Node0x561e67f82ce8 -> Node0x561e67f7c7a8[color="0.600000 0.5 1"];
+	Node0x561e67f82ce8 -> Node0x561e67f89188[color="0.600000 0.5 1"];
+	Node0x561e67f82ce8 -> Node0x561e67f87018[color="0.600000 0.5 1"];
+	Node0x561e67f89d68 [shape=record,shape=box,group=0,label="{lib/libLLVMTransformUtils.a(CanonicalizeFreezeInLoops.cpp.o)}"];
+	Node0x561e67f89d68 -> Node0x561e67f87018;
+	Node0x561e67f86258 [shape=record,shape=box,group=0,label="{lib/libLLVMTransformUtils.a(LowerInvoke.cpp.o)}"];
+	Node0x561e67f88148 [shape=record,shape=box,group=0,label="{lib/libLLVMTransformUtils.a(SymbolRewriter.cpp.o)}"];
+	Node0x561e67f895e8 [shape=record,shape=box,group=0,label="{lib/libLLVMTransformUtils.a(BypassSlowDivision.cpp.o)}"];
+	Node0x561e67f895e8 -> Node0x561e67f85cb8;
+	Node0x561e67f88af8 [shape=record,shape=box,group=0,label="{lib/libLLVMTransformUtils.a(SimplifyLibCalls.cpp.o)}"];
+	Node0x561e67f88af8 -> Node0x561e67f81118;
+	Node0x561e67f88af8 -> Node0x561e67f85cb8;
+	Node0x561e67f88af8 -> Node0x561e67f88468;
+	Node0x561e67f88508 [shape=record,shape=box,group=0,label="{lib/libLLVMTransformUtils.a(Debugify.cpp.o)}"];
+	Node0x561e67f892c8 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMTransformUtils.a(SimplifyCFG.cpp.o)}"];
+	Node0x561e67f892c8 -> Node0x561e67f7c7a8[color="0.600000 0.5 1"];
+	Node0x561e67f892c8 -> Node0x561e67f85cb8[color="0.600000 0.5 1"];
+	Node0x561e67f892c8 -> Node0x561e67f898b8;
+	Node0x561e67f892c8 -> Node0x561e67f82a68;
+	Node0x561e67f86d48 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMTransformUtils.a(LCSSA.cpp.o)}"];
+	Node0x561e67f86d48 -> Node0x561e67f87018[color="0.600000 0.5 1"];
+	Node0x561e67f86d48 -> Node0x561e67f898b8;
+	Node0x561e67f87018 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMTransformUtils.a(LoopSimplify.cpp.o)}"];
+	Node0x561e67f87018 -> Node0x561e67f7c7a8[color="0.600000 0.5 1"];
+	Node0x561e67f87018 -> Node0x561e67f82ce8[color="0.600000 0.5 1"];
+	Node0x561e67f87018 -> Node0x561e67f86d48[color="0.600000 0.5 1"];
+	Node0x561e67f87018 -> Node0x561e67f85cb8[color="0.600000 0.5 1"];
+	Node0x561e67f87018 -> Node0x561e67f86758[color="0.600000 0.5 1"];
+	Node0x561e67f87018 -> Node0x561e67f892c8[color="0.600000 0.5 1"];
+	Node0x561e67f85218 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMTransformUtils.a(ScalarEvolutionExpander.cpp.o)}"];
+	Node0x561e67f85218 -> Node0x561e67f86d48[color="0.600000 0.5 1"];
+	Node0x561e67f87298 [shape=record,shape=box,group=0,label="{lib/libLLVMTransformUtils.a(InlineFunction.cpp.o)}"];
+	Node0x561e67f87298 -> Node0x561e67f89188;
+	Node0x561e67f87298 -> Node0x561e67f86848;
+	Node0x561e67f87298 -> Node0x561e67f85cb8;
+	Node0x561e67f88ff8 [shape=record,shape=box,group=0,label="{lib/libLLVMTransformUtils.a(DemoteRegToStack.cpp.o)}"];
+	Node0x561e67f88ff8 -> Node0x561e67f82ce8;
+	Node0x561e67f87dd8 [shape=record,shape=box,group=0,label="{lib/libLLVMTransformUtils.a(EscapeEnumerator.cpp.o)}"];
+	Node0x561e67f87dd8 -> Node0x561e67f85cb8;
+	Node0x561e67f85f88 [shape=record,shape=box,group=0,label="{lib/libLLVMTransformUtils.a(ModuleUtils.cpp.o)}"];
+	Node0x561e67f86758 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMTransformUtils.a(LoopUtils.cpp.o)}"];
+	Node0x561e67f86758 -> Node0x561e67f7c7a8[color="0.600000 0.5 1"];
+	Node0x561e67f86758 -> Node0x561e67f86d48[color="0.600000 0.5 1"];
+	Node0x561e67f86758 -> Node0x561e67f85cb8[color="0.600000 0.5 1"];
+	Node0x561e67f86758 -> Node0x561e67f87018[color="0.600000 0.5 1"];
+	Node0x561e67f86758 -> Node0x561e67f85218[color="0.600000 0.5 1"];
+	Node0x561e67f89188 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMTransformUtils.a(CloneFunction.cpp.o)}"];
+	Node0x561e67f89188 -> Node0x561e67f7c7a8[color="0.600000 0.5 1"];
+	Node0x561e67f89188 -> Node0x561e67f85cb8[color="0.600000 0.5 1"];
+	Node0x561e67f89188 -> Node0x561e67f82a68;
+	Node0x561e67f898b8 [shape=record,shape=box,group=0,label="{lib/libLLVMTransformUtils.a(SSAUpdater.cpp.o)}"];
+	Node0x561e67f82a68 [shape=record,shape=box,group=0,label="{lib/libLLVMTransformUtils.a(ValueMapper.cpp.o)}"];
+	Node0x561e67f81118 [shape=record,shape=box,group=0,label="{lib/libLLVMTransformUtils.a(BuildLibCalls.cpp.o)}"];
+	Node0x561e67f86848 [shape=record,shape=box,group=0,label="{lib/libLLVMTransformUtils.a(AssumeBundleBuilder.cpp.o)}"];
+	Node0x561e67f86848 -> Node0x561e67f85cb8;
+}
