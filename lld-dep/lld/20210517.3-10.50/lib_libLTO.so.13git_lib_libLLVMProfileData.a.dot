@@ -1,0 +1,18 @@
+digraph "lib/libLTO.so.13git_lib/libLLVMProfileData.a" {
+	label="lib/libLTO.so.13git_lib/libLLVMProfileData.a";
+	rankdir=LR;
+	{ rank=same; Node0x55c91f7c9618;  }
+	{ rank=same; Node0x55c91f7c9988;  }
+
+	Node0x55c91f7c9618 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMProfileData.a(SampleProf.cpp.o)}"];
+	Node0x55c91f7c9618 -> Node0x55c91f7c9988[color="0.600000 0.5 1"];
+	Node0x55c91f7c9988 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMProfileData.a(SampleProfReader.cpp.o)}"];
+	Node0x55c91f7c9988 -> Node0x55c91f7c9f28[color="0.600000 0.5 1"];
+	Node0x55c91f7c9988 -> Node0x55c91f7c9618[color="0.600000 0.5 1"];
+	Node0x55c91f7c37b8 [shape=record,shape=box,group=0,label="{lib/libLLVMProfileData.a(InstrProf.cpp.o)}"];
+	Node0x55c91f7c2958 [shape=record,shape=box,group=0,label="{lib/libLLVMProfileData.a(InstrProfReader.cpp.o)}"];
+	Node0x55c91f7c2958 -> Node0x55c91f7c37b8;
+	Node0x55c91f7c2958 -> Node0x55c91f7c9f28;
+	Node0x55c91f7c9f28 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMProfileData.a(ProfileSummaryBuilder.cpp.o)}"];
+	Node0x55c91f7c9f28 -> Node0x55c91f7c9618[color="0.600000 0.5 1"];
+}
