@@ -1,0 +1,41 @@
+digraph "bin/bugpoint_lib/libLLVMMCParser.a" {
+	label="bin/bugpoint_lib/libLLVMMCParser.a";
+	rankdir=LR;
+
+	Node0x55a172f4e048 [shape=record,shape=box,group=0,label="{lib/libLLVMMCParser.a(MCAsmLexer.cpp.o)}"];
+	Node0x55a172f4e958 [shape=record,shape=box,group=0,label="{lib/libLLVMMCParser.a(MCAsmParser.cpp.o)}"];
+	Node0x55a172f4e958 -> Node0x55a172f4e048;
+	Node0x55a172f4ef98 [shape=record,shape=box,group=0,label="{lib/libLLVMMCParser.a(MCAsmParserExtension.cpp.o)}"];
+	Node0x55a172f4ef98 -> Node0x55a172f4e048;
+	Node0x55a172f4ef98 -> Node0x55a172f4e958;
+	Node0x55a172f4f218 [shape=record,shape=box,group=0,label="{lib/libLLVMMCParser.a(MCTargetAsmParser.cpp.o)}"];
+	Node0x55a172f4f218 -> Node0x55a172f4e048;
+	Node0x55a172f4f218 -> Node0x55a172f4ef98;
+	Node0x55a172f4b988 [shape=record,shape=box,group=0,label="{lib/libLLVMMCParser.a(AsmParser.cpp.o)}"];
+	Node0x55a172f4b988 -> Node0x55a172f4c0b8;
+	Node0x55a172f4b988 -> Node0x55a172f4cb58;
+	Node0x55a172f4b988 -> Node0x55a172f4d148;
+	Node0x55a172f4b988 -> Node0x55a172f4da58;
+	Node0x55a172f4b988 -> Node0x55a172f4e048;
+	Node0x55a172f4b988 -> Node0x55a172f4e958;
+	Node0x55a172f4b988 -> Node0x55a172f4f218;
+	Node0x55a172f4b988 -> Node0x55a172f50078;
+	Node0x55a172f4c0b8 [shape=record,shape=box,group=0,label="{lib/libLLVMMCParser.a(AsmLexer.cpp.o)}"];
+	Node0x55a172f4c0b8 -> Node0x55a172f4e048;
+	Node0x55a172f4cb58 [shape=record,shape=box,group=0,label="{lib/libLLVMMCParser.a(COFFAsmParser.cpp.o)}"];
+	Node0x55a172f4cb58 -> Node0x55a172f4e048;
+	Node0x55a172f4cb58 -> Node0x55a172f4e958;
+	Node0x55a172f4cb58 -> Node0x55a172f4ef98;
+	Node0x55a172f4d148 [shape=record,shape=box,group=0,label="{lib/libLLVMMCParser.a(DarwinAsmParser.cpp.o)}"];
+	Node0x55a172f4d148 -> Node0x55a172f4e048;
+	Node0x55a172f4d148 -> Node0x55a172f4e958;
+	Node0x55a172f4d148 -> Node0x55a172f4ef98;
+	Node0x55a172f4da58 [shape=record,shape=box,group=0,label="{lib/libLLVMMCParser.a(ELFAsmParser.cpp.o)}"];
+	Node0x55a172f4da58 -> Node0x55a172f4e048;
+	Node0x55a172f4da58 -> Node0x55a172f4e958;
+	Node0x55a172f4da58 -> Node0x55a172f4ef98;
+	Node0x55a172f50078 [shape=record,shape=box,group=0,label="{lib/libLLVMMCParser.a(WasmAsmParser.cpp.o)}"];
+	Node0x55a172f50078 -> Node0x55a172f4e048;
+	Node0x55a172f50078 -> Node0x55a172f4e958;
+	Node0x55a172f50078 -> Node0x55a172f4ef98;
+}

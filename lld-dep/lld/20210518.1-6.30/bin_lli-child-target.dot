@@ -1,0 +1,38 @@
+digraph "bin/lli-child-target" {
+	label="bin/lli-child-target";
+	rankdir=LR;
+	{ rank=same; Node0x55f7df0caa48;  }
+
+	Node0x55f7df0caa48 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{tools/lli/ChildTarget/CMakeFiles/lli-child-target.dir/ChildTarget.cpp.o}"];
+	Node0x55f7df0caa48 -> Node0x55f7df0ca728[color="0.600000 0.5 1"];
+	Node0x55f7df0caa48 -> Node0x55f7df0cac28;
+	Node0x55f7df0caa48 -> Node0x55f7df0c9d28[color="0.600000 0.5 1"];
+	Node0x55f7df0caa48 -> Node0x55f7df0ca228[color="0.600000 0.5 1"];
+	Node0x55f7df0ca728 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMOrcShared.a}"];
+	Node0x55f7df0ca728 -> Node0x55f7df0ca228[color="0.600000 0.5 1"];
+	Node0x55f7df0cac28 [shape=record,shape=box,group=0,label="{lib/libLLVMOrcJIT.a}"];
+	Node0x55f7df0c9d28 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMRuntimeDyld.a}"];
+	Node0x55f7df0c9d28 -> Node0x55f7df0ca228[color="0.600000 0.5 1"];
+	Node0x55f7df0c9d28 -> Node0x55f7df0caa48[color="0.600000 0.5 1"];
+	Node0x55f7df0ca228 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMSupport.a}"];
+	Node0x55f7df0ca228 -> Node0x55f7df0caa48[color="0.600000 0.5 1"];
+	Node0x55f7df0d3918 [shape=record,shape=box,group=0,label="{lib/libLLVMObject.a}"];
+	Node0x55f7df0d3918 -> Node0x55f7df0ca228;
+	Node0x55f7df0d1578 [shape=record,shape=box,group=0,label="{lib/libLLVMBitReader.a}"];
+	Node0x55f7df0d1578 -> Node0x55f7df0ca228;
+	Node0x55f7df0d1a78 [shape=record,shape=box,group=0,label="{lib/libLLVMMCParser.a}"];
+	Node0x55f7df0d1a78 -> Node0x55f7df0ca228;
+	Node0x55f7df0d23d8 [shape=record,shape=box,group=0,label="{lib/libLLVMMC.a}"];
+	Node0x55f7df0d23d8 -> Node0x55f7df0ca228;
+	Node0x55f7df0d2888 [shape=record,shape=box,group=0,label="{lib/libLLVMTextAPI.a}"];
+	Node0x55f7df0d2888 -> Node0x55f7df0ca228;
+	Node0x55f7df0d3288 [shape=record,shape=box,group=0,label="{lib/libLLVMCore.a}"];
+	Node0x55f7df0d3288 -> Node0x55f7df0ca228;
+	Node0x55f7df0d3288 -> Node0x55f7df0caa48;
+	Node0x55f7df0d1398 [shape=record,shape=box,group=0,label="{lib/libLLVMRemarks.a}"];
+	Node0x55f7df0d1398 -> Node0x55f7df0ca228;
+	Node0x55f7df0d1398 -> Node0x55f7df0caa48;
+	Node0x55f7df0d2248 [shape=record,shape=box,group=0,label="{lib/libLLVMBitstreamReader.a}"];
+	Node0x55f7df0d2248 -> Node0x55f7df0caa48;
+	Node0x55f7df0d2248 -> Node0x55f7df0ca228;
+}
