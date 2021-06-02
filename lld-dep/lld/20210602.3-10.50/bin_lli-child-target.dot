@@ -1,0 +1,38 @@
+digraph "bin/lli-child-target" {
+	label="bin/lli-child-target";
+	rankdir=LR;
+	{ rank=same; Node0x556a364b6e18;  }
+
+	Node0x556a364b6e18 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{tools/lli/ChildTarget/CMakeFiles/lli-child-target.dir/ChildTarget.cpp.o}"];
+	Node0x556a364b6e18 -> Node0x556a364bcae8[color="0.600000 0.5 1"];
+	Node0x556a364b6e18 -> Node0x556a364b6af8;
+	Node0x556a364b6e18 -> Node0x556a364b7048[color="0.600000 0.5 1"];
+	Node0x556a364b6e18 -> Node0x556a364b60f8[color="0.600000 0.5 1"];
+	Node0x556a364bcae8 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMOrcShared.a}"];
+	Node0x556a364bcae8 -> Node0x556a364b60f8[color="0.600000 0.5 1"];
+	Node0x556a364b6af8 [shape=record,shape=box,group=0,label="{lib/libLLVMOrcJIT.a}"];
+	Node0x556a364b7048 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMRuntimeDyld.a}"];
+	Node0x556a364b7048 -> Node0x556a364b60f8[color="0.600000 0.5 1"];
+	Node0x556a364b7048 -> Node0x556a364b6e18[color="0.600000 0.5 1"];
+	Node0x556a364b60f8 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMSupport.a}"];
+	Node0x556a364b60f8 -> Node0x556a364b6e18[color="0.600000 0.5 1"];
+	Node0x556a364bd4e8 [shape=record,shape=box,group=0,label="{lib/libLLVMObject.a}"];
+	Node0x556a364bd4e8 -> Node0x556a364b60f8;
+	Node0x556a364bd088 [shape=record,shape=box,group=0,label="{lib/libLLVMBitReader.a}"];
+	Node0x556a364bd088 -> Node0x556a364b60f8;
+	Node0x556a364bcb88 [shape=record,shape=box,group=0,label="{lib/libLLVMMCParser.a}"];
+	Node0x556a364bcb88 -> Node0x556a364b60f8;
+	Node0x556a364bc5e8 [shape=record,shape=box,group=0,label="{lib/libLLVMMC.a}"];
+	Node0x556a364bc5e8 -> Node0x556a364b60f8;
+	Node0x556a364ba158 [shape=record,shape=box,group=0,label="{lib/libLLVMTextAPI.a}"];
+	Node0x556a364ba158 -> Node0x556a364b60f8;
+	Node0x556a364baba8 [shape=record,shape=box,group=0,label="{lib/libLLVMCore.a}"];
+	Node0x556a364baba8 -> Node0x556a364b60f8;
+	Node0x556a364baba8 -> Node0x556a364b6e18;
+	Node0x556a364bb558 [shape=record,shape=box,group=0,label="{lib/libLLVMRemarks.a}"];
+	Node0x556a364bb558 -> Node0x556a364b60f8;
+	Node0x556a364bb558 -> Node0x556a364b6e18;
+	Node0x556a364bbb48 [shape=record,shape=box,group=0,label="{lib/libLLVMBitstreamReader.a}"];
+	Node0x556a364bbb48 -> Node0x556a364b6e18;
+	Node0x556a364bbb48 -> Node0x556a364b60f8;
+}
