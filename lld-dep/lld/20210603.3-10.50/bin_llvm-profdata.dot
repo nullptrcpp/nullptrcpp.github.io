@@ -1,0 +1,29 @@
+digraph "bin/llvm-profdata" {
+	label="bin/llvm-profdata";
+	rankdir=LR;
+	{ rank=same; Node0x557df832a6c8;  }
+	{ rank=same; Node0x557df832ad08; Node0x557df832b708; Node0x557df832b208;  }
+
+	Node0x557df832a6c8 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{tools/llvm-profdata/CMakeFiles/llvm-profdata.dir/llvm-profdata.cpp.o}"];
+	Node0x557df832a6c8 -> Node0x557df832ad08[color="0.600000 0.5 1"];
+	Node0x557df832a6c8 -> Node0x557df832b708[color="0.600000 0.5 1"];
+	Node0x557df832a6c8 -> Node0x557df832b208[color="0.600000 0.5 1"];
+	Node0x557df832ad08 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMCore.a}"];
+	Node0x557df832ad08 -> Node0x557df832b708[color="0.600000 0.5 1"];
+	Node0x557df832ad08 -> Node0x557df832a6c8[color="0.600000 0.5 1"];
+	Node0x557df832ad08 -> Node0x557df8329f48[color="0.600000 0.5 1"];
+	Node0x557df832b708 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMSupport.a}"];
+	Node0x557df832b708 -> Node0x557df832ad08[color="0.600000 0.5 1"];
+	Node0x557df832b708 -> Node0x557df8328788;
+	Node0x557df832b708 -> Node0x557df832a6c8[color="0.600000 0.5 1"];
+	Node0x557df832b208 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMProfileData.a}"];
+	Node0x557df832b208 -> Node0x557df832ad08[color="0.600000 0.5 1"];
+	Node0x557df832b208 -> Node0x557df832b708[color="0.600000 0.5 1"];
+	Node0x557df8329f48 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMRemarks.a}"];
+	Node0x557df8329f48 -> Node0x557df832b708[color="0.600000 0.5 1"];
+	Node0x557df8329f48 -> Node0x557df832a6c8[color="0.600000 0.5 1"];
+	Node0x557df8328788 [shape=record,shape=box,group=0,label="{lib/libLLVMDemangle.a}"];
+	Node0x557df832a448 [shape=record,shape=box,group=0,label="{lib/libLLVMBitstreamReader.a}"];
+	Node0x557df832a448 -> Node0x557df832a6c8;
+	Node0x557df832a448 -> Node0x557df832b708;
+}
