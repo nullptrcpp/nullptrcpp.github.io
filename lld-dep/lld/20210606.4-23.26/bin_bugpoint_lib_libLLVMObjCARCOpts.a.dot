@@ -1,0 +1,29 @@
+digraph "bin/bugpoint_lib/libLLVMObjCARCOpts.a" {
+	label="bin/bugpoint_lib/libLLVMObjCARCOpts.a";
+	rankdir=LR;
+	{ rank=same; Node0x556799885148;  }
+	{ rank=same; Node0x5567998844c8; Node0x556799888ac8; Node0x55679986de58; Node0x5567998728b8; Node0x556799871328;  }
+
+	Node0x556799885148 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMObjCARCOpts.a(ObjCARC.cpp.o)}"];
+	Node0x556799885148 -> Node0x5567998844c8[color="0.600000 0.5 1"];
+	Node0x556799885148 -> Node0x556799888ac8;
+	Node0x556799885148 -> Node0x55679986de58;
+	Node0x556799885148 -> Node0x5567998728b8[color="0.600000 0.5 1"];
+	Node0x556799885148 -> Node0x556799871328;
+	Node0x5567998844c8 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMObjCARCOpts.a(ObjCARCOpts.cpp.o)}"];
+	Node0x5567998844c8 -> Node0x556799885148[color="0.600000 0.5 1"];
+	Node0x5567998844c8 -> Node0x5567998721d8;
+	Node0x5567998844c8 -> Node0x556799870ba8;
+	Node0x556799888ac8 [shape=record,shape=box,group=0,label="{lib/libLLVMObjCARCOpts.a(ObjCARCExpand.cpp.o)}"];
+	Node0x55679986de58 [shape=record,shape=box,group=0,label="{lib/libLLVMObjCARCOpts.a(ObjCARCAPElim.cpp.o)}"];
+	Node0x5567998728b8 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMObjCARCOpts.a(ObjCARCContract.cpp.o)}"];
+	Node0x5567998728b8 -> Node0x556799885148[color="0.600000 0.5 1"];
+	Node0x5567998728b8 -> Node0x5567998721d8;
+	Node0x556799871328 [shape=record,shape=box,group=0,label="{lib/libLLVMObjCARCOpts.a(ProvenanceAnalysisEvaluator.cpp.o)}"];
+	Node0x556799871328 -> Node0x556799871ff8;
+	Node0x5567998721d8 [shape=record,shape=box,group=0,label="{lib/libLLVMObjCARCOpts.a(DependencyAnalysis.cpp.o)}"];
+	Node0x5567998721d8 -> Node0x556799871ff8;
+	Node0x556799870ba8 [shape=record,shape=box,group=0,label="{lib/libLLVMObjCARCOpts.a(PtrState.cpp.o)}"];
+	Node0x556799870ba8 -> Node0x5567998721d8;
+	Node0x556799871ff8 [shape=record,shape=box,group=0,label="{lib/libLLVMObjCARCOpts.a(ProvenanceAnalysis.cpp.o)}"];
+}
