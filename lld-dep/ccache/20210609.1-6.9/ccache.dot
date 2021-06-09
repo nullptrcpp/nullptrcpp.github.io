@@ -1,0 +1,14 @@
+digraph "ccache" {
+	label="ccache";
+	rankdir=LR;
+	{ rank=same; Node0x5570be457af8;  }
+	{ rank=same; Node0x5570be457fa8;  }
+
+	Node0x5570be457af8 [shape=record,shape=box,group=0,label="{CMakeFiles/ccache.dir/src/main.cpp.o}"];
+	Node0x5570be457af8 -> Node0x5570be457fa8;
+	Node0x5570be457fa8 [shape=record,shape=box,group=0,label="{src/libccache_lib.a}"];
+	Node0x5570be457fa8 -> Node0x5570be457a58;
+	Node0x5570be457fa8 -> Node0x5570be457508;
+	Node0x5570be457a58 [shape=record,shape=box,group=0,label="{src/third_party/libthird_party_lib.a}"];
+	Node0x5570be457508 [shape=record,shape=box,group=0,label="{src/third_party/blake3/libblake3.a}"];
+}
