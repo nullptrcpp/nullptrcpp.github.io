@@ -1,0 +1,38 @@
+digraph "bin/lli_lib/libLLVMJITLink.a" {
+	label="bin/lli_lib/libLLVMJITLink.a";
+	rankdir=LR;
+
+	Node0x5636277adc88 [shape=record,shape=box,group=0,label="{lib/libLLVMJITLink.a(JITLinkMemoryManager.cpp.o)}"];
+	Node0x5636277a6708 [shape=record,shape=box,group=0,label="{lib/libLLVMJITLink.a(EHFrameSupport.cpp.o)}"];
+	Node0x5636277a6708 -> Node0x5636277a6e38;
+	Node0x5636277a6e38 [shape=record,shape=box,group=0,label="{lib/libLLVMJITLink.a(JITLink.cpp.o)}"];
+	Node0x5636277a6e38 -> Node0x5636277a76a8;
+	Node0x5636277a6e38 -> Node0x5636277a9ef8;
+	Node0x5636277a76a8 [shape=record,shape=box,group=0,label="{lib/libLLVMJITLink.a(MachO.cpp.o)}"];
+	Node0x5636277a76a8 -> Node0x5636277a6e38;
+	Node0x5636277a76a8 -> Node0x5636277aa2b8;
+	Node0x5636277a76a8 -> Node0x5636277a8fa8;
+	Node0x5636277a9ef8 [shape=record,shape=box,group=0,label="{lib/libLLVMJITLink.a(ELF.cpp.o)}"];
+	Node0x5636277a9ef8 -> Node0x5636277a6e38;
+	Node0x5636277a9ef8 -> Node0x5636277ad198;
+	Node0x5636277aa2b8 [shape=record,shape=box,group=0,label="{lib/libLLVMJITLink.a(MachO_arm64.cpp.o)}"];
+	Node0x5636277aa2b8 -> Node0x5636277a6e38;
+	Node0x5636277aa2b8 -> Node0x5636277aae98;
+	Node0x5636277aa2b8 -> Node0x5636277ab168;
+	Node0x5636277a8fa8 [shape=record,shape=box,group=0,label="{lib/libLLVMJITLink.a(MachO_x86_64.cpp.o)}"];
+	Node0x5636277a8fa8 -> Node0x5636277a6708;
+	Node0x5636277a8fa8 -> Node0x5636277a6e38;
+	Node0x5636277a8fa8 -> Node0x5636277aae98;
+	Node0x5636277a8fa8 -> Node0x5636277ab168;
+	Node0x5636277a8fa8 -> Node0x5636277a9c28;
+	Node0x5636277aae98 [shape=record,shape=box,group=0,label="{lib/libLLVMJITLink.a(MachOLinkGraphBuilder.cpp.o)}"];
+	Node0x5636277aae98 -> Node0x5636277a6e38;
+	Node0x5636277ab168 [shape=record,shape=box,group=0,label="{lib/libLLVMJITLink.a(JITLinkGeneric.cpp.o)}"];
+	Node0x5636277ab168 -> Node0x5636277a6e38;
+	Node0x5636277a9c28 [shape=record,shape=box,group=0,label="{lib/libLLVMJITLink.a(x86_64.cpp.o)}"];
+	Node0x5636277a9c28 -> Node0x5636277a6e38;
+	Node0x5636277ad198 [shape=record,shape=box,group=0,label="{lib/libLLVMJITLink.a(ELF_x86_64.cpp.o)}"];
+	Node0x5636277ad198 -> Node0x5636277a6708;
+	Node0x5636277ad198 -> Node0x5636277a6e38;
+	Node0x5636277ad198 -> Node0x5636277ab168;
+}
