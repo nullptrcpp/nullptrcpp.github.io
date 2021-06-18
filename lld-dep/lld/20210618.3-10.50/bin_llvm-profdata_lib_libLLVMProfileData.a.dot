@@ -1,0 +1,25 @@
+digraph "bin/llvm-profdata_lib/libLLVMProfileData.a" {
+	label="bin/llvm-profdata_lib/libLLVMProfileData.a";
+	rankdir=LR;
+	{ rank=same; Node0x55fb367a1628;  }
+	{ rank=same; Node0x55fb3679f468;  }
+	{ rank=same; Node0x55fb3679faf8;  }
+
+	Node0x55fb367a1628 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMProfileData.a(InstrProf.cpp.o)}"];
+	Node0x55fb367a1628 -> Node0x55fb3679f468[color="0.600000 0.5 1"];
+	Node0x55fb3679f468 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMProfileData.a(InstrProfReader.cpp.o)}"];
+	Node0x55fb3679f468 -> Node0x55fb367a1628[color="0.600000 0.5 1"];
+	Node0x55fb3679f468 -> Node0x55fb3679faf8;
+	Node0x55fb3679f198 [shape=record,shape=box,group=0,label="{lib/libLLVMProfileData.a(InstrProfWriter.cpp.o)}"];
+	Node0x55fb3679f198 -> Node0x55fb367a1628;
+	Node0x55fb3679f198 -> Node0x55fb3679faf8;
+	Node0x55fb3679faf8 [shape=record,shape=box,group=0,label="{lib/libLLVMProfileData.a(ProfileSummaryBuilder.cpp.o)}"];
+	Node0x55fb3679faf8 -> Node0x55fb3679e3d8;
+	Node0x55fb3679e3d8 [shape=record,shape=box,group=0,label="{lib/libLLVMProfileData.a(SampleProf.cpp.o)}"];
+	Node0x55fb3679ebf8 [shape=record,shape=box,group=0,label="{lib/libLLVMProfileData.a(SampleProfReader.cpp.o)}"];
+	Node0x55fb3679ebf8 -> Node0x55fb3679faf8;
+	Node0x55fb3679ebf8 -> Node0x55fb3679e3d8;
+	Node0x55fb3679e9c8 [shape=record,shape=box,group=0,label="{lib/libLLVMProfileData.a(SampleProfWriter.cpp.o)}"];
+	Node0x55fb3679e9c8 -> Node0x55fb3679faf8;
+	Node0x55fb3679e9c8 -> Node0x55fb3679e3d8;
+}
