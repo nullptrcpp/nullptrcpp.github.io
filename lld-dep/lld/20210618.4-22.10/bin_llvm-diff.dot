@@ -1,0 +1,50 @@
+digraph "bin/llvm-diff" {
+	label="bin/llvm-diff";
+	rankdir=LR;
+	{ rank=same; Node0x55eebe138078;  }
+	{ rank=same; Node0x55eebe1385c8; Node0x55eebe136e08; Node0x55eebe136278; Node0x55eebe1357d8; Node0x55eebe135d28;  }
+	{ rank=same; Node0x55eebe137b28; Node0x55eebe136958; Node0x55eebe136ea8; Node0x55eebe135968; Node0x55eebe135eb8;  }
+
+	Node0x55eebe138078 [shape=record,shape=box,group=0,label="{tools/llvm-diff/CMakeFiles/llvm-diff.dir/llvm-diff.cpp.o}"];
+	Node0x55eebe138078 -> Node0x55eebe1385c8;
+	Node0x55eebe138078 -> Node0x55eebe136e08;
+	Node0x55eebe138078 -> Node0x55eebe136278;
+	Node0x55eebe138078 -> Node0x55eebe1357d8;
+	Node0x55eebe138078 -> Node0x55eebe135d28;
+	Node0x55eebe1385c8 [shape=record,shape=box,group=0,label="{tools/llvm-diff/CMakeFiles/llvm-diff.dir/DiffConsumer.cpp.o}"];
+	Node0x55eebe1385c8 -> Node0x55eebe137b28;
+	Node0x55eebe1385c8 -> Node0x55eebe136278;
+	Node0x55eebe1385c8 -> Node0x55eebe1357d8;
+	Node0x55eebe136e08 [shape=record,shape=box,group=0,label="{tools/llvm-diff/CMakeFiles/llvm-diff.dir/DifferenceEngine.cpp.o}"];
+	Node0x55eebe136e08 -> Node0x55eebe137b28;
+	Node0x55eebe136e08 -> Node0x55eebe136278;
+	Node0x55eebe136e08 -> Node0x55eebe1357d8;
+	Node0x55eebe136278 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMCore.a}"];
+	Node0x55eebe136278 -> Node0x55eebe1357d8[color="0.600000 0.5 1"];
+	Node0x55eebe136278 -> Node0x55eebe136958;
+	Node0x55eebe136278 -> Node0x55eebe136ea8[color="0.600000 0.5 1"];
+	Node0x55eebe1357d8 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMSupport.a}"];
+	Node0x55eebe1357d8 -> Node0x55eebe136278[color="0.600000 0.5 1"];
+	Node0x55eebe135d28 [shape=record,shape=box,group=0,label="{lib/libLLVMIRReader.a}"];
+	Node0x55eebe135d28 -> Node0x55eebe1357d8;
+	Node0x55eebe135d28 -> Node0x55eebe136278;
+	Node0x55eebe135d28 -> Node0x55eebe135968;
+	Node0x55eebe135d28 -> Node0x55eebe135eb8;
+	Node0x55eebe137b28 [shape=record,shape=box,group=0,label="{tools/llvm-diff/CMakeFiles/llvm-diff.dir/DiffLog.cpp.o}"];
+	Node0x55eebe136958 [shape=record,shape=box,group=0,label="{lib/libLLVMBinaryFormat.a}"];
+	Node0x55eebe136ea8 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMRemarks.a}"];
+	Node0x55eebe136ea8 -> Node0x55eebe1357d8[color="0.600000 0.5 1"];
+	Node0x55eebe136ea8 -> Node0x55eebe136278[color="0.600000 0.5 1"];
+	Node0x55eebe136ea8 -> Node0x55eebe1373f8[color="0.600000 0.5 1"];
+	Node0x55eebe135968 [shape=record,shape=box,group=0,label="{lib/libLLVMAsmParser.a}"];
+	Node0x55eebe135968 -> Node0x55eebe136278;
+	Node0x55eebe135968 -> Node0x55eebe1357d8;
+	Node0x55eebe135968 -> Node0x55eebe136958;
+	Node0x55eebe135eb8 [shape=record,shape=box,group=0,label="{lib/libLLVMBitReader.a}"];
+	Node0x55eebe135eb8 -> Node0x55eebe136278;
+	Node0x55eebe135eb8 -> Node0x55eebe1357d8;
+	Node0x55eebe135eb8 -> Node0x55eebe1373f8;
+	Node0x55eebe1373f8 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMBitstreamReader.a}"];
+	Node0x55eebe1373f8 -> Node0x55eebe1357d8[color="0.600000 0.5 1"];
+	Node0x55eebe1373f8 -> Node0x55eebe136278[color="0.600000 0.5 1"];
+}
