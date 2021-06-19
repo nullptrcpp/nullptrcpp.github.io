@@ -1,0 +1,22 @@
+digraph "bin/llvm-tblgen_lib/libLLVMTableGenGlobalISel.a" {
+	label="bin/llvm-tblgen_lib/libLLVMTableGenGlobalISel.a";
+	rankdir=LR;
+
+	Node0x563f00f71028 [shape=record,shape=box,group=0,label="{lib/libLLVMTableGenGlobalISel.a(CodeExpander.cpp.o)}"];
+	Node0x563f00f703a8 [shape=record,shape=box,group=0,label="{lib/libLLVMTableGenGlobalISel.a(GIMatchDagEdge.cpp.o)}"];
+	Node0x563f00f720b8 [shape=record,shape=box,group=0,label="{lib/libLLVMTableGenGlobalISel.a(GIMatchDagInstr.cpp.o)}"];
+	Node0x563f00f720b8 -> Node0x563f00f727e8;
+	Node0x563f00f727e8 [shape=record,shape=box,group=0,label="{lib/libLLVMTableGenGlobalISel.a(GIMatchDagOperands.cpp.o)}"];
+	Node0x563f00f71bb8 [shape=record,shape=box,group=0,label="{lib/libLLVMTableGenGlobalISel.a(GIMatchDagPredicate.cpp.o)}"];
+	Node0x563f00f71bb8 -> Node0x563f00f727e8;
+	Node0x563f00f73328 [shape=record,shape=box,group=0,label="{lib/libLLVMTableGenGlobalISel.a(GIMatchTree.cpp.o)}"];
+	Node0x563f00f73328 -> Node0x563f00f703a8;
+	Node0x563f00f73328 -> Node0x563f00f720b8;
+	Node0x563f00f73328 -> Node0x563f00f71bb8;
+	Node0x563f00f73328 -> Node0x563f00f71708;
+	Node0x563f00f71708 [shape=record,shape=box,group=0,label="{lib/libLLVMTableGenGlobalISel.a(GIMatchDag.cpp.o)}"];
+	Node0x563f00f71708 -> Node0x563f00f703a8;
+	Node0x563f00f71708 -> Node0x563f00f720b8;
+	Node0x563f00f71708 -> Node0x563f00f71c58;
+	Node0x563f00f71c58 [shape=record,shape=box,group=0,label="{lib/libLLVMTableGenGlobalISel.a(GIMatchDagPredicateDependencyEdge.cpp.o)}"];
+}
