@@ -1,0 +1,18 @@
+digraph "bin/llvm-lto_lib/libLLVMProfileData.a" {
+	label="bin/llvm-lto_lib/libLLVMProfileData.a";
+	rankdir=LR;
+	{ rank=same; Node0x55ae2f71ec18;  }
+	{ rank=same; Node0x55ae2f71b978;  }
+
+	Node0x55ae2f71ec18 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMProfileData.a(SampleProf.cpp.o)}"];
+	Node0x55ae2f71ec18 -> Node0x55ae2f71b978[color="0.600000 0.5 1"];
+	Node0x55ae2f71b978 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMProfileData.a(SampleProfReader.cpp.o)}"];
+	Node0x55ae2f71b978 -> Node0x55ae2f71fac8[color="0.600000 0.5 1"];
+	Node0x55ae2f71b978 -> Node0x55ae2f71ec18[color="0.600000 0.5 1"];
+	Node0x55ae2f71fa28 [shape=record,shape=box,group=0,label="{lib/libLLVMProfileData.a(InstrProf.cpp.o)}"];
+	Node0x55ae2f71e498 [shape=record,shape=box,group=0,label="{lib/libLLVMProfileData.a(InstrProfReader.cpp.o)}"];
+	Node0x55ae2f71e498 -> Node0x55ae2f71fa28;
+	Node0x55ae2f71e498 -> Node0x55ae2f71fac8;
+	Node0x55ae2f71fac8 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMProfileData.a(ProfileSummaryBuilder.cpp.o)}"];
+	Node0x55ae2f71fac8 -> Node0x55ae2f71ec18[color="0.600000 0.5 1"];
+}
