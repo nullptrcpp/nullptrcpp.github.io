@@ -1,0 +1,29 @@
+digraph "bin/llvm-profdata" {
+	label="bin/llvm-profdata";
+	rankdir=LR;
+	{ rank=same; Node0x556c78266fc8;  }
+	{ rank=same; Node0x556c78268a08; Node0x556c782694a8; Node0x556c78268f08;  }
+
+	Node0x556c78266fc8 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{tools/llvm-profdata/CMakeFiles/llvm-profdata.dir/llvm-profdata.cpp.o}"];
+	Node0x556c78266fc8 -> Node0x556c78268a08[color="0.600000 0.5 1"];
+	Node0x556c78266fc8 -> Node0x556c782694a8[color="0.600000 0.5 1"];
+	Node0x556c78266fc8 -> Node0x556c78268f08[color="0.600000 0.5 1"];
+	Node0x556c78268a08 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMCore.a}"];
+	Node0x556c78268a08 -> Node0x556c782694a8[color="0.600000 0.5 1"];
+	Node0x556c78268a08 -> Node0x556c78266fc8[color="0.600000 0.5 1"];
+	Node0x556c78268a08 -> Node0x556c7826a308[color="0.600000 0.5 1"];
+	Node0x556c782694a8 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMSupport.a}"];
+	Node0x556c782694a8 -> Node0x556c78268a08[color="0.600000 0.5 1"];
+	Node0x556c782694a8 -> Node0x556c782666b8;
+	Node0x556c782694a8 -> Node0x556c78266fc8[color="0.600000 0.5 1"];
+	Node0x556c78268f08 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMProfileData.a}"];
+	Node0x556c78268f08 -> Node0x556c78268a08[color="0.600000 0.5 1"];
+	Node0x556c78268f08 -> Node0x556c782694a8[color="0.600000 0.5 1"];
+	Node0x556c7826a308 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMRemarks.a}"];
+	Node0x556c7826a308 -> Node0x556c782694a8[color="0.600000 0.5 1"];
+	Node0x556c7826a308 -> Node0x556c78266fc8[color="0.600000 0.5 1"];
+	Node0x556c782666b8 [shape=record,shape=box,group=0,label="{lib/libLLVMDemangle.a}"];
+	Node0x556c782659e8 [shape=record,shape=box,group=0,label="{lib/libLLVMBitstreamReader.a}"];
+	Node0x556c782659e8 -> Node0x556c78266fc8;
+	Node0x556c782659e8 -> Node0x556c782694a8;
+}
