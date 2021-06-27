@@ -1,0 +1,18 @@
+digraph "bin/llvm-c-test_lib/libLLVMBitReader.a" {
+	label="bin/llvm-c-test_lib/libLLVMBitReader.a";
+	rankdir=LR;
+	{ rank=same; Node0x558fcc9bde38;  }
+	{ rank=same; Node0x558fcc9bc1c8;  }
+	{ rank=same; Node0x558fcc9bde38;  }
+	{ rank=same; Node0x558fcc9bc1c8;  }
+
+	Node0x558fcc9bde38 [shape=record,shape=box,group=0,label="{lib/libLLVMBitReader.a(BitReader.cpp.o)}"];
+	Node0x558fcc9bde38 -> Node0x558fcc9bc1c8;
+	Node0x558fcc9bc1c8 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMBitReader.a(BitcodeReader.cpp.o)}"];
+	Node0x558fcc9bc1c8 -> Node0x558fcc9bba48[color="0.600000 0.5 1"];
+	Node0x558fcc9bc1c8 -> Node0x558fcc9bcbc8;
+	Node0x558fcc9bba48 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMBitReader.a(MetadataLoader.cpp.o)}"];
+	Node0x558fcc9bba48 -> Node0x558fcc9bc1c8[color="0.600000 0.5 1"];
+	Node0x558fcc9bba48 -> Node0x558fcc9bcbc8;
+	Node0x558fcc9bcbc8 [shape=record,shape=box,group=0,label="{lib/libLLVMBitReader.a(ValueList.cpp.o)}"];
+}
