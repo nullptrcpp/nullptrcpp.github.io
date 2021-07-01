@@ -1,0 +1,19 @@
+digraph "bin/lld_lib/liblldCommon.a" {
+	label="bin/lld_lib/liblldCommon.a";
+	rankdir=LR;
+
+	Node0x56516f758ec8 [shape=record,shape=box,group=0,label="{lib/liblldCommon.a(ErrorHandler.cpp.o)}"];
+	Node0x56516f75d5b8 [shape=record,shape=box,group=0,label="{lib/liblldCommon.a(Memory.cpp.o)}"];
+	Node0x56516f75c668 [shape=record,shape=box,group=0,label="{lib/liblldCommon.a(Reproduce.cpp.o)}"];
+	Node0x56516f75bfd8 [shape=record,shape=box,group=0,label="{lib/liblldCommon.a(Timer.cpp.o)}"];
+	Node0x56516f75bfd8 -> Node0x56516f758ec8;
+	Node0x56516f762888 [shape=record,shape=box,group=0,label="{lib/liblldCommon.a(Version.cpp.o)}"];
+	Node0x56516f75de78 [shape=record,shape=box,group=0,label="{lib/liblldCommon.a(Filesystem.cpp.o)}"];
+	Node0x56516f7732c8 [shape=record,shape=box,group=0,label="{lib/liblldCommon.a(Args.cpp.o)}"];
+	Node0x56516f7732c8 -> Node0x56516f758ec8;
+	Node0x56516f767428 [shape=record,shape=box,group=0,label="{lib/liblldCommon.a(DWARF.cpp.o)}"];
+	Node0x56516f767428 -> Node0x56516f758ec8;
+	Node0x56516f766438 [shape=record,shape=box,group=0,label="{lib/liblldCommon.a(TargetOptionsCommandFlags.cpp.o)}"];
+	Node0x56516f765768 [shape=record,shape=box,group=0,label="{lib/liblldCommon.a(Strings.cpp.o)}"];
+	Node0x56516f765768 -> Node0x56516f758ec8;
+}
