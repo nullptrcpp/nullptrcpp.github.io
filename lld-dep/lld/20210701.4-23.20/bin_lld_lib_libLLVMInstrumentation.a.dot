@@ -1,0 +1,48 @@
+digraph "bin/lld_lib/libLLVMInstrumentation.a" {
+	label="bin/lld_lib/libLLVMInstrumentation.a";
+	rankdir=LR;
+	{ rank=same; Node0x55ea6fe40a38;  }
+	{ rank=same; Node0x55ea6fe48558;  }
+	{ rank=same; Node0x55ea6fe40268; Node0x55ea6fe40308; Node0x55ea6fe3fc28; Node0x55ea6fe3eaf8; Node0x55ea6fe52198; Node0x55ea6fe512e8; Node0x55ea6fe51388; Node0x55ea6fe48ff8; Node0x55ea6fe4a998; Node0x55ea6fe49fe8; Node0x55ea6fe49a48; Node0x55ea6fe4f3f8; Node0x55ea6fe44318; Node0x55ea6fe38bf8; Node0x55ea6fe389c8;  }
+
+	Node0x55ea6fe40a38 [shape=record,shape=box,group=2,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMInstrumentation.a(AddressSanitizer.cpp.o)}"];
+	Node0x55ea6fe40a38 -> Node0x55ea6fe48558[color="0.600000 0.5 1"];
+	Node0x55ea6fe40268 [shape=record,shape=box,group=0,label="{lib/libLLVMInstrumentation.a(BoundsChecking.cpp.o)}"];
+	Node0x55ea6fe40308 [shape=record,shape=box,group=0,label="{lib/libLLVMInstrumentation.a(CGProfile.cpp.o)}"];
+	Node0x55ea6fe3fc28 [shape=record,shape=box,group=0,label="{lib/libLLVMInstrumentation.a(ControlHeightReduction.cpp.o)}"];
+	Node0x55ea6fe3eaf8 [shape=record,shape=box,group=0,label="{lib/libLLVMInstrumentation.a(DataFlowSanitizer.cpp.o)}"];
+	Node0x55ea6fe52198 [shape=record,shape=box,group=0,label="{lib/libLLVMInstrumentation.a(GCOVProfiling.cpp.o)}"];
+	Node0x55ea6fe512e8 [shape=record,shape=box,group=0,label="{lib/libLLVMInstrumentation.a(MemProfiler.cpp.o)}"];
+	Node0x55ea6fe51388 [shape=record,shape=box,group=0,label="{lib/libLLVMInstrumentation.a(MemorySanitizer.cpp.o)}"];
+	Node0x55ea6fe48ff8 [shape=record,shape=box,group=0,label="{lib/libLLVMInstrumentation.a(IndirectCallPromotion.cpp.o)}"];
+	Node0x55ea6fe4a998 [shape=record,shape=box,group=0,label="{lib/libLLVMInstrumentation.a(InstrOrderFile.cpp.o)}"];
+	Node0x55ea6fe49fe8 [shape=record,shape=box,group=0,label="{lib/libLLVMInstrumentation.a(InstrProfiling.cpp.o)}"];
+	Node0x55ea6fe49a48 [shape=record,shape=box,group=1,style=filled,fillcolor="0.450000 0.5 1",label="{lib/libLLVMInstrumentation.a(PGOInstrumentation.cpp.o)}"];
+	Node0x55ea6fe49a48 -> Node0x55ea6fe43148[color="0.450000 0.5 1"];
+	Node0x55ea6fe4f3f8 [shape=record,shape=box,group=1,style=filled,fillcolor="0.450000 0.5 1",label="{lib/libLLVMInstrumentation.a(PGOMemOPSizeOpt.cpp.o)}"];
+	Node0x55ea6fe4f3f8 -> Node0x55ea6fe49a48[color="0.450000 0.5 1"];
+	Node0x55ea6fe4ec28 [shape=record,shape=box,group=0,label="{lib/libLLVMInstrumentation.a(PoisonChecking.cpp.o)}"];
+	Node0x55ea6fe44318 [shape=record,shape=box,group=2,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMInstrumentation.a(SanitizerCoverage.cpp.o)}"];
+	Node0x55ea6fe44318 -> Node0x55ea6fe48558[color="0.600000 0.5 1"];
+	Node0x55ea6fe38bf8 [shape=record,shape=box,group=0,label="{lib/libLLVMInstrumentation.a(ThreadSanitizer.cpp.o)}"];
+	Node0x55ea6fe389c8 [shape=record,shape=box,group=0,label="{lib/libLLVMInstrumentation.a(HWAddressSanitizer.cpp.o)}"];
+	Node0x55ea6fe48558 [shape=record,shape=box,group=2,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMInstrumentation.a(Instrumentation.cpp.o)}"];
+	Node0x55ea6fe48558 -> Node0x55ea6fe40a38[color="0.600000 0.5 1"];
+	Node0x55ea6fe48558 -> Node0x55ea6fe40268;
+	Node0x55ea6fe48558 -> Node0x55ea6fe40308;
+	Node0x55ea6fe48558 -> Node0x55ea6fe3fc28;
+	Node0x55ea6fe48558 -> Node0x55ea6fe3eaf8;
+	Node0x55ea6fe48558 -> Node0x55ea6fe52198;
+	Node0x55ea6fe48558 -> Node0x55ea6fe512e8;
+	Node0x55ea6fe48558 -> Node0x55ea6fe51388;
+	Node0x55ea6fe48558 -> Node0x55ea6fe48ff8;
+	Node0x55ea6fe48558 -> Node0x55ea6fe4a998;
+	Node0x55ea6fe48558 -> Node0x55ea6fe49fe8;
+	Node0x55ea6fe48558 -> Node0x55ea6fe49a48;
+	Node0x55ea6fe48558 -> Node0x55ea6fe4f3f8;
+	Node0x55ea6fe48558 -> Node0x55ea6fe44318[color="0.600000 0.5 1"];
+	Node0x55ea6fe48558 -> Node0x55ea6fe38bf8;
+	Node0x55ea6fe48558 -> Node0x55ea6fe389c8;
+	Node0x55ea6fe43148 [shape=record,shape=box,group=1,style=filled,fillcolor="0.450000 0.5 1",label="{lib/libLLVMInstrumentation.a(ValueProfileCollector.cpp.o)}"];
+	Node0x55ea6fe43148 -> Node0x55ea6fe4f3f8[color="0.450000 0.5 1"];
+}

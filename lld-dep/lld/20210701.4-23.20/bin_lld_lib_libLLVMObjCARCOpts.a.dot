@@ -1,0 +1,30 @@
+digraph "bin/lld_lib/libLLVMObjCARCOpts.a" {
+	label="bin/lld_lib/libLLVMObjCARCOpts.a";
+	rankdir=LR;
+	{ rank=same; Node0x55ea6fe41168;  }
+	{ rank=same; Node0x55ea6fe4a128; Node0x55ea6fe42d88;  }
+	{ rank=same; Node0x55ea6fe48a08; Node0x55ea6fe416b8; Node0x55ea6fe409e8; Node0x55ea6fe43d78; Node0x55ea6fe42018;  }
+
+	Node0x55ea6fe41168 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMObjCARCOpts.a(ObjCARCContract.cpp.o)}"];
+	Node0x55ea6fe41168 -> Node0x55ea6fe4a128[color="0.600000 0.5 1"];
+	Node0x55ea6fe41168 -> Node0x55ea6fe42d88;
+	Node0x55ea6fe48a08 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMObjCARCOpts.a(ObjCARCOpts.cpp.o)}"];
+	Node0x55ea6fe48a08 -> Node0x55ea6fe4a128[color="0.600000 0.5 1"];
+	Node0x55ea6fe48a08 -> Node0x55ea6fe42d88;
+	Node0x55ea6fe48a08 -> Node0x55ea6fe441d8;
+	Node0x55ea6fe416b8 [shape=record,shape=box,group=0,label="{lib/libLLVMObjCARCOpts.a(ObjCARCExpand.cpp.o)}"];
+	Node0x55ea6fe409e8 [shape=record,shape=box,group=0,label="{lib/libLLVMObjCARCOpts.a(ObjCARCAPElim.cpp.o)}"];
+	Node0x55ea6fe4a128 [shape=record,shape=box,group=1,style=filled,fillcolor="0.600000 0.5 1",label="{lib/libLLVMObjCARCOpts.a(ObjCARC.cpp.o)}"];
+	Node0x55ea6fe4a128 -> Node0x55ea6fe48a08[color="0.600000 0.5 1"];
+	Node0x55ea6fe4a128 -> Node0x55ea6fe416b8;
+	Node0x55ea6fe4a128 -> Node0x55ea6fe409e8;
+	Node0x55ea6fe4a128 -> Node0x55ea6fe41168[color="0.600000 0.5 1"];
+	Node0x55ea6fe4a128 -> Node0x55ea6fe43d78;
+	Node0x55ea6fe42d88 [shape=record,shape=box,group=0,label="{lib/libLLVMObjCARCOpts.a(DependencyAnalysis.cpp.o)}"];
+	Node0x55ea6fe42d88 -> Node0x55ea6fe42018;
+	Node0x55ea6fe441d8 [shape=record,shape=box,group=0,label="{lib/libLLVMObjCARCOpts.a(PtrState.cpp.o)}"];
+	Node0x55ea6fe441d8 -> Node0x55ea6fe42d88;
+	Node0x55ea6fe43d78 [shape=record,shape=box,group=0,label="{lib/libLLVMObjCARCOpts.a(ProvenanceAnalysisEvaluator.cpp.o)}"];
+	Node0x55ea6fe43d78 -> Node0x55ea6fe42018;
+	Node0x55ea6fe42018 [shape=record,shape=box,group=0,label="{lib/libLLVMObjCARCOpts.a(ProvenanceAnalysis.cpp.o)}"];
+}
